@@ -48,12 +48,12 @@ struct vev {
 #define		EV_SIG		-1
 	int			sig;
 	unsigned		sig_flags;
-	double			timeout;
+	vtm_dur			timeout;
 	vev_cb_f		*callback;
 	void			*priv;
 
 	/* priv */
-	vtim_mono		__when;
+	vtm_mono		__when;
 	VTAILQ_ENTRY(vev)	__list;
 	unsigned		__binheap_idx;
 	unsigned		__privflags;
