@@ -48,7 +48,8 @@ struct ws {
 	char			*e;		/* (E)nd of buffer */
 };
 
-void WS_Init(struct ws *ws, const char *id, void *space, unsigned len,
+void WS_Init(struct ws *ws, const char *id, void *space, unsigned len);
+void WS_Init_Debug(struct ws *ws, const char *id, void *space, unsigned len,
     ws_debug_f *debug_f);
 unsigned WS_Reserve(struct ws *ws, unsigned bytes);
 void WS_MarkOverflow(struct ws *ws);

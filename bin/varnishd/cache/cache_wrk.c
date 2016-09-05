@@ -106,7 +106,7 @@ WRK_Thread(struct pool *qp, size_t stacksize, unsigned thread_workspace)
 	w->lastused = NAN;
 	AZ(pthread_cond_init(&w->cond, NULL));
 
-	WS_Init(w->aws, "wrk", ws, thread_workspace,
+	WS_Init_Debug(w->aws, "wrk", ws, thread_workspace,
 	    IF_DEBUG(DBG_WORKSPACE, debug_ws));
 
 	u = getpagesize();
