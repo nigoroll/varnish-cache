@@ -65,6 +65,7 @@
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
+#include <pthread.h>
 #endif
 
 #include "vas.h"
@@ -91,6 +92,56 @@ static const int days_before_month[] = {
 	0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
 };
 
+#ifdef __MACH__
+static pthread_mutex_t mach_cclock_mtx;
+static clock_serv_t    mach_cclock;
+
+void
+mach_cclock_init(void)
+{
+	AZ(pthread_mutex_init(&mach_cclock_mtx, NULL));
+	AZ(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK,
+	    &mach_cclock));
+}
+
+void
+mach_cclock_fork_prep(void)
+{
+	AZ(pthread_mutex_lock(&mach_cclock_mtx));
+}
+
+void
+mach_cclock_fork_done(void)
+{
+	AZ(pthread_mutex_unlock(&mach_cclock_mtx));
+}
+
+__attribute__((constructor)) void
+init(void)
+{
+	mach_cclock_init();
+	AZ(pthread_atfork(&mach_cclock_fork_prep,
+	    &mach_cclock_fork_done,
+	    &mach_cclock_init));
+}
+
+#if 0
+// could call this atexit()
+void
+mach_cclock_fini(void)
+{
+	AZ(mach_port_deallocate(mach_task_self(), mach_cclock));
+	cclock = {0};
+	AZ(pthread_mutex_destroy(&mach_cclock_mtx));
+}
+
+__attribute__((destructor))  void
+fini(void)
+{
+}
+#endif
+#endif
+
 /*
  * Note on Solaris: for some reason, clock_gettime(CLOCK_MONOTONIC, &ts) is not
  * implemented in assembly, but falls into a syscall, while gethrtime() doesn't,
@@ -108,20 +159,15 @@ VTIM_mono(void)
 	AZ(clock_gettime(CLOCK_MONOTONIC, &ts));
 	return (ts.tv_sec + 1e-9 * ts.tv_nsec);
 #elif  defined(__MACH__)
-	/* http://stackoverflow.com/questions/11680461/monotonic-clock-on-osx */
-	clock_serv_t cclock;
 	mach_timespec_t mts;
 
-	AZ(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock));
-	AZ(clock_get_time(cclock, &mts));
-	/* XXX unclear: can we keep the service port for longer? */
-	AZ(mach_port_deallocate(mach_task_self(), cclock));
+	AZ(pthread_mutex_lock(&mach_cclock_mtx));
+	/* we're told this is not thread safe - ouch */
+	AZ(clock_get_time(mach_cclock, &mts));
+	AZ(pthread_mutex_unlock(&mach_cclock_mtx));
 	return (mts.tv_sec + 1e-9 * mts.tv_nsec);
 #else
-	struct timeval tv;
-
-	AZ(gettimeofday(&tv, NULL));
-	return (tv.tv_sec + 1e-6 * tv.tv_usec);
+#error Varnish needs some monotonic time source
 #endif
 }
 
