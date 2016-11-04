@@ -62,6 +62,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 #include "vas.h"
 #include "vtim.h"
@@ -103,6 +107,16 @@ VTIM_mono(void)
 
 	AZ(clock_gettime(CLOCK_MONOTONIC, &ts));
 	return (ts.tv_sec + 1e-9 * ts.tv_nsec);
+#elif  defined(__MACH__)
+	/* http://stackoverflow.com/questions/11680461/monotonic-clock-on-osx */
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+
+	AZ(host_get_clock_service(mach_host_self(), SYSTEM_CLOCK, &cclock));
+	AZ(clock_get_time(cclock, &mts));
+	/* XXX unclear: can we keep the service port for longer? */
+	AZ(mach_port_deallocate(mach_task_self(), cclock));
+	return (mts.tv_sec + 1e-9 * mts.tv_nsec);
 #else
 	struct timeval tv;
 
