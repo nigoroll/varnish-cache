@@ -88,7 +88,7 @@ returns =(
 	),
 	('pipe',
 		"C",
-		('synth', 'pipe',)
+		('synth', 'pipe', 'proxy',)
 	),
 	('pass',
 		"C",

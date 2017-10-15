@@ -33,12 +33,15 @@
 
 #include <poll.h>
 #include <stdio.h>
+#include <netinet/in.h>
 
 #include "cache.h"
 
 #include "cache_backend.h"
 #include "vtcp.h"
 #include "vtim.h"
+#include "vend.h"
+#include "vsa.h"
 
 static struct lock pipestat_mtx;
 
@@ -91,15 +94,107 @@ pipecharge(struct req *req, const struct acct_pipe *a, struct VSC_C_vbe *b)
 	Lck_Unlock(&pipestat_mtx);
 }
 
+union proxy_addr {
+	struct {        /* for TCP/UDP over IPv4, len = 12 */
+		uint32_t src_addr;
+		uint32_t dst_addr;
+		uint16_t src_port;
+		uint16_t dst_port;
+	} ip4;
+	struct {        /* for TCP/UDP over IPv6, len = 36 */
+		uint8_t  src_addr[16];
+		uint8_t  dst_addr[16];
+		uint16_t src_port;
+		uint16_t dst_port;
+	} ip6;
+};
+
+
+struct proxy_hdr_v2 {
+	uint8_t sig[12];  /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */
+	uint8_t ver_cmd;  /* protocol version and command */
+	uint8_t fam;      /* protocol family and address */
+	uint16_t len;     /* number of following bytes part of the header */
+	union proxy_addr addr;
+};
+
+/*
+ * to use WRW_ / writev, we cannot have the extent to send on the
+ * stack, so we construct our proxy_addr on workspace
+ */
+static size_t
+proxyhdr(struct worker *w, struct ws *ws, const struct sockaddr *server,
+    const struct sockaddr *client)
+{
+	size_t l;
+	struct proxy_hdr_v2 *hdr;
+
+	/* over-allocing for the ipv4 case */
+	hdr = (void *)WS_Alloc(ws, sizeof(*hdr));
+	if (hdr == NULL)
+		return 0;
+
+	hdr->sig[0]  = '\r';
+	hdr->sig[1]  = '\n';
+	hdr->sig[2]  = '\r';
+	hdr->sig[3]  = '\n';
+	hdr->sig[4]  = '\0';
+	hdr->sig[5]  = '\r';
+	hdr->sig[6]  = '\n';
+	hdr->sig[7]  = 'Q';
+	hdr->sig[8]  = 'U';
+	hdr->sig[9]  = 'I';
+	hdr->sig[10] = 'T';
+	hdr->sig[11] = '\n';
+
+	hdr->ver_cmd = 0x21; /* PROXY2 PROXY */
+
+	/* we just hardcode SOCK_STREAM - 0x1 in fam */
+	switch (client->sa_family) {
+	case AF_INET:
+		hdr->fam = 0x11;
+		hdr->len = 12;
+		hdr->addr.ip4.src_addr =
+		    ((const struct sockaddr_in *)client)->sin_addr.s_addr;
+		hdr->addr.ip4.src_port =
+		    ((const struct sockaddr_in *)client)->sin_port;
+		hdr->addr.ip4.dst_addr =
+		    ((const struct sockaddr_in *)server)->sin_addr.s_addr;
+		hdr->addr.ip4.dst_port =
+		    ((const struct sockaddr_in *)server)->sin_port;
+		break;
+	case AF_INET6:
+		hdr->fam = 0x21;
+		hdr->len = 36;
+		memcpy(hdr->addr.ip6.src_addr,
+		    &((const struct sockaddr_in6 *)client)->sin6_addr, 16);
+		hdr->addr.ip6.src_port =
+		    ((const struct sockaddr_in6 *)client)->sin6_port;
+		memcpy(hdr->addr.ip6.dst_addr,
+		    &((const struct sockaddr_in6 *)server)->sin6_addr, 16);
+		hdr->addr.ip6.dst_port =
+		    ((const struct sockaddr_in6 *)server)->sin6_port;
+		break;
+	default:
+		INCOMPL();
+	}
+
+	l = sizeof(*hdr) - sizeof(union proxy_addr) + hdr->len;
+
+	vbe16enc(&hdr->len, hdr->len);
+
+	return WRW_Write(w, hdr, l);
+}
+
 void
-PipeRequest(struct req *req, struct busyobj *bo)
+PipeRequest(struct req *req, struct busyobj *bo, const int proxy)
 {
 	struct vbc *vc;
 	struct worker *wrk;
 	struct pollfd fds[2];
 	int i;
 	struct acct_pipe acct_pipe;
-	ssize_t hdrbytes;
+	ssize_t hdrbytes = 0;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	CHECK_OBJ_NOTNULL(req->sp, SESS_MAGIC);
@@ -131,7 +226,31 @@ PipeRequest(struct req *req, struct busyobj *bo)
 	(void)VTCP_blocking(vc->fd);
 
 	WRW_Reserve(wrk, &vc->fd, bo->vsl, req->t_req);
-	hdrbytes = HTTP1_Write(wrk, bo->bereq, HTTP1_Req);
+
+	if (proxy) {
+		socklen_t ls, lc;
+
+		const struct sockaddr *server =
+		    VSA_Get_Sockaddr(sess_local_addr(req->sp), &ls);
+		const struct sockaddr *client =
+		    VSA_Get_Sockaddr(sess_remote_addr(req->sp), &lc);
+
+		assert(ls == lc);
+
+		assert(server->sa_family != AF_UNSPEC);
+
+		i = proxyhdr(wrk, req->sp->ws, server, client);
+
+		if (i == 0) {
+			VSLb(bo->vsl, SLT_FetchError, "pipe - proxy");
+			pipecharge(req, &acct_pipe, NULL);
+			SES_Close(req->sp, SC_TX_ERROR);
+			return;
+		}
+		hdrbytes += i;
+	}
+
+	hdrbytes += HTTP1_Write(wrk, bo->bereq, HTTP1_Req);
 
 	if (req->htc->pipeline.b != NULL)
 		(void)WRW_Write(wrk, req->htc->pipeline.b,

@@ -618,10 +618,11 @@ cnt_pipe(struct worker *wrk, struct req *req)
 
 	if (wrk->handling == VCL_RET_SYNTH)
 		INCOMPL();
-	assert(wrk->handling == VCL_RET_PIPE);
+	assert(wrk->handling == VCL_RET_PIPE ||
+	    wrk->handling == VCL_RET_PROXY);
 
 	VSLb(req->vsl, SLT_Link, "bereq %u pipe", VXID(bo->vsl->wid));
-	PipeRequest(req, bo);
+	PipeRequest(req, bo, wrk->handling == VCL_RET_PROXY);
 	assert(WRW_IsReleased(wrk));
 	http_Teardown(bo->bereq);
 	VBO_DerefBusyObj(wrk, &bo);

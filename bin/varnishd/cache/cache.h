@@ -1115,7 +1115,7 @@ const char *sess_close_2str(enum sess_close sc, int want_desc);
 
 /* cache_pipe.c */
 void Pipe_Init(void);
-void PipeRequest(struct req *req, struct busyobj *bo);
+void PipeRequest(struct req *req, struct busyobj *bo, int proxy);
 
 /* cache_pool.c */
 void Pool_Init(void);
