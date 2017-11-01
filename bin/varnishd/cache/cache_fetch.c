@@ -447,6 +447,22 @@ vbf_stp_startfetch(struct worker *wrk, struct busyobj *bo)
 		}
 	}
 
+	if (bo->htc->body_status == BS_CHUNKED) {
+		const char *p;
+		/* wildcard is a varnish special and  can only be set in vcl */
+		if (http_GetHdr(bo->beresp, H_Trailer, &p) && *p == '*')
+			http_Unset(bo->beresp, H_Trailer);
+		/*
+		 * XXX pre-filter Trailer?
+		 *
+		 * Trailers must never contain certain headers, should
+		 * we blacklist those here?
+		 *
+		 *	https://tools.ietf.org/html/rfc7230#section-4.1.2
+		 */
+	} else
+		http_Unset(bo->beresp, H_Trailer);
+
 	VCL_backend_response_method(bo->vcl, wrk, NULL, bo, NULL);
 
 	if (wrk->handling == VCL_RET_ABANDON || wrk->handling == VCL_RET_FAIL) {
