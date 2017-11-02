@@ -250,6 +250,7 @@ http_PutField(struct http *to, int field, const char *string)
 	char *p;
 
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	p = WS_Copy(to->ws, string, -1);
 	if (p == NULL) {
 		http_fail(to);
@@ -348,6 +349,7 @@ http_CollectHdrSep(struct http *hp, const char *hdr, const char *sep)
 	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
 	if (WS_Overflowed(hp->ws))
 		return;
+	XXXAZ(hp->thd);
 
 	if (sep == NULL || *sep == '\0')
 		sep = ", ";
@@ -708,6 +710,7 @@ http_DoConnection(struct http *hp)
 	else
 		retval = SC_NULL;
 
+	AZ(hp->thd);
 	http_CollectHdr(hp, H_Connection);
 	if (!http_GetHdr(hp, H_Connection, &h))
 		return (retval);
@@ -781,6 +784,7 @@ http_SetStatus(struct http *to, uint16_t status)
 	const char *sstr = NULL;
 
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	/*
 	 * We allow people to use top digits for internal VCL
 	 * signalling, but strip them from the ASCII version.
@@ -820,6 +824,7 @@ http_ForceField(struct http *to, unsigned n, const char *t)
 	int i;
 
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	assert(n < HTTP_HDR_FIRST);
 	AN(t);
 	if (to->hd[n].b == NULL || strcmp(to->hd[n].b, t)) {
@@ -839,6 +844,7 @@ http_PutResponse(struct http *to, const char *proto, uint16_t status,
 {
 
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	if (proto != NULL)
 		http_SetH(to, HTTP_HDR_PROTO, proto);
 	http_SetStatus(to, status);
@@ -930,6 +936,7 @@ HTTP_Decode(struct http *to, const uint8_t *fm)
 {
 
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	AN(to->vsl);
 	AN(fm);
 	if (vbe16dec(fm) <= to->shd) {
@@ -1061,6 +1068,7 @@ HTTP_Merge(struct worker *wrk, struct objcore *oc, struct http *to)
 
 	ptr = ObjGetAttr(wrk, oc, OA_HEADERS, NULL);
 	AN(ptr);
+	AZ(to->thd);
 
 	to->status = vbe16dec(ptr + 2);
 	ptr += 4;
@@ -1091,6 +1099,7 @@ http_filterfields(struct http *to, const struct http *fm, unsigned how)
 
 	CHECK_OBJ_NOTNULL(fm, HTTP_MAGIC);
 	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	AZ(to->thd);
 	to->nhd = HTTP_HDR_FIRST;
 	to->status = fm->status;
 	for (u = HTTP_HDR_FIRST; u < fm->nhd; u++) {
@@ -1245,17 +1254,22 @@ http_TimeHeader(struct http *to, const char *fmt, double now)
 	to->nhd++;
 }
 
-/*--------------------------------------------------------------------*/
+/*--------------------------------------------------------------------
+ * XXX trailers: We cannot unset what we've already sent, but do we really
+ * want to prevent sending headers twice?
+ */
 
 void
 http_Unset(struct http *hp, const char *hdr)
 {
-	uint16_t u, v;
+	uint16_t u, v, d = 0;
 
 	for (v = u = HTTP_HDR_FIRST; u < hp->nhd; u++) {
 		Tcheck(hp->hd[u]);
 		if (http_IsHdr(&hp->hd[u], hdr)) {
 			http_VSLH_del(hp, u);
+			if (u < hp->thd)
+				d++;
 			continue;
 		}
 		if (v != u) {
@@ -1264,7 +1278,18 @@ http_Unset(struct http *hp, const char *hdr)
 		}
 		v++;
 	}
+	if (hp->nhd == v)
+		return;
+
+	assert(hp->nhd > v);
 	hp->nhd = v;
+
+	if (d > 0) {
+		assert(hp->thd > 0);
+		hp->thd -= d;
+		assert(hp->thd > 0);
+		assert(hp->thd <= v);
+	}
 }
 
 /*--------------------------------------------------------------------*/

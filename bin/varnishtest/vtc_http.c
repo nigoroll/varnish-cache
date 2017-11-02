@@ -549,12 +549,14 @@ http_rxchar(struct http *hp, int n, int eof)
 	return (1);
 }
 
-#define trail_err(hp, q, s) do {					\
-		vtc_log((hp)->vl, (hp)->fatal,				\
-			"Wrong chunk end %s: %02x%02x",		\
-			(s), *(q), *((q) + 1));				\
-		return (-1);						\
-	} while(0)
+static inline int
+trerr(const struct http *hp, const char *q, const char *s)
+{
+	vtc_log(hp->vl, hp->fatal,
+		"Wrong chunk end %s: %02x%02x",
+		s, *q, *(q + 1));
+	return (-1);
+}
 
 /*
  * prxbuf is at line after (length) 0
@@ -581,19 +583,19 @@ http_rxchunk_end(struct http *hp)
 			switch (*q) {
 			case '\r': {
 				if (u & 1)
-					trail_err(hp, q, "CRCR");
+					return (trerr(hp, q, "CRCR"));
 				u++;
 				break;
 			}
 			case '\n': {
 				if ((u & 1) == 0)
-					trail_err(hp, q, "LF no CR");
+					return (trerr(hp, q, "LF no CR"));
 				u++;
 				break;
 			}
 			default:
 				if (u & 1)
-					trail_err(hp, q, "CR no LF");
+					return (trerr(hp, q, "CR no LF"));
 				u = 0;
 			}
 			q++;
@@ -611,7 +613,6 @@ http_rxchunk_end(struct http *hp)
 	http_addheader(hp, hp->resp, 0, h);
 	return (0);
 }
-#undef trail_err
 
 static int
 http_rxchunk(struct http *hp)
