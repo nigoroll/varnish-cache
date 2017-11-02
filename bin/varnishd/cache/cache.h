@@ -687,6 +687,7 @@ void http_PrintfHeader(struct http *to, const char *fmt, ...)
 void http_TimeHeader(struct http *to, const char *fmt, double now);
 void http_Proto(struct http *to);
 void http_SetHeader(struct http *to, const char *hdr);
+void _http_SetTrailer(struct http *to, const char *hdr);
 void http_SetH(struct http *to, unsigned n, const char *fm);
 void http_ForceField(struct http *to, unsigned n, const char *t);
 void HTTP_Setup(struct http *, struct ws *, struct vsl_log *, enum VSL_tag_e);
