@@ -86,14 +86,17 @@ v1d_error(struct req *req, const char *msg)
 void __match_proto__(vtr_deliver_f)
 V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 {
-	int err = 0;
+	int err = 0, tr = 0;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	CHECK_OBJ_ORNULL(boc, BOC_MAGIC);
 	CHECK_OBJ_NOTNULL(req->objcore, OBJCORE_MAGIC);
 
 	if (sendbody) {
-		if (http_GetHdr(req->resp, H_Content_Length, NULL))
+		tr = req->http->protover == 11 &&
+			http_GetHdr(req->resp, H_Trailer, NULL);
+
+		if (!tr && http_GetHdr(req->resp, H_Content_Length, NULL))
 			req->res_mode |= RES_LEN;
 		else if (req->http->protover == 11) {
 			req->res_mode |= RES_CHUNKED;
@@ -101,6 +104,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		} else {
 			req->res_mode |= RES_EOF;
 			req->doclose = SC_TX_EOF;
+			tr = 0;
 		}
 	}
 
@@ -132,6 +136,9 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 	}
 
 	req->acct.resp_hdrbytes += HTTP1_Write(req->wrk, req->resp, HTTP1_Resp);
+	if (tr)
+		HTTP1_MarkTrailer(req->resp);
+
 	if (DO_DEBUG(DBG_FLUSH_HEAD))
 		(void)V1L_Flush(req->wrk);
 

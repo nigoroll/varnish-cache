@@ -507,6 +507,18 @@ HTTP1_Write(const struct worker *w, const struct http *hp, const int *hf)
 	return (l);
 }
 
+/*
+ * setting thd is a signal that headers can be added and the staring point
+ * for HTTP1_WriteChunkedTrailer
+ */
+void
+HTTP1_MarkTrailer(struct http *hp)
+{
+	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
+	AZ(hp->thd);
+	hp->thd = hp->nhd;
+}
+
 unsigned
 HTTP1_WriteChunkedTrailer(const struct worker *w, const struct http *hp)
 {
