@@ -119,7 +119,7 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr,
 			bo->req->doclose = SC_RX_BODY;
 		}
 		if (do_chunked)
-			V1L_EndChunk(wrk);
+			V1L_EndChunk(wrk, bo->req->http);
 	}
 
 	j = V1L_FlushRelease(wrk);

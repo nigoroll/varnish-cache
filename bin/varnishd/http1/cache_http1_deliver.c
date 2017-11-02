@@ -140,7 +140,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 			V1L_Chunked(req->wrk);
 		err = VDP_DeliverObj(req);
 		if (!err && (req->res_mode & RES_CHUNKED))
-			V1L_EndChunk(req->wrk);
+			V1L_EndChunk(req->wrk, req->resp);
 	}
 
 	if ((V1L_FlushRelease(req->wrk) || err) && req->sp->fd >= 0)
