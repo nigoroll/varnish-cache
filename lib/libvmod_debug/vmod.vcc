@@ -213,3 +213,5 @@ Returns the size in bytes of a collection of C-datatypes.
 * 'z' = size_t
 * 'o' = off_t
 * 'j' = intmax_t
+
+$Function VOID topresp_trailer(STRING)
