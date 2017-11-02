@@ -509,3 +509,19 @@ HTTP1_Write(const struct worker *w, const struct http *hp, const int *hf)
 	l += V1L_Write(w, "\r\n", -1);
 	return (l);
 }
+
+unsigned
+HTTP1_WriteChunkedTrailer(const struct worker *w, const struct http *hp)
+{
+	unsigned u, l;
+
+	if (hp->thd == 0 || hp->thd == hp->nhd)
+		return (V1L_Write(w, "0\r\n\r\n", 5));
+
+	assert(hp->thd < hp->nhd);
+	l = V1L_Write(w, "0\r\n", 3);
+	for (u = hp->thd; u < hp->nhd; u++)
+		l += http1_WrTxt(w, &hp->hd[u], "\r\n");
+	l += V1L_Write(w, "\r\n", 2);
+	return (l);
+}

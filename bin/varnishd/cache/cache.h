@@ -726,7 +726,8 @@ uint16_t HTTP1_DissectHdrs(struct http *, char **, const char *, const unsigned)
 uint16_t HTTP1_DissectRequest(struct http_conn *, struct http *);
 uint16_t HTTP1_DissectResponse(struct http_conn *, struct http *resp,
     const struct http *req);
-unsigned HTTP1_Write(const struct worker *w, const struct http *hp, const int*);
+unsigned HTTP1_Write(const struct worker *, const struct http *, const int *);
+unsigned HTTP1_WriteChunkedTrailer(const struct worker *, const struct http *);
 
 #define HTTPH_R_PASS	(1 << 0)	/* Request (c->b) in pass mode */
 #define HTTPH_R_FETCH	(1 << 1)	/* Request (c->b) for fetch */
