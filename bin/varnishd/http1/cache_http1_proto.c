@@ -124,14 +124,14 @@ HTTP1_DissectHdrs(struct http *hp, char **pp, const char *e,
 
 		/* Find end of next header */
 		q = r = p;
-		if (vct_iscrlf(p))
+		if (vct_iscrlforlf(p))
 			break;
 		while (r < e) {
 			if (!vct_isctl(*r) || vct_issp(*r)) {
 				r++;
 				continue;
 			}
-			if (!vct_iscrlf(r)) {
+			if (!vct_iscrlforlf(r)) {
 				VSLb(hp->vsl, SLT_BogoHeader,
 				    "Header has ctrl char 0x%02x", *r);
 				return (400);
@@ -141,7 +141,7 @@ HTTP1_DissectHdrs(struct http *hp, char **pp, const char *e,
 			r += vct_skipcrlf(r);
 			if (r >= e)
 				break;
-			if (vct_iscrlf(r))
+			if (vct_iscrlforlf(r))
 				break;
 			/* If line does not continue: got it. */
 			if (!vct_issp(*r))
@@ -272,7 +272,7 @@ http1_splitline(struct http *hp, struct http_conn *htc, const int *hf,
 	hp->hd[hf[2]].b = p;
 
 	/* Third field is optional and cannot contain CTL except TAB */
-	for (; !vct_iscrlf(p); p++) {
+	for (; !vct_iscrlforlf(p); p++) {
 		if (vct_isctl(*p) && !vct_issp(*p)) {
 			hp->hd[hf[2]].b = NULL;
 			return (400);
