@@ -1196,6 +1196,34 @@ http_SetHeader(struct http *to, const char *hdr)
 	http_SetH(to, to->nhd++, hdr);
 }
 
+/*--------------------------------------------------------------------
+ * XXX PRELIMINARY INTERFACE; Subject to change!
+ * - Do we want to integrate in http_SetHeader ?
+ * - Any filtering?
+ * - Error reporting if not sending chunked?
+ * - prevent unset? limit unset to trailer if thd?
+ */
+
+void
+_http_SetTrailer(struct http *to, const char *hdr)
+{
+
+	CHECK_OBJ_NOTNULL(to, HTTP_MAGIC);
+	if (to->thd == 0) {
+		// headers not sent yet - XXX differnt logging?
+		VSLb(to->vsl, SLT_LostHeader, "%s (Headers not sent yet)", hdr);
+		VSLb(to->vsl, SLT_Debug, "nhd %d shd %d thd %d",
+		     to->nhd, to->shd, to->thd);
+		return;
+	}
+	if (to->nhd >= to->shd) {
+		VSLb(to->vsl, SLT_LostHeader, "%s", hdr);
+		http_fail(to);
+		return;
+	}
+	http_SetHeader(to, WS_Copy(to->ws, hdr, -1));
+}
+
 /*--------------------------------------------------------------------*/
 
 void
