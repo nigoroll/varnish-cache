@@ -45,6 +45,11 @@
 const void * const vrt_magic_string_end = &vrt_magic_string_end;
 const void * const vrt_magic_string_unset = &vrt_magic_string_unset;
 
+#define VRTHDRWHERE(n, s) [HDR_ ## n] = #s,
+const char *hdrwhere[] = {
+#include "tbl/vrt_hdr_where.h"
+};
+
 /*--------------------------------------------------------------------*/
 
 void
@@ -104,14 +109,21 @@ VRT_hit_for_pass(VRT_CTX, VCL_DURATION d)
 	    oc->ttl, oc->grace, oc->keep, oc->t_origin);
 }
 
-/*--------------------------------------------------------------------*/
+static inline void
+hdrexplain(const char **why, const char *reason)
+{
+	if (why)
+		*why = reason;
+}
 
-struct http *
-VRT_selecthttp(VRT_CTX, enum gethdr_e where)
+static struct http *
+ctx_selecthttp(VRT_CTX, enum gethdr_e where, const char **why)
 {
 	struct http *hp;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	hdrexplain(why, "(unknown)");
+
 	switch (where) {
 	case HDR_REQ:
 		hp = ctx->http_req;
@@ -119,19 +131,131 @@ VRT_selecthttp(VRT_CTX, enum gethdr_e where)
 	case HDR_REQ_TOP:
 		hp = ctx->http_req_top;
 		break;
+	case HDR_RESP:
+		hp = ctx->http_resp;
+		break;
+	case HDR_RESP_TOP:
+		hp = ctx->http_resp_top;
+
+		CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
+		if (ctx->req->esi_level > 0 ||
+		    ctx->method & (VCL_MET_DELIVER|VCL_MET_SYNTH))
+			break;
+
+		hdrexplain(why, "at esi level 0 outside vcl_deliver/"
+			   "vcl_synth");
+		return (NULL);
+	case HDR_OBJ:
+		/* explain and return NULL instead? */
+		WRONG("obj.http access only through VRT_GetHdr()");
 	case HDR_BEREQ:
 		hp = ctx->http_bereq;
 		break;
 	case HDR_BERESP:
 		hp = ctx->http_beresp;
 		break;
-	case HDR_RESP:
-		hp = ctx->http_resp;
-		break;
 	default:
-		WRONG("VRT_selecthttp 'where' invalid");
+		WRONG("ctx_selecthttp 'where' invalid");
 	}
 	return (hp);
+}
+
+/*--------------------------------------------------------------------
+ * check if writing to this header is ok in addition to the compile-time
+ * checks from vcc.
+ *
+ * this is a place for potential future top req/resp locking needs also
+ *
+ * returns NULL if access fails and returns reason in why if why != NULL
+ */
+
+struct http *
+VRT_http_ref_rw(VRT_CTX, enum gethdr_e where, const char **why)
+{
+	struct http *hp;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	hp = ctx_selecthttp(ctx, where, why);
+	if (hp == NULL)
+		return (hp);
+
+	switch (where) {
+	case HDR_REQ_TOP:
+		/*
+		 * HDR_REQ_TOP write not allowed by vcc, should be possible
+		 * now (e.g. for cheesy communication between esi subrequests)
+		 */
+		return (NULL);
+#ifdef XXX_CONSIDER_THIS
+	case HDR_RESP:
+		/*
+		 * writing to resp.http.* from esi_level > 0 has no effect (as
+		 * headers are discarded), so we should actually fail write
+		 * access for POLA
+		 */
+		CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
+		if (ctx->req->esi_level == 0)
+			break;
+		hdrexplain(why, "at esi level > 0");
+		return (NULL);
+#endif
+	case HDR_RESP_TOP:
+		if (hp->thd > 0)
+			break;
+		hdrexplain(why, "unless sending Trailers");
+		return (NULL);
+	default:
+		break;
+	}
+	return (hp);
+}
+
+/*--------------------------------------------------------------------
+ * read only access
+ *
+ * returns NULL if access fails and returns reason in why if why != NULL
+ */
+
+const struct http *
+VRT_http_ref_ro(VRT_CTX, enum gethdr_e where, const char **why)
+{
+	return (ctx_selecthttp(ctx, where, why));
+}
+
+/*--------------------------------------------------------------------
+ * release access
+ */
+void
+VRT_http_deref_rw(struct http **hp)
+{
+	/* noop for now */
+	*hp = NULL;
+}
+void
+VRT_http_deref_ro(const struct http **hp)
+{
+	/* noop for now */
+	*hp = NULL;
+}
+
+/*--------------------------------------------------------------------*/
+
+const char *
+VRT_hdr_where(const enum gethdr_e where)
+{
+	return (hdrwhere[where]);
+}
+
+/*--------------------------------------------------------------------*/
+void
+VRT_hdr_fail(VRT_CTX, const struct gethdr_s * const hs,
+    const char *err, const char *why)
+{
+	return (VRT_fail(ctx, "%s%.*s %s %s",
+			 VRT_hdr_where(hs->where),
+			 (int)*hs->what - 1, hs->what + 1,
+			 err, why));
 }
 
 /*--------------------------------------------------------------------*/
@@ -140,7 +264,8 @@ const char *
 VRT_GetHdr(VRT_CTX, const struct gethdr_s *hs)
 {
 	const char *p;
-	struct http *hp;
+	const struct http *hp;
+	const char *why;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	if (hs->where == HDR_OBJ) {
@@ -149,10 +274,15 @@ VRT_GetHdr(VRT_CTX, const struct gethdr_s *hs)
 		return(HTTP_GetHdrPack(ctx->req->wrk, ctx->req->objcore,
 		    hs->what));
 	}
-	hp = VRT_selecthttp(ctx, hs->where);
+	hp = VRT_http_ref_ro(ctx, hs->where, &why);
+	if (hp == NULL) {
+		VRT_hdr_fail(ctx, hs, "not accessible", why);
+		return (NULL);
+	}
 	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
 	if (!http_GetHdr(hp, hs->what, &p))
-		return (NULL);
+		p = NULL;
+	VRT_http_deref_ro(&hp);
 	return (p);
 }
 
@@ -243,11 +373,16 @@ VRT_SetHdr(VRT_CTX , const struct gethdr_s *hs,
 	struct http *hp;
 	va_list ap;
 	const char *b;
+	const char *why;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	AN(hs);
 	AN(hs->what);
-	hp = VRT_selecthttp(ctx, hs->where);
+	hp = VRT_http_ref_rw(ctx, hs->where, &why);
+	if (hp == NULL) {
+		VRT_hdr_fail(ctx, hs, "not writable", why);
+		return;
+	}
 	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
 	va_start(ap, p);
 	if (p == vrt_magic_string_unset) {
@@ -255,13 +390,16 @@ VRT_SetHdr(VRT_CTX , const struct gethdr_s *hs,
 	} else {
 		b = VRT_String(hp->ws, hs->what + 1, p, ap);
 		if (b == NULL) {
-			VSLb(ctx->vsl, SLT_LostHeader, "%s", hs->what + 1);
+			VSLb(ctx->vsl, SLT_LostHeader, "%s%.*s",
+			     VRT_hdr_where(hs->where), (int)*hs->what - 1,
+			     hs->what + 1);
 		} else {
 			http_Unset(hp, hs->what);
 			http_SetHeader(hp, b);
 		}
 	}
 	va_end(ap);
+	VRT_http_deref_rw(&hp);
 }
 
 /*--------------------------------------------------------------------*/

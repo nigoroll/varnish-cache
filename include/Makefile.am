@@ -36,6 +36,7 @@ nobase_pkginclude_HEADERS = \
 	tbl/vhd_return.h \
 	tbl/vhp_huffman.h \
 	tbl/vhp_static.h \
+	tbl/vrt_hdr_where.h \
 	tbl/vrt_stv_var.h \
 	tbl/vsc_levels.h \
 	tbl/vsl_tags.h \
@@ -104,6 +105,7 @@ vmod_abi.h: $(top_srcdir)/lib/libvcc/generate.py $(top_srcdir)/include/vrt.h
 	@PYTHON@ $(top_srcdir)/lib/libvcc/generate.py $(top_srcdir) $(top_builddir)
 
 GEN_H = \
+	tbl/vrt_hdr_where.h \
 	tbl/vrt_stv_var.h \
 	tbl/vcl_returns.h \
 	tbl/vcc_types.h \
