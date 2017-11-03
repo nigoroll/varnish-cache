@@ -24,7 +24,7 @@ varnish v1 -vcl {
 logexpect l1 -v v1 -g raw {
 	expect * 1002 VCL_call	{^SYNTH$}
 	expect 0    = VCL_Error	{^vmod blob error: cannot encode, out of space$}
-	expect 0    = LostHeader	{^foo:$}
+	expect 0    = LostHeader	{^resp.http.foo$}
 	expect 0    = VCL_return	{^fail$}
 } -start
 
