@@ -385,6 +385,59 @@ sp_variables = [
 		Identical to req.proto in non-ESI requests.
 		"""
 	),
+	('resp_top.proto',
+		'STRING',
+		('client',),
+		(), """
+		The HTTP protocol of the client response for ESI requests.
+		Identical to resp.proto in non-ESI requests.
+		Accessing this field at esi level 0 from outside
+		vcl_deliver / vcl_synth will trigger a VCL error.
+		"""
+	),
+	('resp_top.status',
+		'INT',
+		('client',),
+		(), """
+		The HTTP status code of the client response for ESI requests.
+		Identical to resp.status in non-ESI requests.
+		Accessing this field at esi level 0 from outside
+		vcl_deliver / vcl_synth will trigger a VCL error.
+		"""
+	),
+	('resp_top.reason',
+		'STRING',
+		('client',),
+		(), """
+		The HTTP status message of the client response for ESI requests.
+		Identical to resp.reason in non-ESI requests.
+		Accessing this field at esi level 0 from outside
+		vcl_deliver / vcl_synth will trigger a VCL error.
+		"""
+	),
+	('resp_top.http.',
+		'HEADER',
+		('client',),
+		('client',), """
+		The HTTP response headers of the client response for
+		ESI requests.
+		Access at esi level 0 from outside vcl_deliver /
+		vcl_synth will trigger a VCL error.
+
+		Writing to response headers from esi level 1 and
+		higher is only possible for HTTP/1.1 clients
+		supporting chunked encoding trailers. A VCL error
+		will be generated in ESI subrequests otherwise.
+
+		Write access must be prepared at esi level 0: If the
+		"TE" request header contains "trailers", set the
+		response header "Trailer" to all header names intended
+		to be added at higher esi levels. This is an HTTP
+		requirement, Varnish does not check set resp_top
+		headers against the specification in the "Trailer"
+		header.
+		"""
+	),
 	('bereq',
 		'HTTP',
 		('backend',),
@@ -1346,6 +1399,21 @@ for i in stv_variables:
 	fo.write("\n")
 
 fo.write("#undef VRTSTVVAR\n")
+lint_end(fo)
+fo.close()
+
+#######################################################################
+
+fo = open(join(buildroot, "include/tbl/vrt_hdr_where.h"), "w")
+
+file_header(fo)
+lint_start(fo)
+
+for i in filter(lambda x:x[0].endswith('.http.'), sp_variables):
+	fo.write('VRTHDRWHERE('+ i[0].replace('.http.', '').upper() +
+		 ', ' + i[0] + ")\n");
+
+fo.write("#undef VRTHDRWHERE\n")
 lint_end(fo)
 fo.close()
 
