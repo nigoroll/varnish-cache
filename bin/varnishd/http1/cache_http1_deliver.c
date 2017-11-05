@@ -96,7 +96,11 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		tr = req->http->protover == 11 &&
 			http_GetHdr(req->resp, H_Trailer, NULL);
 
-		if (!tr && http_GetHdr(req->resp, H_Content_Length, NULL))
+		if (tr) {
+			http_Unset(req->resp, H_Content_Length);
+			req->res_mode |= RES_CHUNKED;
+			http_SetHeader(req->resp, "Transfer-Encoding: chunked");
+		} else if (http_GetHdr(req->resp, H_Content_Length, NULL))
 			req->res_mode |= RES_LEN;
 		else if (req->http->protover == 11) {
 			req->res_mode |= RES_CHUNKED;
