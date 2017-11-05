@@ -80,6 +80,7 @@ varnish v1 -vcl+backend {
 	    if (req.esi_level > 0) {
 		call deliver_esi;
 	    }
+	    set resp.http.X-ESI = req.url;
 	    if (req.http.TE == "trailers") {
 		set resp.http.Trailer = "X-ESI";
 	    }
@@ -115,14 +116,14 @@ client c1 {
 	expect resp.status == 200
 	expect resp.bodylen == 81
 	expect resp.http.Trailer == "X-ESI"
-	expect resp.http.X-ESI == "/a1:/c2:/b1"
+	expect resp.http.X-ESI == "/:/a1:/c2:/b1"
 	expect resp.http.hits == "0"
 
 	# this fails at esi level 1 - body contains "503 VCL failed"
 	txreq
 	rxresp
 	expect resp.status == 200
-	expect resp.http.X-ESI == <undef>
+	expect resp.http.X-ESI == "/"
 	expect resp.bodylen == 562
 
 	txreq -hdr "TE: trailers"
@@ -130,7 +131,7 @@ client c1 {
 	expect resp.status == 200
 	expect resp.bodylen == 81
 	expect resp.http.Trailer == "X-ESI"
-	expect resp.http.X-ESI == "/a1:/c2:/b1"
+	expect resp.http.X-ESI == "/:/a1:/c2:/b1"
 	expect resp.http.hits == "2"
 } -run
 
