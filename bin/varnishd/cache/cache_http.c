@@ -1286,8 +1286,13 @@ http_TimeHeader(struct http *to, const char *fmt, double now)
 }
 
 /*--------------------------------------------------------------------
- * XXX trailers: We cannot unset what we've already sent, but do we really
- * want to prevent sending headers twice?
+ *
+ * Trailers note: HTTP1_PrepTrailer has moved all headers announced in Trailer:
+ * to before thd, so if we get an Unset for a trailer-part, it should only
+ * affect another trailer-part.  Yet if an unset header was not announced as a
+ * Trailer, we unset something which we've already sent and send the new value
+ * again as a trailer.  If we wanted to avoid this, we would need to check any
+ * trailer-part for being announced.
  */
 
 void
