@@ -113,23 +113,6 @@ v1f_read(const struct vfp_ctx *vc, struct http_conn *htc, void *d, ssize_t len)
 }
 
 /*--------------------------------------------------------------------
- * check if header is in Trailer
- * XXX could be more efficient by avoiding repeated GetHdr in GetHdrToken
- */
-static int
-v1f_trailer_part_allowed(const struct http *hp, const char *hdr)
-{
-	const char *p = strchr(hdr, ':');
-	const int l = (int)pdiff(hdr, p);
-	char cp[l + 1];
-
-	(void)strncpy(cp, hdr, l);
-	cp[l] = '\0';
-
-	return (http_GetHdrToken(hp, H_Trailer, cp, NULL, NULL));
-}
-
-/*--------------------------------------------------------------------
  * log and filter trailer parts based on Trailer header
  *
  * Ref: https://tools.ietf.org/html/rfc7230#section-4.4
@@ -148,7 +131,7 @@ v1f_trailer_part_process(struct http *hp, int filter)
 	for (v = u = hp->thd; u < hp->nhd; u++) {
 		Tcheck(hp->hd[u]);
 
-		if (filter && ! v1f_trailer_part_allowed(hp, hp->hd[u].b)) {
+		if (filter && ! HTTP1_InTrailer(hp, hp->hd[u].b)) {
 			http_VSLH_del(hp, u);
 			continue;
 		}

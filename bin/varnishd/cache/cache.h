@@ -728,7 +728,8 @@ uint16_t HTTP1_DissectRequest(struct http_conn *, struct http *);
 uint16_t HTTP1_DissectResponse(struct http_conn *, struct http *resp,
     const struct http *req);
 unsigned HTTP1_Write(const struct worker *, const struct http *, const int *);
-void HTTP1_MarkTrailer(struct http *hp);
+int HTTP1_InTrailer(const struct http *hp, const char *hdr);
+void HTTP1_PrepTrailer(struct http *hp);
 unsigned HTTP1_WriteChunkedTrailer(const struct worker *, const struct http *);
 
 #define HTTPH_R_PASS	(1 << 0)	/* Request (c->b) in pass mode */
