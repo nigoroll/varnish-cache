@@ -189,10 +189,16 @@ VCL_VOID __match_proto__(td_std_collect)
 vmod_collect(VRT_CTX, VCL_HEADER hdr, VCL_STRING sep)
 {
 	struct http *hp;
+	const char *why;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
-	hp = VRT_selecthttp(ctx, hdr->where);
+	hp = VRT_http_ref_rw(ctx, hdr->where, &why);
+	if (hp == NULL) {
+		VRT_hdr_fail(ctx, hdr, "not writable", why);
+		return;
+	}
 	http_CollectHdrSep(hp, hdr->what, sep);
+	VRT_http_deref_rw(&hp);
 }
 
 VCL_BOOL __match_proto__(td_std_healthy)

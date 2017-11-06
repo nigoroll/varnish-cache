@@ -287,13 +287,14 @@ V1L_Chunked(const struct worker *wrk)
  */
 
 void
-V1L_EndChunk(const struct worker *wrk)
+V1L_EndChunk(const struct worker *wrk, const struct http *hp)
 {
 	struct v1l *v1l;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
 	v1l = wrk->v1l;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
+	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
 
 	assert(v1l->ciov < v1l->siov);
 	(void)V1L_Flush(wrk);
@@ -301,5 +302,5 @@ V1L_EndChunk(const struct worker *wrk)
 	v1l->ciov = v1l->siov;
 	v1l->niov = 0;
 	v1l->cliov = 0;
-	(void)V1L_Write(wrk, "0\r\n\r\n", -1);
+	(void)HTTP1_WriteChunkedTrailer(wrk, hp);
 }

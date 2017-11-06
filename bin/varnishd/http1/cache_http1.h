@@ -55,7 +55,7 @@ void V1P_Charge(struct req *, const struct v1p_acct *, struct VSC_vbe *);
 
 /* cache_http1_line.c */
 void V1L_Chunked(const struct worker *w);
-void V1L_EndChunk(const struct worker *w);
+void V1L_EndChunk(const struct worker *w, const struct http *hp);
 void V1L_Reserve(struct worker *, struct ws *, int *fd, struct vsl_log *,
     double t0);
 unsigned V1L_Flush(const struct worker *w);

@@ -389,6 +389,44 @@ cmd_http_expect_pattern(CMD_ARGS)
 }
 
 /**********************************************************************
+ * add headers below those from the request/status line
+ */
+
+static void
+http_addheader(struct http *hp, char **hh, int n, char *p)
+{
+	char buf[20];
+	char *q;
+	int o;
+
+	while (hh[n] != NULL) {
+		n++;
+		assert(n <= MAX_HDR);
+	}
+	assert(n >= 3);
+	o = n;
+
+	while (*p != '\0') {
+		assert(n < MAX_HDR);
+		if (vct_iscrlf(p))
+			break;
+		hh[n++] = p++;
+		while (*p != '\0' && !vct_iscrlf(p))
+			p++;
+		q = p;
+		p += vct_skipcrlf(p);
+		*q = '\0';
+	}
+	p += vct_skipcrlf(p);
+	assert(*p == '\0');
+
+	for (; o < n; o++) {
+		bprintf(buf, "http[%2d] ", o);
+		vtc_dump(hp->vl, 4, buf, hh[o], -1);
+	}
+}
+
+/**********************************************************************
  * Split a HTTP protocol header
  */
 
@@ -446,24 +484,11 @@ http_splitheader(struct http *hp, int req)
 	}
 	assert(n == 3);
 
-	while (*p != '\0') {
-		assert(n < MAX_HDR);
-		if (vct_iscrlf(p))
-			break;
-		hh[n++] = p++;
-		while (*p != '\0' && !vct_iscrlf(p))
-			p++;
-		q = p;
-		p += vct_skipcrlf(p);
-		*q = '\0';
-	}
-	p += vct_skipcrlf(p);
-	assert(*p == '\0');
-
-	for (n = 0; n < 3 || hh[n] != NULL; n++) {
+	for (n = 0; n < 3; n++) {
 		bprintf(buf, "http[%2d] ", n);
 		vtc_dump(hp->vl, 4, buf, hh[n], -1);
 	}
+	return (http_addheader(hp, hh, n, p));
 }
 
 
@@ -524,6 +549,70 @@ http_rxchar(struct http *hp, int n, int eof)
 	return (1);
 }
 
+#define trail_err(hp, q, s) do {					\
+		vtc_log((hp)->vl, (hp)->fatal,				\
+			"Wrong chunk end %s: %02x%02x",		\
+			(s), *(q), *((q) + 1));				\
+		return (-1);						\
+	} while(0)
+
+/*
+ * prxbuf is at line after (length) 0
+ */
+static int
+http_rxchunk_end(struct http *hp)
+{
+	char *h;
+	const char *q, *lim;
+	unsigned u = 0;
+
+	h = hp->rxbuf + hp->prxbuf;
+	q = h;
+
+	if (http_rxchar(hp, 2, 0) < 0)
+		return (-1);
+	lim = q + 2;
+	if (vct_iscrlf(q))
+		return (0);	/* no trailer-parts */
+
+	while (1) {
+		vtc_dump(hp->vl, 4, "trail", q, lim - q);
+		while (q < lim) {
+			switch (*q) {
+			case '\r': {
+				if (u & 1)
+					trail_err(hp, q, "CRCR");
+				u++;
+				break;
+			}
+			case '\n': {
+				if ((u & 1) == 0)
+					trail_err(hp, q, "LF no CR");
+				u++;
+				break;
+			}
+			default:
+				if (u & 1)
+					trail_err(hp, q, "CR no LF");
+				u = 0;
+			}
+			q++;
+		}
+		if (u >= 4)
+			break;
+		if (http_rxchar(hp, 4 - u, 0) < 0)
+			return (-1);
+		q = lim;
+		lim += 4 - u;
+	}
+	assert(u == 4);
+
+	/* trailer */
+	http_addheader(hp, hp->resp, 0, h);
+	return (0);
+}
+#undef trail_err
+
 static int
 http_rxchunk(struct http *hp)
 {
@@ -546,24 +635,28 @@ http_rxchunk(struct http *hp)
 	}
 	assert(q != hp->rxbuf + l);
 	assert(*q == '\0' || vct_islws(*q));
-	hp->prxbuf = l;
-	if (i > 0) {
-		if (http_rxchar(hp, i, 0) < 0)
-			return (-1);
-		vtc_dump(hp->vl, 4, "chunk", hp->rxbuf + l, i);
+
+	if (i == 0) {
+		i = http_rxchunk_end(hp);
+		hp->prxbuf = l;
+		hp->rxbuf[l] = '\0';
+		/* XXX trailers are located behind prxbuf now */
+		return (i);
 	}
+	assert(i > 0);
+
+	hp->prxbuf = l;
+	if (http_rxchar(hp, i, 0) < 0)
+		return (-1);
+	vtc_dump(hp->vl, 4, "chunk", hp->rxbuf + l, i);
+
 	l = hp->prxbuf;
 	if (http_rxchar(hp, 2, 0) < 0)
 		return (-1);
 	if (!vct_iscrlf(hp->rxbuf + l)) {
 		vtc_log(hp->vl, hp->fatal,
-		    "Wrong chunk tail[0] = %02x",
-		    hp->rxbuf[l] & 0xff);
-		return (-1);
-	}
-	if (!vct_iscrlf(hp->rxbuf + l + 1)) {
-		vtc_log(hp->vl, hp->fatal,
-		    "Wrong chunk tail[1] = %02x",
+		    "Wrong chunk tail = %02x%02x",
+		    hp->rxbuf[l] & 0xff,
 		    hp->rxbuf[l + 1] & 0xff);
 		return (-1);
 	}

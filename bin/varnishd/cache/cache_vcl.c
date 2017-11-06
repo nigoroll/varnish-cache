@@ -1031,6 +1031,7 @@ vcl_call_method(struct worker *wrk, struct req *req, struct busyobj *bo,
 		ctx.vcl = req->vcl;
 		ctx.http_req = req->http;
 		ctx.http_req_top = req->top->http;
+		ctx.http_resp_top = req->top->resp;
 		ctx.http_resp = req->resp;
 		ctx.req = req;
 		ctx.sp = req->sp;
