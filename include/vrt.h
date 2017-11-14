@@ -159,6 +159,7 @@ struct vrt_ctx {
 	struct http			*http_req;
 	struct http			*http_req_top;
 	struct http			*http_resp;
+	struct http			*http_resp_top;
 
 	struct busyobj			*bo;
 	struct http			*http_bereq;
@@ -326,6 +327,7 @@ enum gethdr_e {
 	HDR_REQ,
 	HDR_REQ_TOP,
 	HDR_RESP,
+	HDR_RESP_TOP,
 	HDR_OBJ,
 	HDR_BEREQ,
 	HDR_BERESP
@@ -336,7 +338,13 @@ struct gethdr_s {
 	const char	*what;
 };
 
-struct http *VRT_selecthttp(VRT_CTX, enum gethdr_e);
+const char *VRT_hdr_where(const enum gethdr_e);
+void VRT_hdr_fail(VRT_CTX, const struct gethdr_s * const,
+    const char *err, const char *why);
+struct http *VRT_http_ref_rw(VRT_CTX, enum gethdr_e, const char **why);
+void VRT_http_deref_rw(struct http **);
+const struct http *VRT_http_ref_ro(VRT_CTX, enum gethdr_e, const char **why);
+void VRT_http_deref_ro(const struct http **);
 const char *VRT_GetHdr(VRT_CTX, const struct gethdr_s *);
 
 /***********************************************************************

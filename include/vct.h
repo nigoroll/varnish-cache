@@ -76,7 +76,8 @@ vct_is(int x, uint16_t y)
 #define vct_isxmlname(x) vct_is(x, VCT_XMLNAMESTART | VCT_XMLNAME)
 #define vct_istchar(x) vct_is(x, VCT_ALPHA | VCT_DIGIT | VCT_TCHAR)
 
-#define vct_iscrlf(p) (((p)[0] == 0x0d && (p)[1] == 0x0a) || (p)[0] == 0x0a)
+#define vct_iscrlf(p) ((p)[0] == 0x0d && (p)[1] == 0x0a)
+#define vct_iscrlforlf(p) (vct_iscrlf(p) || (p)[0] == 0x0a)
 
 /* NB: VCT always operate in ASCII, don't replace 0x0d with \r etc. */
 #define vct_skipcrlf(p) ((p)[0] == 0x0d && (p)[1] == 0x0a ? 2 : 1)

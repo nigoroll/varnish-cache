@@ -130,6 +130,10 @@ VRT_HDR_LR(resp,   reason,	HTTP_HDR_REASON)
 VRT_STATUS_L(resp)
 VRT_STATUS_R(resp)
 
+VRT_HDR_R(resp_top,   proto,	HTTP_HDR_PROTO)
+VRT_HDR_R(resp_top,   reason,	HTTP_HDR_REASON)
+VRT_STATUS_R(resp_top)
+
 VRT_HDR_LR(bereq,  method,	HTTP_HDR_METHOD)
 VRT_HDR_LR(bereq,  url,		HTTP_HDR_URL)
 VRT_HDR_LR(bereq,  proto,	HTTP_HDR_PROTO)

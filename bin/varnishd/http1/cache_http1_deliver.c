@@ -86,14 +86,21 @@ v1d_error(struct req *req, const char *msg)
 void __match_proto__(vtr_deliver_f)
 V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 {
-	int err;
+	int err = 0, tr = 0;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	CHECK_OBJ_ORNULL(boc, BOC_MAGIC);
 	CHECK_OBJ_NOTNULL(req->objcore, OBJCORE_MAGIC);
 
 	if (sendbody) {
-		if (http_GetHdr(req->resp, H_Content_Length, NULL))
+		tr = req->http->protover == 11 &&
+			http_GetHdr(req->resp, H_Trailer, NULL);
+
+		if (tr) {
+			http_Unset(req->resp, H_Content_Length);
+			req->res_mode |= RES_CHUNKED;
+			http_SetHeader(req->resp, "Transfer-Encoding: chunked");
+		} else if (http_GetHdr(req->resp, H_Content_Length, NULL))
 			req->res_mode |= RES_LEN;
 		else if (req->http->protover == 11) {
 			req->res_mode |= RES_CHUNKED;
@@ -101,6 +108,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		} else {
 			req->res_mode |= RES_EOF;
 			req->doclose = SC_TX_EOF;
+			tr = 0;
 		}
 	}
 
@@ -140,6 +148,9 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		return;
 	}
 
+	if (tr)
+		HTTP1_PrepTrailer(req->resp);
+
 	req->acct.resp_hdrbytes += HTTP1_Write(req->wrk, req->resp, HTTP1_Resp);
 
 	if (DO_DEBUG(DBG_FLUSH_HEAD))
@@ -176,7 +187,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		V1L_Chunked(req->wrk);
 	err = VDP_DeliverObj(req);
 	if (!err && (req->res_mode & RES_CHUNKED))
-		V1L_EndChunk(req->wrk);
+		V1L_EndChunk(req->wrk, req->resp);
 
 	if ((V1L_Close(req->wrk) || err) && req->sp->fd >= 0)
 		Req_Fail(req, SC_REM_CLOSE);

@@ -124,14 +124,14 @@ HTTP1_DissectHdrs(struct http *hp, char **pp, const char *e,
 
 		/* Find end of next header */
 		q = r = p;
-		if (vct_iscrlf(p))
+		if (vct_iscrlforlf(p))
 			break;
 		while (r < e) {
 			if (!vct_isctl(*r) || vct_issp(*r)) {
 				r++;
 				continue;
 			}
-			if (!vct_iscrlf(r)) {
+			if (!vct_iscrlforlf(r)) {
 				VSLb(hp->vsl, SLT_BogoHeader,
 				    "Header has ctrl char 0x%02x", *r);
 				return (400);
@@ -141,7 +141,7 @@ HTTP1_DissectHdrs(struct http *hp, char **pp, const char *e,
 			r += vct_skipcrlf(r);
 			if (r >= e)
 				break;
-			if (vct_iscrlf(r))
+			if (vct_iscrlforlf(r))
 				break;
 			/* If line does not continue: got it. */
 			if (!vct_issp(*r))
@@ -272,7 +272,7 @@ http1_splitline(struct http *hp, struct http_conn *htc, const int *hf,
 	hp->hd[hf[2]].b = p;
 
 	/* Third field is optional and cannot contain CTL except TAB */
-	for (; !vct_iscrlf(p); p++) {
+	for (; !vct_iscrlforlf(p); p++) {
 		if (vct_isctl(*p) && !vct_issp(*p)) {
 			hp->hd[hf[2]].b = NULL;
 			return (400);
@@ -475,37 +475,111 @@ HTTP1_DissectResponse(struct http_conn *htc, struct http *hp,
 
 /*--------------------------------------------------------------------*/
 
-static unsigned
-http1_WrTxt(const struct worker *wrk, const txt *hh, const char *suf)
+static inline unsigned
+http1_WrTxt(const struct worker *wrk, const txt *hh,
+	    const char *suf, const ssize_t sufl)
 {
 	unsigned u;
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	AN(wrk);
 	AN(hh);
 	AN(hh->b);
 	AN(hh->e);
 	u = V1L_Write(wrk, hh->b, hh->e - hh->b);
 	if (suf != NULL)
-		u += V1L_Write(wrk, suf, -1);
+		u += V1L_Write(wrk, suf, sufl);
 	return (u);
 }
 
 unsigned
 HTTP1_Write(const struct worker *w, const struct http *hp, const int *hf)
 {
+	unsigned u, l, to;
+
+	CHECK_OBJ_NOTNULL(w, WORKER_MAGIC);
+	assert(hf == HTTP1_Req || hf == HTTP1_Resp);
+	l = http1_WrTxt(w, &hp->hd[hf[0]], " ", 1);
+	l += http1_WrTxt(w, &hp->hd[hf[1]], " ", 1);
+	l += http1_WrTxt(w, &hp->hd[hf[2]], "\r\n", 2);
+
+	to = (hp->thd == 0) ? hp->nhd : hp->thd;
+
+	for (u = HTTP_HDR_FIRST; u < to; u++)
+		l += http1_WrTxt(w, &hp->hd[u], "\r\n", 2);
+	l += V1L_Write(w, "\r\n", 2);
+	return (l);
+}
+
+/*--------------------------------------------------------------------
+ * check if header is in Trailer
+ * XXX could be more efficient by avoiding repeated GetHdr in GetHdrToken
+ */
+
+int
+HTTP1_InTrailer(const struct http *hp, const char *hdr)
+{
+	const char *p = strchr(hdr, ':');
+	const int l = (int)pdiff(hdr, p);
+	char cp[l + 1];
+
+	(void)strncpy(cp, hdr, l);
+	cp[l] = '\0';
+
+	return (http_GetHdrToken(hp, H_Trailer, cp, NULL, NULL));
+}
+
+/*
+ * setting thd is a signal that headers can be added and the staring point
+ * for HTTP1_WriteChunkedTrailer
+ *
+ */
+void
+HTTP1_PrepTrailer(struct http *hp)
+{
+	uint16_t u, v;
+	uint8_t b_hdf[sizeof *hp->hdf];
+	uint8_t b_hd[sizeof *hp->hd];
+
+	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
+	AZ(hp->thd);
+
+	if (! http_GetHdr(hp, H_Trailer, NULL)) {
+		hp->thd = hp->nhd;
+		return;
+	}
+
+	/* bubble trailers to the end */
+	for (v = u = (hp->nhd - 1); u >= HTTP_HDR_FIRST; u--) {
+		Tcheck(hp->hd[u]);
+		if (! HTTP1_InTrailer(hp, hp->hd[u].b))
+			continue;
+		if (v != u) {
+			memcpy(b_hd, &hp->hd[u], sizeof *hp->hd);
+			memcpy(&hp->hd[u], &hp->hd[v], sizeof *hp->hd);
+			memcpy(&hp->hd[v], b_hd, sizeof *hp->hd);
+
+			memcpy(b_hdf, &hp->hdf[u], sizeof *hp->hdf);
+			memcpy(&hp->hdf[u], &hp->hdf[v], sizeof *hp->hdf);
+			memcpy(&hp->hdf[v], b_hdf, sizeof *hp->hdf);
+		}
+		v--;
+	}
+	hp->thd = v + 1;
+	assert(hp->thd <= hp->nhd);
+	AN(hp->thd);
+}
+
+unsigned
+HTTP1_WriteChunkedTrailer(const struct worker *w, const struct http *hp)
+{
 	unsigned u, l;
 
-	assert(hf == HTTP1_Req || hf == HTTP1_Resp);
-	AN(hp->hd[hf[0]].b);
-	AN(hp->hd[hf[1]].b);
-	AN(hp->hd[hf[2]].b);
-	l = http1_WrTxt(w, &hp->hd[hf[0]], " ");
-	l += http1_WrTxt(w, &hp->hd[hf[1]], " ");
-	l += http1_WrTxt(w, &hp->hd[hf[2]], "\r\n");
+	if (hp->thd == 0 || hp->thd == hp->nhd)
+		return (V1L_Write(w, "0\r\n\r\n", 5));
 
-	for (u = HTTP_HDR_FIRST; u < hp->nhd; u++)
-		l += http1_WrTxt(w, &hp->hd[u], "\r\n");
-	l += V1L_Write(w, "\r\n", -1);
+	assert(hp->thd < hp->nhd);
+	l = V1L_Write(w, "0\r\n", 3);
+	for (u = hp->thd; u < hp->nhd; u++)
+		l += http1_WrTxt(w, &hp->hd[u], "\r\n", 2);
+	l += V1L_Write(w, "\r\n", 2);
 	return (l);
 }
