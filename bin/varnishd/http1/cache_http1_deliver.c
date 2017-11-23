@@ -132,7 +132,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		return;
 	}
 
-	if (req->resp_len == 0)
+	if (req->resp_len == 0 && tr == 0)
 		sendbody = 0;
 
 	if (sendbody)
