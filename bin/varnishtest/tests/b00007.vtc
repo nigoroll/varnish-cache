@@ -54,6 +54,17 @@ server s1 {
 	send "No: matter\r\nThe: header\r\nIts: accepted\r\n"
 	send "\r\n"
 
+	rxreq
+	expect req.url == "/nobody/save/wild"
+	expect req.http.TE == "trailers"
+	send "HTTP/1.1 200 OK\r\n"
+	send "Transfer-encoding: chunked\r\n"
+	send "Trailer: *\r\n"
+	send "\r\n"
+	send "0\r\n"
+	send "No: matter\r\nThe: header\r\nIts: accepted\r\n"
+	send "\r\n"
+
 	# intentionally varying the trailer slightly in the following tests
 	rxreq
 	expect req.url == "/bad/trailer/CRCR"
@@ -100,10 +111,10 @@ server s1 {
 } -start
 
 varnish v1 -vcl+backend {
-	import debug;
+	import std;
 
 	sub vcl_backend_fetch {
-	    if (bereq.url ~ "^/save") {
+	    if (bereq.url ~ "^(/nobody)?/save") {
 		# we filter TE from the client, so trailers can only be
 		# enabled explicitly from vcl
 		set bereq.http.TE = "trailers";
@@ -115,7 +126,7 @@ varnish v1 -vcl+backend {
 		# to get 503 for vtc instead of closed connection
 		set beresp.do_stream = false;
 	    }
-	    if (bereq.url ~ "^/save/wild") {
+	    if (bereq.url ~ "^(/nobody)?/save/wild") {
 		# Trailer: * removed by core code
 		if (beresp.http.Trailer) {
 		    return (abandon);
@@ -123,7 +134,7 @@ varnish v1 -vcl+backend {
 		set beresp.http.Trailer = "*";
 	    }
 	    if (bereq.http.TE == "trailers") {
-		debug.fetch_body(false);
+		std.fetch_body(deliver);
 	    }
 	}
 } -start
@@ -172,6 +183,14 @@ client c1 {
 	rxresp
 	expect resp.status == 200
 	expect resp.bodylen == "8"
+	expect resp.http.No == "matter"
+	expect resp.http.The == "header"
+	expect resp.http.Its == "accepted"
+
+	txreq -url "/nobody/save/wild"
+	rxresp
+	expect resp.status == 200
+	expect resp.bodylen == "0"
 	expect resp.http.No == "matter"
 	expect resp.http.The == "header"
 	expect resp.http.Its == "accepted"
