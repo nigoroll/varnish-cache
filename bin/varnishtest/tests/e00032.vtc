@@ -27,6 +27,16 @@ server s1 {
 	rxreq
 	expect req.url == "/b1"
 	txresp
+
+	# -
+
+	rxreq
+	expect req.url == "/nobody"
+	txresp -body {<esi:include src="/nobodyinc"/>}
+
+	rxreq
+	expect req.url == "/nobodyinc1"
+	txresp -body {}
 } -start
 
 varnish v1 -arg "-p feature=+esi_disable_xml_check" -vcl+backend {} -start
@@ -133,6 +143,14 @@ client c1 {
 	expect resp.http.Trailer == "X-ESI"
 	expect resp.http.X-ESI == "/:/a1:/c2:/b1"
 	expect resp.http.hits == "2"
+
+	txreq -url /nobody -hdr "TE: trailers"
+	rxresp
+	expect resp.status == 200
+	expect resp.bodylen == 0
+	expect resp.http.Trailer == "X-ESI"
+	expect resp.http.X-ESI == "/nobody:/nobodyinc1"
+	expect resp.http.hits == "0"
 } -run
 
 varnish v1 -expect esi_errors == 0
