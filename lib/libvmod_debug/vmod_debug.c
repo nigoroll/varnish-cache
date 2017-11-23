@@ -38,6 +38,7 @@
 #include "cache/cache.h"
 
 #include "vsa.h"
+#include "vcl.h"
 #include "vsb.h"
 #include "vtcp.h"
 #include "vtim.h"
@@ -594,4 +595,30 @@ xyzzy_vsc_destroy(VRT_CTX)
 		VSC_debug_Destroy(&vsc);
 	AZ(vsc);
 	AZ(pthread_mutex_unlock(&vsc_mtx));
+}
+
+VCL_VOID
+xyzzy_topresp_trailer(VRT_CTX, VCL_STRING s)
+{
+	struct req *req;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if ((ctx->method & VCL_MET_TASK_C) == 0) {
+		VRT_fail(ctx, "topresp_trailer is only valid in client subs");
+		return;
+	}
+
+	/* XXX minimal check */
+	if (! strchr(s, ':')) {
+		VSLb(ctx->vsl, SLT_LostHeader, "%s", s);
+		return;
+	}
+
+	req = ctx->req;
+	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
+	req = req->top;
+	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
+
+	_http_SetTrailer(req->resp, s);
 }
