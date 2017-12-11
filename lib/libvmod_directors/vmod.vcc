@@ -409,13 +409,13 @@ To generate sharding keys using other hashes, use a custom vmod like
 .. _vmod blobdigest: https://code.uplex.de/uplex-varnish/libvmod-blobdigest/blob/master/README.rst
 
 $Method BACKEND .backend(
-	ENUM {HASH, URL, KEY, BLOB} by=HASH,
-	INT key=0,
+	ENUM {HASH, URL, KEY, BLOB, undef} by=undef,
+	INT key=-1,
 	BLOB key_blob=0,
-	INT alt=0,
-	REAL warmup=-1,
-	BOOL rampup=1,
-	ENUM {CHOSEN, IGNORE, ALL} healthy=CHOSEN)
+	INT alt=-1,
+	REAL warmup=-2,
+	BOOL rampup=65535,
+	ENUM {CHOSEN, IGNORE, ALL, undef} healthy=undef)
 
 
 Lookup a backend on the consistent hashing ring.
@@ -449,6 +449,8 @@ is _not_ the order given when backends are added.
     the `shard.key()` function may come handy to generate a sharding
     key from custom strings.
 
+    Value -1 denotes undefined / not used.
+
   * `key_blob` lookup key with `by=BLOB`
 
     Currently, this uses the first 4 bytes from the given blob in
@@ -467,6 +469,8 @@ is _not_ the order given when backends are added.
 
   The rampup and warmup features are only active for `alt==0`
 
+  Value -1 denotes undefined / not used.
+
 * `rampup` slow start for servers which just went healthy
 
   default: `true`
@@ -479,6 +483,8 @@ is _not_ the order given when backends are added.
   The default rampup interval can be set per shard director using the
   `set_rampup()` method or specifically per backend with the
   `set_backend()` method.
+
+  Value 65535 denotes undefined / not used.
 
 * `warmup` probabilistic alternative server selection
 
@@ -495,6 +501,8 @@ is _not_ the order given when backends are added.
 
   `warmup=0.5` is a convenient way to spread the load for each key
   over two backends under normal operating conditions.
+
+  Value -2 denotes undefined / not used.
 
 * `healthy`
 

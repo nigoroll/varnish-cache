@@ -196,6 +196,7 @@ get_key(VRT_CTX, enum by_e by, VCL_INT key_int, VCL_BLOB key_blob)
 		return (sharddir_sha256(http->hd[HTTP_HDR_URL].b,
 					vrt_magic_string_end));
 	case BY_KEY:
+		assert(key_int >= 0 && key_int <= UINT32_MAX);
 		return ((uint32_t)key_int);
 	case BY_BLOB:
 		assert(key_blob);
@@ -254,7 +255,10 @@ vmod_shard_backend(VRT_CTX, struct vmod_directors_shard *vshard,
 		return NULL;
 	}
 
-	if (key_int && by != BY_KEY) {
+	if (by == BY_undef)
+		by = BY_HASH;
+
+	if (key_int != -1 && by != BY_KEY) {
 		shard_err(ctx, vshard->shardd,
 		    "by=%s but key argument used", by_s);
 		return NULL;
@@ -266,6 +270,12 @@ vmod_shard_backend(VRT_CTX, struct vmod_directors_shard *vshard,
 		return NULL;
 	}
 
+	if (by == BY_KEY &&
+	    (key_int < 0 || key_int > UINT32_MAX)) {
+		shard_err(ctx, vshard->shardd,
+		    "invalid key argument %ld", key_int);
+		return NULL;
+	}
 	if (by == BY_BLOB) {
 		if (key_blob == NULL ||
 		    key_blob->len <= 0 ||
@@ -277,6 +287,29 @@ vmod_shard_backend(VRT_CTX, struct vmod_directors_shard *vshard,
 			key_int = 0;
 		}
 	}
+
+	if (alt < -1) {
+		shard_err(ctx, vshard->shardd,
+		    "invalid alt argument %ld", alt);
+		return NULL;
+	}
+	if (alt == -1)
+		alt = 0;
+
+	if (warmup < 0 && warmup != -1 && warmup != -2) {
+		shard_err(ctx, vshard->shardd,
+		    "invalid warmup argument %d", warmup);
+		return NULL;
+	}
+	if (warmup == -2)
+		warmup = -1;
+
+	if (rampup == 65535)
+		rampup = 1;
+	assert(rampup == 0 || rampup == 1);
+
+	if (healthy == undef)
+		healthy = CHOSEN;
 
 	key = get_key(ctx, by, key_int, key_blob);
 
