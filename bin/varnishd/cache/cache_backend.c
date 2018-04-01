@@ -47,6 +47,7 @@
 #include "http1/cache_http1.h"
 
 #include "VSC_vbe.h"
+#include "VSC_vcp.h"
 
 /*--------------------------------------------------------------------*/
 
@@ -422,14 +423,19 @@ vbe_panic(const struct director *d, struct vsb *vsb)
 }
 
 /*--------------------------------------------------------------------
+
  * Create a new static or dynamic director::backend instance.
+ *
+ * we use the backend vsm cluster for connection pools (vcp) also and assume the
+ * upper bound of one pool per backend
  */
 
 size_t v_matchproto_()
 VRT_backend_vsm_need(VRT_CTX)
 {
 	(void)ctx;
-	return (VRT_VSC_Overhead(VSC_vbe_size));
+	return (VRT_VSC_Overhead(VSC_vbe_size) +
+		VRT_VSC_Overhead(VSC_vcp_size));
 }
 
 struct director * v_matchproto_()
@@ -492,7 +498,7 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 	VTAILQ_INSERT_TAIL(&backends, be, list);
 	VSC_C_main->n_backend++;
 	be->tcp_pool = VTP_Ref(vrt->ipv4_suckaddr, vrt->ipv6_suckaddr,
-	    vrt->path, vbe_proto_ident);
+	    vrt->path, vbe_proto_ident, vc);
 	Lck_Unlock(&backends_mtx);
 
 	if (vbp != NULL) {
