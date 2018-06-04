@@ -246,7 +246,7 @@ child_signal_handler(int s, siginfo_t *si, void *c)
 	(void)sigaction(SIGBUS, &sa, NULL);
 	(void)sigaction(SIGABRT, &sa, NULL);
 
-	while (s == SIGSEGV || s == SIGSEGV) {
+	while (s == SIGSEGV || s == SIGBUS) {
 		req = THR_GetRequest();
 		if (req == NULL || req->wrk == NULL)
 			break;
