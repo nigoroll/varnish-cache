@@ -85,6 +85,8 @@ void		 VSB_quote_pfx(struct vsb *, const char*, const void *,
 		     int len, int how);
 void		 VSB_quote(struct vsb *, const void *, int len, int how);
 void		 VSB_indent(struct vsb *, int);
+const char *	 VSB_strstr(struct vsb *, const char *);
+
 #ifdef __cplusplus
 };
 #endif

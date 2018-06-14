@@ -623,3 +623,11 @@ VSB_indent(struct vsb * s, int i)
 	else
 		s->s_indent += i;
 }
+
+const char *
+VSB_strstr(struct vsb * s, const char *needle)
+{
+	assert_VSB_integrity(s);
+	s->s_buf[s->s_len] = '\0';
+	return (strstr(s->s_buf, needle));
+}
