@@ -493,7 +493,7 @@ struct vclref;
 struct vclref * VRT_ref_vcl(VRT_CTX, const char *);
 void VRT_rel_vcl(VRT_CTX, struct vclref **);
 
-void VRT_priv_fini(const struct vmod_priv *p);
+void VRT_priv_fini(struct vmod_priv *p);
 struct vmod_priv *VRT_priv_task(VRT_CTX, const void *vmod_id);
 struct vmod_priv *VRT_priv_top(VRT_CTX, const void *vmod_id);
 

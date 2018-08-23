@@ -181,9 +181,11 @@ VRT_priv_top(VRT_CTX, const void *vmod_id)
  */
 
 void
-VRT_priv_fini(const struct vmod_priv *p)
+VRT_priv_fini(struct vmod_priv *p)
 {
-
-	if (p->priv != NULL && p->free != NULL)
-		p->free(p->priv);
+	if (p->priv == NULL || p->free == NULL)
+		return;
+	p->free(p->priv);
+	p->priv = NULL;
+	p->free = NULL;
 }

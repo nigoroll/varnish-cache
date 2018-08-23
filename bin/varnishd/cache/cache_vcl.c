@@ -132,13 +132,13 @@ vcl_rel_ctx(struct vrt_ctx **ctx)
 	ASSERT_CLI();
 	assert(*ctx == &ctx_cli);
 	AN((*ctx)->handling);
+	VRTPRIV_dynamic_kill(cli_task_privs, (uintptr_t)cli_task_privs);
 	if (ctx_cli.msg)
 		VSB_destroy(&ctx_cli.msg);
 	WS_Assert(ctx_cli.ws);
 	WS_Reset(&ws_cli, ws_snapshot_cli);
 	INIT_OBJ(*ctx, VRT_CTX_MAGIC);
 	*ctx = NULL;
-	VRTPRIV_dynamic_kill(cli_task_privs, (uintptr_t)cli_task_privs);
 }
 
 /*--------------------------------------------------------------------*/
@@ -599,14 +599,14 @@ vcl_load(struct cli *cli, struct vrt_ctx *ctx,
 void
 VCL_Poll(void)
 {
-	struct vrt_ctx *ctx;
+	struct vrt_ctx *ctx = NULL;
 	struct vcl *vcl, *vcl2;
 
 	ASSERT_CLI();
-	ctx = vcl_get_ctx(0, 0);
 	VTAILQ_FOREACH_SAFE(vcl, &vcl_head, list, vcl2) {
 		if (vcl->temp == VCL_TEMP_BUSY ||
 		    vcl->temp == VCL_TEMP_COOLING) {
+			ctx = vcl_get_ctx(0, 0);
 			ctx->vcl = vcl;
 			ctx->syntax = ctx->vcl->conf->syntax;
 			ctx->method = 0;
@@ -617,18 +617,26 @@ VCL_Poll(void)
 			assert(vcl != vcl_active);
 			assert(VTAILQ_EMPTY(&vcl->ref_list));
 			VTAILQ_REMOVE(&vcl_head, vcl, list);
+			if (ctx) {
+				assert(ctx->vcl == vcl);
+			} else {
+				ctx = vcl_get_ctx(0, 0);
+				ctx->vcl = vcl;
+				ctx->syntax = ctx->vcl->conf->syntax;
+			}
 			ctx->method = VCL_MET_FINI;
-			ctx->vcl = vcl;
-			ctx->syntax = ctx->vcl->conf->syntax;
 			AZ(vcl_send_event(ctx, VCL_EVENT_DISCARD));
 			vcl_KillBackends(vcl);
+			vcl_rel_ctx(&ctx);
 			free(vcl->loaded_name);
 			VCL_Close(&vcl);
 			VSC_C_main->n_vcl--;
 			VSC_C_main->n_vcl_discard--;
 		}
+		if (ctx)
+			vcl_rel_ctx(&ctx);
+		AZ(ctx);
 	}
-	vcl_rel_ctx(&ctx);
 }
 
 /*--------------------------------------------------------------------*/
