@@ -187,3 +187,85 @@ VRT_priv_fini(const struct vmod_priv *p)
 	if (p->priv != NULL && p->free != NULL)
 		p->free(p->priv);
 }
+
+/*--------------------------------------------------------------------
+ */
+
+VSLIST_HEAD(priv_id_head, priv_id);
+
+struct priv_id {
+	uintptr_t		id;
+	VSLIST_ENTRY(priv_id)	list;
+	struct vmod_priv	priv;
+};
+
+static void
+vrt_priv_id_fini(void *ptr)
+{
+	struct priv_id_head *h = ptr;
+	struct priv_id *pi;
+
+	VSLIST_FOREACH(pi, h, list)
+		VRT_priv_fini(&pi->priv);
+
+	memset(h, 0, sizeof(*h));
+}
+
+static struct vmod_priv *
+vrt_priv_id(struct vmod_priv *arg, struct ws *ws, uintptr_t id)
+{
+	struct priv_id_head *h;
+	struct priv_id *pi;
+
+	AN(arg);
+
+	if (arg->priv == NULL) {
+		AZ(arg->free);
+		h = WS_Alloc(ws, sizeof(*h));
+		if (h == NULL)
+			return NULL;
+		VSLIST_INIT(h);
+		arg->priv = h;
+		arg->free = vrt_priv_id_fini;
+	} else {
+		/* cheap magic-like check */
+		assert(arg->free == vrt_priv_id_fini);
+		h = arg->priv;
+	}
+
+	VSLIST_FOREACH(pi, h, list)
+		if (pi->id == id)
+			return (&pi->priv);
+
+	pi = WS_Alloc(ws, sizeof(*pi));
+	if (pi == NULL)
+		return NULL;
+	memset(pi, 0, sizeof(*pi));
+
+	pi->id = id;
+	VSLIST_INSERT_HEAD(h, pi, list);
+
+	return (&pi->priv);
+}
+
+struct vmod_priv *
+VRT_priv_task_id(VRT_CTX, struct vmod_priv *arg, uintptr_t id)
+{
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	return (vrt_priv_id(arg, ctx->ws, id));
+}
+
+struct vmod_priv *
+VRT_priv_top_id(VRT_CTX, struct vmod_priv *arg, uintptr_t id)
+{
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if (ctx->req) {
+		CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
+		CHECK_OBJ_NOTNULL(ctx->req->top, REQ_MAGIC);
+	} else
+		WRONG("PRIV_TOP is only accessible in client VCL context");
+
+	return (vrt_priv_id(arg, ctx->req->top->ws, id));
+}

@@ -153,14 +153,14 @@ shard_param_stack(struct vmod_directors_shard_param *p,
     const struct vmod_directors_shard_param *pa, const char *who);
 
 static struct vmod_directors_shard_param *
-shard_param_task(VRT_CTX, const void *id,
-    const struct vmod_directors_shard_param *pa);
+shard_param_task(VRT_CTX, struct vmod_priv *, const void *,
+    const struct vmod_directors_shard_param *);
 
 static const struct vmod_directors_shard_param *
 shard_param_blob(const VCL_BLOB blob);
 
 static const struct vmod_directors_shard_param *
-vmod_shard_param_read(VRT_CTX, const void *id,
+vmod_shard_param_read(VRT_CTX, struct vmod_priv *priv_task, const void *id,
     const struct vmod_directors_shard_param *p,
     struct vmod_directors_shard_param *pstk, const char *who);
 
@@ -634,13 +634,14 @@ shard_param_args(VRT_CTX,
 
 VCL_BACKEND v_matchproto_(td_directors_shard_backend)
 vmod_shard_backend(VRT_CTX, struct vmod_directors_shard *vshard,
-		   struct vmod_shard_backend_arg *a)
+    struct vmod_shard_backend_arg *a)
 {
 	struct vmod_directors_shard_param pstk;
 	struct vmod_directors_shard_param *pp = NULL;
 	const struct vmod_directors_shard_param *ppt;
 	enum resolve_e resolve;
 	uint32_t args = shard_backend_arg_mask(a);
+	struct vmod_priv *priv_task = a->arg1;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(vshard, VMOD_SHARD_SHARD_MAGIC);
@@ -669,7 +670,7 @@ vmod_shard_backend(VRT_CTX, struct vmod_directors_shard *vshard,
 
 		assert(ctx->method & VCL_MET_TASK_B);
 
-		pp = shard_param_task(ctx, vshard->shardd,
+		pp = shard_param_task(ctx, priv_task, vshard->shardd,
 				      vshard->shardd->param);
 		if (pp == NULL)
 			return (NULL);
@@ -814,7 +815,7 @@ shard_param_stack(struct vmod_directors_shard_param *p,
  * if id != pa and pa has VCL scope, also get a task scoped param struct for pa
  */
 static struct vmod_directors_shard_param *
-shard_param_task(VRT_CTX, const void *id,
+shard_param_task(VRT_CTX, struct vmod_priv *priv_task, const void *id,
    const struct vmod_directors_shard_param *pa)
 {
 	struct vmod_directors_shard_param *p;
@@ -824,7 +825,7 @@ shard_param_task(VRT_CTX, const void *id,
 	CHECK_OBJ_NOTNULL(pa, VMOD_SHARD_SHARD_PARAM_MAGIC);
 	assert(pa->scope > _SCOPE_INVALID);
 
-	task = VRT_priv_task(ctx, id);
+	task = VRT_priv_task_id(ctx, priv_task, (uintptr_t)id);
 
 	if (task == NULL) {
 		VRT_fail(ctx, "no priv_task");
@@ -855,7 +856,7 @@ shard_param_task(VRT_CTX, const void *id,
 	if (id == pa || pa->scope != SCOPE_VCL)
 		p->defaults = pa;
 	else
-		p->defaults = shard_param_task(ctx, pa, pa);
+		p->defaults = shard_param_task(ctx, priv_task, pa, pa);
 
 	/* XXX
 	VSL(SLT_Debug, 0,
@@ -866,8 +867,8 @@ shard_param_task(VRT_CTX, const void *id,
 }
 
 static struct vmod_directors_shard_param *
-shard_param_prep(VRT_CTX, struct vmod_directors_shard_param *p,
-    const char *who)
+shard_param_prep(VRT_CTX, struct vmod_priv *priv_task,
+    struct vmod_directors_shard_param *p, const char *who)
 {
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(p, VMOD_SHARD_SHARD_PARAM_MAGIC);
@@ -877,7 +878,7 @@ shard_param_prep(VRT_CTX, struct vmod_directors_shard_param *p,
 			 "in vcl_init and in backend context", who);
 		return (NULL);
 	} else if (ctx->method & VCL_MET_TASK_B)
-		p = shard_param_task(ctx, p, p);
+		p = shard_param_task(ctx, priv_task, p, p);
 	else
 		assert(ctx->method & VCL_MET_TASK_H);
 
@@ -892,7 +893,7 @@ vmod_shard_param_set(VRT_CTX, struct vmod_directors_shard_param *p,
 
 	assert((args & ~_arg_mask_set) == 0);
 
-	p = shard_param_prep(ctx, p, "shard_param.set()");
+	p = shard_param_prep(ctx, a->arg1, p, "shard_param.set()");
 	if (p == NULL)
 		return;
 	(void) shard_param_args(ctx, p, "shard_param.set()", args,
@@ -901,17 +902,17 @@ vmod_shard_param_set(VRT_CTX, struct vmod_directors_shard_param *p,
 }
 
 VCL_VOID v_matchproto_(td_directors_shard_param_clear)
-vmod_shard_param_clear(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_clear(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
-	p = shard_param_prep(ctx, p, "shard_param.clear()");
+	p = shard_param_prep(ctx, priv_task, p, "shard_param.clear()");
 	if (p == NULL)
 		return;
 	p->mask = 0;
 }
 
 static const struct vmod_directors_shard_param *
-vmod_shard_param_read(VRT_CTX, const void *id,
+vmod_shard_param_read(VRT_CTX, struct vmod_priv *priv_task, const void *id,
     const struct vmod_directors_shard_param *p,
     struct vmod_directors_shard_param *pstk, const char *who)
 {
@@ -922,7 +923,7 @@ vmod_shard_param_read(VRT_CTX, const void *id,
 	(void) who; // XXX
 
 	if (ctx->method == 0 || (ctx->method & VCL_MET_TASK_B))
-		p = shard_param_task(ctx, id, p);
+		p = shard_param_task(ctx, priv_task, id, p);
 
 	if (p == NULL)
 		return (NULL);
@@ -934,13 +935,14 @@ vmod_shard_param_read(VRT_CTX, const void *id,
 }
 
 VCL_STRING v_matchproto_(td_directors_shard_param_get_by)
-vmod_shard_param_get_by(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_by(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk, "shard_param.get_by()");
+	pp = vmod_shard_param_read(ctx, priv_task,
+	    p, p, &pstk, "shard_param.get_by()");
 	if (pp == NULL)
 		return (NULL);
 	assert(pp->by > _BY_E_INVALID);
@@ -948,53 +950,54 @@ vmod_shard_param_get_by(VRT_CTX,
 }
 
 VCL_INT v_matchproto_(td_directors_shard_param_get_key)
-vmod_shard_param_get_key(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_key(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk, "shard_param.get_key()");
+	pp = vmod_shard_param_read(ctx, priv_task,
+	    p, p, &pstk, "shard_param.get_key()");
 	if (pp == NULL)
 		return (-1);
 	return ((VCL_INT)shard_get_key(ctx, pp));
 }
 VCL_INT v_matchproto_(td_directors_shard_param_get_alt)
-vmod_shard_param_get_alt(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_alt(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk,
-				   "shard_param.get_alt()");
+	pp = vmod_shard_param_read(ctx, priv_task,
+	    p, p, &pstk, "shard_param.get_alt()");
 	if (pp == NULL)
 		return (-1);
 	return (pp->alt);
 }
 
 VCL_REAL v_matchproto_(td_directors_shard_param_get_warmup)
-vmod_shard_param_get_warmup(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_warmup(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk,
-				   "shard_param.get_warmup()");
+	pp = vmod_shard_param_read(ctx, priv_task,
+	    p, p, &pstk, "shard_param.get_warmup()");
 	if (pp == NULL)
 		return (-2);
 	return (pp->warmup);
 }
 
 VCL_BOOL v_matchproto_(td_directors_shard_param_get_rampup)
-vmod_shard_param_get_rampup(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_rampup(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk,
+	pp = vmod_shard_param_read(ctx, priv_task, p, p, &pstk,
 				   "shard_param.get_rampup()");
 	if (pp == NULL)
 		return (0);
@@ -1002,13 +1005,13 @@ vmod_shard_param_get_rampup(VRT_CTX,
 }
 
 VCL_STRING v_matchproto_(td_directors_shard_param_get_healthy)
-vmod_shard_param_get_healthy(VRT_CTX,
-    struct vmod_directors_shard_param *p)
+vmod_shard_param_get_healthy(VRT_CTX, struct vmod_directors_shard_param *p,
+    struct vmod_priv *priv_task)
 {
 	struct vmod_directors_shard_param pstk;
 	const struct vmod_directors_shard_param *pp;
 
-	pp = vmod_shard_param_read(ctx, p, p, &pstk,
+	pp = vmod_shard_param_read(ctx, priv_task, p, p, &pstk,
 				   "shard_param.get_healthy()");
 	if (pp == NULL)
 		return (NULL);

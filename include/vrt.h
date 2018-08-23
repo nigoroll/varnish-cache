@@ -495,7 +495,9 @@ void VRT_rel_vcl(VRT_CTX, struct vclref **);
 
 void VRT_priv_fini(const struct vmod_priv *p);
 struct vmod_priv *VRT_priv_task(VRT_CTX, const void *vmod_id);
+struct vmod_priv *VRT_priv_task_id(VRT_CTX, struct vmod_priv *, uintptr_t);
 struct vmod_priv *VRT_priv_top(VRT_CTX, const void *vmod_id);
+struct vmod_priv *VRT_priv_top_id(VRT_CTX, struct vmod_priv *, uintptr_t);
 
 /* Stevedore related functions */
 int VRT_Stv(const char *nm);

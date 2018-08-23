@@ -411,7 +411,7 @@ To generate sharding keys using other hashes, use a custom vmod like
 
 .. _vmod blobdigest: https://code.uplex.de/uplex-varnish/libvmod-blobdigest/blob/master/README.rst
 
-$Method BACKEND .backend(
+$Method BACKEND .backend(PRIV_TASK,
 	[ ENUM {HASH, URL, KEY, BLOB} by=HASH ],
 	[ INT key ],
 	[ BLOB key_blob ],
@@ -583,7 +583,7 @@ respective backend request.
 
 Parameter sets can not be used in client context.
 
-$Method VOID .clear()
+$Method VOID .clear(PRIV_TASK)
 
 Reset the parameter set to default values as documented for
 `func_shard.backend`_.
@@ -594,7 +594,7 @@ Reset the parameter set to default values as documented for
 
 This method may not be used in client context
 
-$Method VOID .set(
+$Method VOID .set(PRIV_TASK,
 	[ ENUM {HASH, URL, KEY, BLOB} by ],
 	[ INT key ],
 	[ BLOB key_blob ],
@@ -614,33 +614,33 @@ Change the given parameters of a parameter set as documented for
 
 This method may not be used in client context
 
-$Method STRING .get_by()
+$Method STRING .get_by(PRIV_TASK)
 
 Get a string representation of the `by` enum argument which denotes
 how a shard director using this parameter object would derive the
 shard key. See `func_shard.backend`_.
 
-$Method INT .get_key()
+$Method INT .get_key(PRIV_TASK)
 
 Get the key which a shard director using this parameter object would
 use. See `func_shard.backend`_.
 
-$Method INT .get_alt()
+$Method INT .get_alt(PRIV_TASK)
 
 Get the `alt` parameter which a shard director using this parameter
 object would use. See `func_shard.backend`_.
 
-$Method REAL .get_warmup()
+$Method REAL .get_warmup(PRIV_TASK)
 
 Get the `warmup` parameter which a shard director using this parameter
 object would use. See `func_shard.backend`_.
 
-$Method BOOL .get_rampup()
+$Method BOOL .get_rampup(PRIV_TASK)
 
 Get the `rampup` parameter which a shard director using this parameter
 object would use. See `func_shard.backend`_.
 
-$Method STRING .get_healthy()
+$Method STRING .get_healthy(PRIV_TASK)
 
 Get a string representation of the `healthy` enum argument which a
 shard director using this parameter object would use. See
