@@ -187,7 +187,7 @@ pool_getidleworker(struct pool *pp, enum task_prio prio)
 
 	CHECK_OBJ_NOTNULL(pp, POOL_MAGIC);
 	Lck_AssertHeld(&pp->mtx);
-	if (prio <= TASK_QUEUE_RESERVE || pp->nidle > pool_reserve()) {
+	if (pp->nidle > (pool_reserve() * prio / TASK_QUEUE_END)) {
 		pt = VTAILQ_FIRST(&pp->idle_queue);
 		if (pt == NULL)
 			AZ(pp->nidle);
@@ -335,7 +335,7 @@ Pool_Work_Thread(struct pool *pp, struct worker *wrk)
 	struct pool_task *tp = NULL;
 	struct pool_task tpx, tps;
 	vtim_real tmo;
-	int i, prio_lim;
+	int i, reserve;
 
 	CHECK_OBJ_NOTNULL(pp, POOL_MAGIC);
 	wrk->pool = pp;
@@ -346,12 +346,11 @@ Pool_Work_Thread(struct pool *pp, struct worker *wrk)
 		AZ(wrk->vsl);
 
 		Lck_Lock(&pp->mtx);
-		if (pp->nidle < pool_reserve())
-			prio_lim = TASK_QUEUE_RESERVE + 1;
-		else
-			prio_lim = TASK_QUEUE_END;
+		reserve = pool_reserve();
 
-		for (i = 0; i < prio_lim; i++) {
+		for (i = 0; i < TASK_QUEUE_END; i++) {
+			if (pp->nidle < (reserve * i / TASK_QUEUE_END))
+				break;
 			tp = VTAILQ_FIRST(&pp->queues[i]);
 			if (tp != NULL) {
 				pp->lqueue--;
