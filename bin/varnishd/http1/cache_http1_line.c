@@ -136,13 +136,40 @@ V1L_Close(struct worker *wrk, uint64_t *cnt)
 	v1l = wrk->v1l;
 	wrk->v1l = NULL;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
-	*cnt = v1l->cnt;
+	*cnt += v1l->cnt;
 	if (v1l->ws->r)
 		WS_Release(v1l->ws, 0);
 	WS_Rollback(v1l->ws, v1l->res);
 	ZERO_OBJ(v1l, sizeof *v1l);
 	return (sc);
 }
+
+/* change the number of iovs */
+enum sess_close
+V1L_Reopen(struct worker *wrk, uint64_t *cnt, unsigned niov)
+{
+	struct v1l *v1l = wrk->v1l;
+
+	enum sess_close sc;
+	struct ws *ws;
+	int *fd;
+	struct vsl_log *vsl;
+	vtim_real deadline;
+
+	ws = v1l->ws;
+	fd = v1l->wfd;
+	vsl = v1l->vsl;
+	deadline = v1l->deadline;
+	v1l = NULL;
+
+	sc = V1L_Close(wrk, cnt);
+	if (sc != SC_NULL)
+		return (sc);
+
+	V1L_Open(wrk, ws, fd, vsl, deadline, niov);
+	return (0);
+}
+
 
 static void
 v1l_prune(struct v1l *v1l, size_t bytes)
