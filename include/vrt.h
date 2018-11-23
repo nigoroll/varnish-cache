@@ -58,6 +58,7 @@
  *	VRT_vcl_select emoved to vcc_interface.h
  *	[cache.h] WS_ReserveAll() added
  *	[cache.h] WS_Reserve(ws, 0) deprecated
+ *	VRT_Fortmat_Proxy() added
  * 9.0 (2019-03-15)
  *	Make 'len' in vmod_priv 'long'
  *	HTTP_Copy() removed
@@ -523,6 +524,7 @@ void VRT_DelDirector(VCL_BACKEND *);
 
 /* Suckaddr related */
 int VRT_VSA_GetPtr(VCL_IP sua, const unsigned char ** dst);
+void VRT_Format_Proxy(struct vsb *, VCL_INT, VCL_IP, VCL_IP);
 
 /* VMOD/Modules related */
 int VRT_Vmod_Init(VRT_CTX, struct vmod **hdl, unsigned nbr, void *ptr, int len,
