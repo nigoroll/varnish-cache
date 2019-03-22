@@ -37,18 +37,21 @@
 #include <stdlib.h>
 
 #include "cache_varnishd.h"
+#include "cache_director.h"
 
 #include "vend.h"
 #include "vsa.h"
 #include "vsha256.h"
 #include "vtcp.h"
 #include "vtim.h"
+#include "vsa.h"
 
 #include "cache_backend.h"
 #include "cache_tcp_pool.h"
 #include "cache_transport.h"
 #include "cache_vcl.h"
 #include "http1/cache_http1.h"
+#include "proxy/cache_proxy.h"
 
 #include "VSC_vbe.h"
 
@@ -582,15 +585,17 @@ vrt_hash_be(const struct vrt_endpoint *vep)
 
 VCL_BACKEND
 VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
-    const struct vrt_backend *vrt)
+    const struct vrt_backend *vrt, VCL_BACKEND via)
 {
 	struct backend *be;
 	struct vcl *vcl;
+	struct vsb *preamble;
 	const struct vrt_backend_probe *vbp;
 	const struct vrt_endpoint *vep;
 	const struct vdi_methods *m;
-	const struct suckaddr *sa;
+	const struct suckaddr *bogo = NULL, *sa = NULL;
 	char abuf[VTCP_ADDRBUFSIZE];
+	const struct backend *viabe = NULL;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(vrt, VRT_BACKEND_MAGIC);
@@ -603,6 +608,56 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 		}
 	} else
 		assert(vep->ipv4== NULL && vep->ipv6== NULL);
+
+	/*
+	 * our via parameter is a VCL_BACKEND, which could be a director.
+	 *
+	 * For now, we resolve it when creating the backend, which imples no
+	 * redundancy / load balancing across the via director, which could
+	 * potentially resolve to many backends.
+	 *
+	 * Consequently, for now, be->tcp_pool is fixed.
+	 *
+	 * A future improvement would be to move via resolution to _getfd, which
+	 * implies also moving be->tcp_pool resolution
+	 */
+
+	if (via)
+		via = VRT_DirectorResolve(ctx, via);
+	if (via &&
+	    (via->vdir->methods == vbe_methods ||
+	     via->vdir->methods == vbe_methods_noprobe)) {
+		CAST_OBJ_NOTNULL(viabe, via->priv, BACKEND_MAGIC);
+		via = NULL;
+	} else if (via) {
+		VRT_fail(ctx, "Via does not resolve to a backend");
+		return (NULL);
+	}
+	if (viabe) {
+		/*
+		 * select sa for the proxy header and id for the pool
+		 *
+		 * sa is not necessarily de-duped, so pool-sharing may be
+		 * sub-optimal
+		 */
+
+		if (cache_param->prefer_ipv6 && vep->ipv6) {
+			sa = vep->ipv6;
+			bogo = bogo_ip6;
+		}
+		if (sa == NULL) {
+			sa = vep->ipv4;
+			bogo = bogo_ip;
+		}
+		if (sa == NULL) {
+			sa = vep->ipv6;
+			bogo = bogo_ip6;
+		}
+		if (sa == NULL) {
+			VRT_fail(ctx, "Via is only supported for IP addresses");
+			return (NULL);
+		}
+	}
 
 	vcl = ctx->vcl;
 	AN(vcl);
@@ -638,8 +693,21 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 	if (! vcl->temp->is_warm)
 		VRT_VSC_Hide(be->vsc_seg);
 
-	be->tcp_pool = VTP_Ref(vep->ipv4, vep->ipv6,
-	    vep->uds_path, vrt_hash_be(vep), NULL);
+	if (viabe) {
+		AN(viabe->tcp_pool);
+		// could live on stack
+		preamble = VSB_new_auto();
+		// XXX add authority
+		AN(bogo);
+		AN(sa);
+		VPX_Format_Proxy(preamble, 1, bogo, sa, NULL);
+		be->tcp_pool = VTP_Clone(viabe->tcp_pool, vrt_hash_be(vep),
+		    preamble);
+	} else {
+		be->tcp_pool = VTP_Ref(vep->ipv4, vep->ipv6,
+		    vep->uds_path, vrt_hash_be(vep), NULL);
+	}
+
 	AN(be->tcp_pool);
 
 	vbp = vrt->probe;
@@ -673,10 +741,10 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 }
 
 VCL_BACKEND
-VRT_new_backend(VRT_CTX, const struct vrt_backend *vrt)
+VRT_new_backend(VRT_CTX, const struct vrt_backend *vrt, VCL_BACKEND via)
 {
 	CHECK_OBJ_NOTNULL(vrt->endpoint, VRT_ENDPOINT_MAGIC);
-	return (VRT_new_backend_clustered(ctx, NULL, vrt));
+	return (VRT_new_backend_clustered(ctx, NULL, vrt, via));
 }
 
 /*--------------------------------------------------------------------
