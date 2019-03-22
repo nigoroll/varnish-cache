@@ -349,6 +349,7 @@ vcc_ParseHostDef(struct vcc *tl, const struct token *t_be, const char *vgcname)
 	struct fld_spec *fs;
 	struct inifin *ifp;
 	struct vsb *vsb1;
+	struct symbol *via = NULL;
 	char *p;
 	unsigned u;
 	double t;
@@ -364,6 +365,7 @@ vcc_ParseHostDef(struct vcc *tl, const struct token *t_be, const char *vgcname)
 	    "?probe",
 	    "?max_connections",
 	    "?proxy_header",
+	    "?via",
 	    NULL);
 
 
@@ -503,6 +505,13 @@ vcc_ParseHostDef(struct vcc *tl, const struct token *t_be, const char *vgcname)
 			vcc_ErrWhere(tl, tl->t);
 			VSB_destroy(&tl->fb);
 			return;
+		} else if (vcc_IdIs(t_field, "via")) {
+			via = VCC_SymbolGet(tl, SYM_MAIN, SYM_BACKEND,
+			    SYMTAB_EXISTING, XREF_REF);
+			ERRCHK(tl);
+			AN(via);
+			AN(via->rname);
+			SkipToken(tl, ';');
 		} else {
 			ErrInternal(tl);
 			VSB_destroy(&tl->fb);
@@ -567,8 +576,8 @@ vcc_ParseHostDef(struct vcc *tl, const struct token *t_be, const char *vgcname)
 	ifp = New_IniFin(tl);
 	VSB_printf(ifp->ini,
 	    "\t%s =\n\t    VRT_new_backend_clustered(ctx, vsc_cluster,\n"
-	    "\t\t&vgc_dir_priv_%s, NULL);",
-	    vgcname, vgcname);
+	    "\t\t&vgc_dir_priv_%s, %s);",
+	    vgcname, vgcname, via ? via->rname : "NULL");
 	VSB_printf(ifp->fin, "\t\tVRT_delete_backend(ctx, &%s);", vgcname);
 }
 
