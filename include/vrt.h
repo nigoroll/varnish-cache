@@ -519,9 +519,9 @@ struct vrt_backend_probe {
 };
 
 /* Backend related */
-VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *);
+VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *, VCL_BACKEND);
 VCL_BACKEND VRT_new_backend_clustered(VRT_CTX,
-    struct vsmw_cluster *, const struct vrt_backend *);
+    struct vsmw_cluster *, const struct vrt_backend *, VCL_BACKEND);
 size_t VRT_backend_vsm_need(VRT_CTX);
 void VRT_delete_backend(VRT_CTX, VCL_BACKEND *);
 struct vrt_endpoint *VRT_Endpoint_Clone(const struct vrt_endpoint *vep);
