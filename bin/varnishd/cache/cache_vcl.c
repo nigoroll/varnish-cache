@@ -198,6 +198,7 @@ vcl_find(const char *name)
 void
 VCL_Panic(struct vsb *vsb, const char *nm, const struct vcl *vcl)
 {
+	const struct vrt_ii *ii;
 	int i;
 
 	AN(vsb);
@@ -222,6 +223,15 @@ VCL_Panic(struct vsb *vsb, const char *nm, const struct vcl *vcl)
 		VSB_indent(vsb, 2);
 		for (i = 0; i < vcl->conf->nsrc; ++i)
 			VSB_printf(vsb, "\"%s\",\n", vcl->conf->srcname[i]);
+		VSB_indent(vsb, -2);
+		VSB_printf(vsb, "instances = {\n");
+		VSB_indent(vsb, 2);
+		ii = vcl->conf->instance_info;
+		while (ii != NULL && ii->p != NULL) {
+			VSB_printf(vsb, "\"%s\" = %p,\n", ii->name,
+			    (const void *)*(const uintptr_t *)ii->p);
+			ii++;
+		}
 		VSB_indent(vsb, -2);
 		VSB_printf(vsb, "},\n");
 	}

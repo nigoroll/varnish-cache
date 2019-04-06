@@ -226,6 +226,12 @@ struct vrt_type {
 	size_t				szof;
 };
 
+/* vmod object instance info */
+struct vrt_ii {
+	const void *			p;
+	const char * const		name;
+};
+
 /***********************************************************************
  * This is the composite argument we pass to compiled VCL and VRT
  * functions.
