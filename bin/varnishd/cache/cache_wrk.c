@@ -169,12 +169,16 @@ pool_reserve(void)
 {
 	unsigned lim;
 
-	if (cache_param->wthread_reserve == 0)
-		return (cache_param->wthread_min / 20 + 1);
-	lim = cache_param->wthread_min * 950 / 1000;
-	if (cache_param->wthread_reserve > lim)
-		return (lim);
-	return (cache_param->wthread_reserve);
+	if (cache_param->wthread_reserve == 0) {
+		lim = cache_param->wthread_min / 20 + 1;
+	} else {
+		lim = cache_param->wthread_min * 950 / 1000;
+		if (cache_param->wthread_reserve < lim)
+			lim = cache_param->wthread_reserve;
+	}
+	if (lim < TASK_QUEUE_END)
+		return (TASK_QUEUE_END);
+	return (lim);
 }
 
 /*--------------------------------------------------------------------*/
