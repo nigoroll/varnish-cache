@@ -996,7 +996,7 @@ h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2)
 		Lck_Lock(&h2->sess->mtx);
 		if (r2->t_winupd != 0 &&
 		    h2->sess->t_idle - r2->t_winupd >
-		    cache_param->idle_send_timeout) {
+		    SESS_TMO(h2->sess, idle_send_timeout)) {
 			VSLb(h2->vsl, SLT_Debug,
 			     "H2: stream %u: Hit idle_send_timeout waiting "
 			     "for WINDOW_UPDATE", r2->stream);
@@ -1004,7 +1004,8 @@ h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2)
 		}
 
 		if (r == 0 && r2->t_send != 0 &&
-		    h2->sess->t_idle - r2->t_send > cache_param->send_timeout) {
+		    h2->sess->t_idle - r2->t_send >
+		    SESS_TMO(h2->sess, send_timeout)) {
 			VSLb(h2->vsl, SLT_Debug,
 			     "H2: stream %u: Hit send_timeout", r2->stream);
 			r = 1;
