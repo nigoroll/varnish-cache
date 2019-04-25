@@ -152,19 +152,19 @@ V1L_Reopen(struct worker *wrk, uint64_t *cnt, unsigned niov)
 	struct ws *ws;
 	int *fd;
 	struct vsl_log *vsl;
-	double t0;
+	vtim_real deadline;
 
 	ws = v1l->ws;
 	fd = v1l->wfd;
 	vsl = v1l->vsl;
-	t0 = v1l->t0;
+	deadline = v1l->deadline;
 	v1l = NULL;
 
 	u = V1L_Close(wrk, cnt);
 	if (u)
 		return (u);
 
-	V1L_Open(wrk, ws, fd, vsl, t0, niov);
+	V1L_Open(wrk, ws, fd, vsl, deadline, niov);
 	return (0);
 }
 
