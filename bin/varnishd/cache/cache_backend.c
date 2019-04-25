@@ -35,15 +35,18 @@
 #include <stdlib.h>
 
 #include "cache_varnishd.h"
+#include "cache_director.h"
 
 #include "vtcp.h"
 #include "vtim.h"
+#include "vsa.h"
 
 #include "cache_backend.h"
 #include "cache_tcp_pool.h"
 #include "cache_transport.h"
 #include "cache_vcl.h"
 #include "http1/cache_http1.h"
+#include "proxy/cache_proxy.h"
 
 #include "VSC_vbe.h"
 
@@ -170,11 +173,19 @@ vbe_dir_getfd(struct worker *wrk, struct backend *bp, struct busyobj *bo,
 	Lck_Unlock(&bp->mtx);
 
 	err = 0;
-	if (bp->proxy_header != 0)
-		err += VPX_Send_Proxy(*fdp, bp->proxy_header, bo->sp);
+	if (PFD_State(pfd) == PFD_STATE_USED) {
+		if (bp->preamble) {
+			VSLb(bo->vsl, SLT_Debug, "preamble %s",
+			     VSB_data(bp->preamble));
+			err = write(*fdp, VSB_data(bp->preamble),
+				    VSB_len(bp->preamble));
+		}
+		if (err >= 0 && bp->proxy_header != 0)
+			err += VPX_Send_Proxy(*fdp, bp->proxy_header, bo->sp);
+	}
 	if (err < 0) {
 		VSLb(bo->vsl, SLT_FetchError,
-		     "backend %s: proxy write errno %d (%s)",
+		     "backend %s: preamble/proxy write errno %d (%s)",
 		     VRT_BACKEND_string(bp->director),
 		     errno, vstrerror(errno));
 		// account as if connect failed - good idea?
@@ -418,6 +429,9 @@ vbe_destroy(const struct director *d)
 	if (be->probe != NULL)
 		VBP_Remove(be);
 
+	if (be->preamble)
+		VSB_destroy(&be->preamble);
+
 	VSC_vbe_Destroy(&be->vsc_seg);
 	Lck_Lock(&backends_mtx);
 	if (be->cooled > 0)
@@ -545,11 +559,13 @@ VRT_backend_vsm_need(VRT_CTX)
 
 VCL_BACKEND v_matchproto_()
 VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
-    const struct vrt_backend *vrt)
+    const struct vrt_backend *vrt, VCL_BACKEND via)
 {
 	struct backend *be;
 	struct vcl *vcl;
 	const struct vrt_backend_probe *vbp;
+	const struct backend *viabe = NULL;
+	const struct suckaddr *bogo = NULL, *sa = NULL;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(vrt, VRT_BACKEND_MAGIC);
@@ -559,6 +575,56 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 	else
 		assert(vrt->ipv4_suckaddr == NULL &&
 		    vrt->ipv6_suckaddr == NULL);
+
+	/*
+	 * our via parameter is a VCL_BACKEND, which could be a director.
+	 *
+	 * For now, we resolve it when creating the backend, which imples no
+	 * redundancy / load balancing across the via director, which could
+	 * potentially resolve to many backends.
+	 *
+	 * Consequently, for now, be->tcp_pool is fixed.
+	 *
+	 * A future improvement would be to move via resolution to _getfd, which
+	 * implies also moving be->tcp_pool resolution
+	 */
+
+	if (via)
+		via = VRT_DirectorResolve(ctx, via);
+	if (via &&
+	    (via->vdir->methods == vbe_methods ||
+	     via->vdir->methods == vbe_methods_noprobe)) {
+		CAST_OBJ_NOTNULL(viabe, via->priv, BACKEND_MAGIC);
+		via = NULL;
+	} else if (via) {
+		VRT_fail(ctx, "Via does not resolve to a backend");
+		return (NULL);
+	}
+	if (viabe) {
+		/*
+		 * select sa for the proxy header and id for the pool
+		 *
+		 * sa is not necessarily de-duped, so pool-sharing may be
+		 * sub-optimal
+		 */
+
+		if (cache_param->prefer_ipv6 && vrt->ipv6_suckaddr) {
+			sa = vrt->ipv6_suckaddr;
+			bogo = bogo_ip6;
+		}
+		if (sa == NULL) {
+			sa = vrt->ipv4_suckaddr;
+			bogo = bogo_ip;
+		}
+		if (sa == NULL) {
+			sa = vrt->ipv6_suckaddr;
+			bogo = bogo_ip6;
+		}
+		if (sa == NULL) {
+			VRT_fail(ctx, "Via is only supported for IP addresses");
+			return (NULL);
+		}
+	}
 
 	vcl = ctx->vcl;
 	AN(vcl);
@@ -579,8 +645,19 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 	    "%s.%s", VCL_Name(ctx->vcl), vrt->vcl_name);
 	AN(be->vsc);
 
-	be->tcp_pool = VTP_Ref(vrt->ipv4_suckaddr, vrt->ipv6_suckaddr,
-	    vrt->path, vbe_proto_ident);
+	if (viabe) {
+		AN(viabe->tcp_pool);
+		AN(sa);
+		AN(bogo);
+		be->tcp_pool = VTP_Clone(viabe->tcp_pool, sa);
+		// XXX proxy v2 - using 1 for easy vtc ?
+		be->preamble = VSB_new_auto();
+		VPX_Format_Proxy(be->preamble, 1, bogo, sa);
+		AN(be->preamble);
+	} else {
+		be->tcp_pool = VTP_Ref(vrt->ipv4_suckaddr, vrt->ipv6_suckaddr,
+		    vrt->path, vbe_proto_ident);
+	}
 	AN(be->tcp_pool);
 
 	vbp = vrt->probe;
@@ -626,9 +703,9 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 }
 
 VCL_BACKEND v_matchproto_()
-VRT_new_backend(VRT_CTX, const struct vrt_backend *vrt)
+VRT_new_backend(VRT_CTX, const struct vrt_backend *vrt, VCL_BACKEND via)
 {
-	return (VRT_new_backend_clustered(ctx, NULL, vrt));
+	return (VRT_new_backend_clustered(ctx, NULL, vrt, via));
 }
 
 /*--------------------------------------------------------------------

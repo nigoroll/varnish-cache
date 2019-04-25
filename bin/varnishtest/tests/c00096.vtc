@@ -1,18 +1,8 @@
-varnishtest "Test dynamic backends"
+varnishtest "Test vcl defined via backends"
 
 server s1 {
 	rxreq
 	txresp
-	close
-	accept
-	rxreq
-	txresp
-	close
-	accept
-	rxreq
-	txresp
-	close
-	accept
 	rxreq
 	txresp
 } -start
@@ -40,13 +30,6 @@ varnish v2 -proto PROXY -vcl {
 	}
 } -start
 
-#
-# we vtc.sleep to make sure that the health check is done and server
-# s1 has accepted again. We would rather want to use barriers, but
-# there is a (yet not understood) bug in varnishtest which prevents
-# the bX_sock marcros from being available in the second varnish
-# instance
-
 varnish v1 -vcl {
 	import debug;
 	import vtc;
@@ -54,27 +37,12 @@ varnish v1 -vcl {
 	backend dummy { .host = "${bad_backend}"; }
 
 	backend v2 { .host = "${v2_addr}"; .port = "${v2_port}"; }
-
-	probe pr { .interval = 1m; }
-
-	sub vcl_init {
-		new s1 = debug.dyn("0.0.0.0", "0");
-	}
+	backend s1 { .via = v2; .host = "${s1_addr}"; .port = "${s1_port}"; }
 
 	sub vcl_recv {
-		if (req.url == "/1") {
-			s1.refresh("${s1_addr}", "${s1_port}", pr);
-			vtc.sleep(1s);
-		} else if (req.url == "/2") {
-			s1.refresh("${s1_addr}", "${s1_port}", pr,
-			    via=v2);
-			vtc.sleep(1s);
-		}
-		set req.backend_hint = s1.backend();
+		set req.backend_hint = s1;
 	}
 } -start
-
-varnish v1 -expect MAIN.n_backend == 3
 
 client c1 {
 	txreq -url /1
