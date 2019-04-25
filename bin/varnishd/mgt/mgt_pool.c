@@ -126,16 +126,12 @@ struct parspec WRK_parspec[] = {
 		"in each pool.\n"
 		"\n"
 		"Tasks may require other tasks to complete (for example, "
-		"client requests may require backend requests). This reserve "
-		"is to ensure that such tasks still get to run even under high "
-		"load.\n"
+		"client requests may require backend requests, http2 sessions "
+		"require streams, which require requests). This reserve is to "
+		"is to ensure that lower priority tasks do not prevent higher "
+		"priority tasks from running even under high load.\n"
 		"\n"
-		"Increasing the reserve may help setups with a high number of "
-		"backend requests at the expense of client performance. "
-		"Setting it too high will waste resources by keeping threads "
-		"unused.\n"
-		"\n"
-		"Default is 0 to auto-tune (currently 5% of thread_pool_min).\n"
+		"Default is 0 to auto-tune (10% of thread_pool_min).\n"
 		"Minimum is 1 otherwise, maximum is 95% of thread_pool_min.",
 		DELAYED_EFFECT,
 		"0", "threads" },
