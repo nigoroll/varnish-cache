@@ -14,6 +14,20 @@ varnish v1 -arg "-p timeout_idle=1"    \
 	   -vcl+backend {
 	import debug;
 
+	sub vcl_recv {
+		if (req.url == "/longsend") {
+			set sess.send_timeout = 2s;
+		} else
+		if (req.url == "/longidlesend") {
+			set sess.idle_send_timeout = 2s;
+		}
+	}
+
+	sub vcl_hash {
+		hash_data("/");
+		return (lookup);
+	}
+
 	sub vcl_deliver {
 		debug.sndbuf(128b);
 	}
@@ -21,8 +35,11 @@ varnish v1 -arg "-p timeout_idle=1"    \
 
 varnish v1 -cliok "param.set send_timeout 1"
 
-logexpect l1 -v v1 {
+logexpect l1 -v v1 -q "ReqURL ~ \"^/$\" and ReqStart ~ \"a0$\"" {
 	expect * * Debug "Hit total send timeout"
+} -start
+
+logexpect l2 -v v1 -q "ReqURL ~ \"^/$\" and ReqStart ~ \"a1$\"" {
 	expect * * Debug "Hit total send timeout"
 } -start
 
@@ -40,33 +57,73 @@ client c1u -connect "${tmpdir}/v1.sock" -rcvbuf 128 {
 	delay 2
 } -start
 
-client c1 -wait
-client c1u -wait
-logexpect l1 -wait
+client c2 -rcvbuf 128 {
+	txreq -url /longsend
+	rxresphdrs
+	delay 1.8
+	rxrespbody
+	expect resp.bodylen == 100000
+} -start
+
+client c2u -connect "${tmpdir}/v1.sock" -rcvbuf 128 {
+	txreq -url /longsend
+	rxresphdrs
+	delay 1.8
+	rxrespbody
+	expect resp.bodylen == 100000
+} -start
 
 feature SO_RCVTIMEO_WORKS
 varnish v1 -cliok "param.set idle_send_timeout 1"
 varnish v1 -cliok "param.reset send_timeout"
 
-logexpect l2 -v v1 {
-	expect * * Debug "Hit idle send timeout"
+logexpect l3 -v v1 -q "ReqURL ~ \"^/$\" and ReqStart ~ \"a0$\"" {
 	expect * * Debug "Hit idle send timeout"
 } -start
 
-client c2 -rcvbuf 128 {
+logexpect l4 -v v1 -q "ReqURL ~ \"^/$\" and ReqStart ~ \"a1$\"" {
+	expect * * Debug "Hit idle send timeout"
+} -start
+
+client c3 -rcvbuf 128 {
 	txreq
 	rxresphdrs
 	# keep the session open for 2 seconds
 	delay 2
 } -start
 
-client c2u -connect "${tmpdir}/v1.sock" -rcvbuf 128 {
+client c3u -connect "${tmpdir}/v1.sock" -rcvbuf 128 {
 	txreq
 	rxresphdrs
 	# keep the session open for 2 seconds
 	delay 2
 } -start
 
+client c4 -rcvbuf 128 {
+	txreq -url /longidlesend
+	rxresphdrs
+	delay 1.8
+	rxrespbody
+	expect resp.bodylen == 100000
+} -start
+
+client c4u -connect "${tmpdir}/v1.sock" -rcvbuf 128 {
+	txreq -url /longidlesend
+	rxresphdrs
+	delay 1.8
+	rxrespbody
+	expect resp.bodylen == 100000
+} -start
+
+client c1 -wait
+client c1u -wait
 client c2 -wait
 client c2u -wait
+client c3 -wait
+client c3u -wait
+client c4 -wait
+client c4u -wait
+logexpect l1 -wait
 logexpect l2 -wait
+logexpect l3 -wait
+logexpect l4 -wait
