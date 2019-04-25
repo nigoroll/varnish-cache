@@ -338,6 +338,29 @@ vcc_pnam(struct vcc *tl, const struct symbol *sym)
 }
 
 static void v_matchproto_(symwalk_f)
+vcc_instance_info(struct vcc *tl, const struct symbol *sym)
+{
+
+	CHECK_OBJ_NOTNULL(sym, SYMBOL_MAGIC);
+	CHECK_OBJ_NOTNULL(sym->kind, KIND_MAGIC);
+	CHECK_OBJ_NOTNULL(sym->type, TYPE_MAGIC);
+	if (sym->rname == NULL || sym->kind != SYM_INSTANCE)
+		return;
+	Fc(tl, 1, "\t{ .p = &%s, .name = \"", sym->rname);
+	vcc_pnam(tl, sym);
+	Fc(tl, 1, "\" },\n");
+}
+
+void
+VCC_InstanceInfo(struct vcc *tl)
+{
+	Fc(tl, 0, "\nconst struct vrt_ii VGC_instance_info[] = {\n");
+	VCC_WalkSymbols(tl, vcc_instance_info, SYM_NONE);
+	Fc(tl, 0, "\t{ .p = NULL, .name = \"\" }\n");
+	Fc(tl, 0, "};\n");
+}
+
+static void v_matchproto_(symwalk_f)
 vcc_xreftable(struct vcc *tl, const struct symbol *sym)
 {
 
