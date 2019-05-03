@@ -196,6 +196,16 @@ struct vrt_ctx;
 #define VRT_CTX		const struct vrt_ctx *ctx
 
 /***********************************************************************
+ * sub
+ */
+
+struct vrt_sub {
+	const unsigned	methods;
+	const char	*name;
+	void		(*func)(VRT_CTX); /* == vcl_func_f */
+};
+
+/***********************************************************************
  * This is the central definition of the mapping from VCL types to
  * C-types.  The python scripts read these from here.
  * (alphabetic order)
@@ -221,8 +231,7 @@ typedef const struct strands *			VCL_STRANDS;
 typedef const char *				VCL_STRING;
 typedef vtim_real				VCL_TIME;
 typedef struct vcl *				VCL_VCL;
- /* == vcl_func_f */
-typedef void					VCL_SUB(VRT_CTX);
+typedef const struct vrt_sub *			VCL_SUB;
 typedef void					VCL_VOID;
 
 struct vrt_type {

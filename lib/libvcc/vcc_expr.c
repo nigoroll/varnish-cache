@@ -470,6 +470,55 @@ vcc_do_enum(struct vcc *tl, struct func_arg *fa, int len, const char *ptr)
 }
 
 static void
+vcc_do_sub(struct vcc *tl, struct func_arg *fa)
+{
+	struct symbol *sym;
+	struct token *t;
+	unsigned m = 0;
+
+	assert(fa->type == SUB);
+
+	ExpectErr(tl, ID);
+	t = tl->t;
+	sym = VCC_SymbolGet(tl, SYM_SUB, SYMTAB_CREATE, XREF_REF);
+	AN(sym);
+	// vcc_AddCall(tl, sym);
+	VCC_GlobalSymbol(sym, SUB, "VGC_function");
+
+	SkipToken(tl, '(');
+
+	/* XXX do we want VCL_MET_* | VCL_MET_* ... symbolically in VGC? */
+	do {
+		ExpectErr(tl, ID);
+		if (vcc_IdIs(tl->t, "client"))
+			m |= VCL_MET_TASK_C;
+		else
+		if (vcc_IdIs(tl->t, "backend"))
+			m |= VCL_MET_TASK_B;
+		else
+#define VCL_MET_MAC(name, def, where, rets)	\
+		if (vcc_IdIs(tl->t, #name))	\
+			m |= VCL_MET_ ## def;	\
+		else
+#include "tbl/vcl_returns.h"
+		{
+			VSB_printf(tl->sb, "Not a vcl method");
+			vcc_ErrWhere(tl, tl->t);
+		}
+
+		vcc_NextToken(tl);
+		if (tl->t->tok == ')')
+			break;
+		SkipToken(tl, ',');
+	} while(1);
+	SkipToken(tl, ')');
+
+	fa->result = vcc_mk_expr(VOID, "&(struct vrt_sub)"
+				 "{.methods = %u, .name = \"%s\", .func = %s}",
+				 m, sym->name, sym->rname);
+}
+
+static void
 vcc_do_arg(struct vcc *tl, struct func_arg *fa)
 {
 	struct expr *e2;
@@ -491,6 +540,8 @@ vcc_do_arg(struct vcc *tl, struct func_arg *fa)
 		}
 		vcc_do_enum(tl, fa, PF(tl->t));
 		SkipToken(tl, ID);
+	} else if (fa->type == SUB) {
+		vcc_do_sub(tl, fa);
 	} else {
 		vcc_expr0(tl, &e2, fa->type);
 		ERRCHK(tl);

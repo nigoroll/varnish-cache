@@ -11,7 +11,7 @@ varnish v1 -vcl {
 	}
 
 	sub vcl_deliver {
-		debug.call(foo);
+		debug.call(foo(deliver));
 		return (synth(503));
 		# XXX
 		call foo;

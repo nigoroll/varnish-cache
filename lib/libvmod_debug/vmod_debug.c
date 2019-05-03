@@ -854,5 +854,11 @@ xyzzy_sndbuf(VRT_CTX, VCL_BYTES arg)
 VCL_VOID
 xyzzy_call(VRT_CTX, VCL_SUB sub)
 {
-	sub(ctx);
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if ((ctx->method & sub->methods) == 0) {
+		VRT_fail(ctx, "invalid context for calling sub %s", sub->name);
+		return;
+	}
+	sub->func(ctx);
 }
