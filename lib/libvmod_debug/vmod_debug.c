@@ -850,3 +850,9 @@ xyzzy_sndbuf(VRT_CTX, VCL_BYTES arg)
 	VSLb(ctx->vsl, SLT_Debug, "SO_SNDBUF fd=%d old=%d new=%d actual=%d",
 	    fd, oldbuf, buflen, newbuf);
 }
+
+VCL_VOID
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	sub(ctx);
+}

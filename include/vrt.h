@@ -190,6 +190,12 @@ struct vrt_blob {
 };
 
 /***********************************************************************
+ * fwd decl
+ */
+struct vrt_ctx;
+#define VRT_CTX		const struct vrt_ctx *ctx
+
+/***********************************************************************
  * This is the central definition of the mapping from VCL types to
  * C-types.  The python scripts read these from here.
  * (alphabetic order)
@@ -215,6 +221,8 @@ typedef const struct strands *			VCL_STRANDS;
 typedef const char *				VCL_STRING;
 typedef vtim_real				VCL_TIME;
 typedef struct vcl *				VCL_VCL;
+ /* == vcl_func_f */
+typedef void					VCL_SUB(VRT_CTX);
 typedef void					VCL_VOID;
 
 struct vrt_type {
@@ -265,8 +273,6 @@ struct vrt_ctx {
 	 */
 	void				*specific;
 };
-
-#define VRT_CTX		const struct vrt_ctx *ctx
 
 /***********************************************************************
  * This is the interface structure to a compiled VMOD

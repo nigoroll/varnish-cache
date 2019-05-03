@@ -253,3 +253,5 @@ $Function VOID release_vcl_busy()
 Allow VCL to go cold
 
 $Function VOID sndbuf(BYTES sndbuf)
+
+$Function VOID call(SUB sub)

@@ -1,0 +1,31 @@
+varnishtest "VCL_SUB"
+
+varnish v1 -vcl {
+	import debug;
+
+	backend dummy { .host = "${bad_backend}"; }
+
+	sub foo {
+		set resp.http.foo = "bar";
+		return (deliver);
+	}
+
+	sub vcl_deliver {
+		debug.call(foo);
+		return (synth(503));
+		# XXX
+		call foo;
+	}
+
+	sub vcl_backend_error {
+		set beresp.status = 200;
+		set beresp.ttl = 1s;
+		set beresp.grace = 1m;
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.foo == "bar"
+} -run
