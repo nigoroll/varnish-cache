@@ -190,6 +190,7 @@ struct proc {
 	unsigned		ret_bitmap;
 	unsigned		called;
 	unsigned		active;
+	unsegned		ref_mask;
 	struct token		*return_tok[VCL_RET_MAX];
 	struct vsb		*cname;
 	struct vsb		*prologue;
