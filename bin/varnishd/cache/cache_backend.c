@@ -600,7 +600,8 @@ via_resolve(VRT_CTX, const struct vrt_endpoint *vep, VCL_BACKEND via)
  * construct a new endpoint identical to vep with sa in a proxy header
  */
 static struct vrt_endpoint *
-via_endpoint(const struct vrt_endpoint *vep, const struct suckaddr *sa)
+via_endpoint(const struct vrt_endpoint *vep, const struct suckaddr *sa,
+    const char *auth)
 {
 	struct vsb *preamble;
 	struct vrt_blob blob[1];
@@ -619,7 +620,7 @@ via_endpoint(const struct vrt_endpoint *vep, const struct suckaddr *sa)
 		client_bogo = bogo_ip;
 
 	preamble = VSB_new_auto();
-	VPX_Format_Proxy(preamble, 2, client_bogo, sa, NULL);
+	VPX_Format_Proxy(preamble, 2, client_bogo, sa, auth);
 	blob->blob = VSB_data(preamble);
 	blob->len = VSB_len(preamble);
 	nvep->preamble = blob;
@@ -699,7 +700,8 @@ VRT_new_backend_clustered(VRT_CTX, struct vsmw_cluster *vc,
 		VRT_VSC_Hide(be->vsc_seg);
 
 	if (viabe)
-		vep = be->endpoint = via_endpoint(viabe->endpoint, sa);
+		vep = be->endpoint = via_endpoint(viabe->endpoint, sa,
+		    be->authority);
 	else
 		vep = be->endpoint = VRT_Endpoint_Clone(vep);
 
