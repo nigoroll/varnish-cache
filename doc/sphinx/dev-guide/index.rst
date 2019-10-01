@@ -28,37 +28,44 @@ Technical stuff
 
 * Writing secure code is more important than performance.
 
-Bugs, issues, feature requests & VIPs
+* Varnishtest cases (VTC) for bugs is the norm, not the exception.
+
+Bugs, pull requests, feature requests
 -------------------------------------
 
-Bugs, issues and feature requests start out as github issues.
+Bugs, pull requests and feature requests start out as github issues.
 
-Monday at 15:00-15:30 (EU time) we "bug-wash" on IRC to decide who and
-how issues are dealt with.
+Monday at 15:00-15:30 (EU time) we "bug-wash" on IRC to decide on the
+who and how of issues to be dealt with.
 
 Issues we cannot do anything about are closed.
 
 If feature requests make sense, they get moved to a wiki/VIP page until
 somebody implements them.
 
-Varnishtest cases for bugs is the norm, not the exception.
+Pull requests are obligatory for all contributions, unless they
+qualify for the exceptions laid out below.
 
-Pull requests should be reviewed by core developers (defined as
-developers with significant contributions the last year) within
-reasonable time after they are created. The reviews should be carried
-out by at least one developer from a different company, to ensure a
-minimal amount of independence.
+Pull requests should be reviewed by all interested developers.
 
-Special developers, called *maintainers*, are appointed (see
-`policy-overnance`_) to approve or veto pull requests.
+The project `maintainers <policy-maintainers>`_ decide on pull
+requests within two weeks:
 
-If two maintainers have OK'ed a PR, and there is no veto from another
-maintainer, then the PR can be merged.
+* Each `maintainer <policy-maintainers>`_ has a veto right on pull
+  requests.
 
-The exception is small, *risk free* changes, which can be commited and
-pushed (by a developer with the *commit bit*) without a
-review. Documentation can also be pushed, unless it concerns policies
-or governance of the project.
+* Undisputed pull requests get merged after two approvals from
+  different maintainers.
+
+The exception to the pull request process are small, *risk free*
+changes, which can be commited and pushed (by a developer with the
+*commit bit*) without a review. These include in particular, but are
+not limited to,
+
+* Documentation changes, unless they concern policies or governance of
+  the project
+
+* Simple bug fixes tested by a varnishtest case (VTC).
 
 Architectural stuff
 -------------------
