@@ -1,28 +1,38 @@
 .. _policy-governance:
 
-Project Truck Factor and Governance
------------------------------------
+Policy and Governance of the Varnish Cache Project
+--------------------------------------------------
 
-We recognize that the Truck Factor of the Varnish Cache project is low.
+The Varnish Governance Board (VGB) was originally created to mitigate
+a low Truck Factor and resolve conflicts, but has been inactive for
+several years.
 
-As mitigation we have created a Varnish Governance Board (VGB)
-and implemented procedures so no project asset have a Truck Factor
-less than 3.
+The VGB will be set up again, with members who are currently active in
+the project.
+Responsibilities of the board include setting up rules
+for the project, and resolving any conflicts that may turn up.
 
-The Varnish Governance Board is the ultimate authority in the
-project, but does little to nothing on a daily basis.
+Until the VGB has been formed, code maintainers will be elected at the
+VDD (Varnish Developer Day).
+As of now, there are three maintainer "hats", held by
 
-The important thing is that there is agreement beforehand about who
-has the authority to step in, if need be.
-
-Appointment to the VGB is by acclamation, and we prefer the members
-to have enough distance and neutrality to be able to resolve
-conflicts, should it ever become necessary.
-
-Current members of the VGB:
-
-* Rogier Mulhuijzen
-* Lasse Karstensen
 * Poul-Henning Kamp
+* Varnish Software
+* UPLEX
 
+Here the companies will nominate the developer who is considered its
+VC maintainer, and this can vary throughout the year (to allow for
+vacations etc.).
 
+The members of the VGB is elected during the VDD, but this will
+typically happen through by acclamation. We prefer the members to have
+enough distance and neutrality to be able to resolve conflicts, should
+it ever become necessary.
+
+The Varnish Developer day has, so far, been by invitation, where all
+core developers and some big users of Varnish, have been invited. We
+are looking to expand this so that Varnish users can take a bigger
+part, and have a bigger influence on the direction of Varnish
+Cache. At the same time, we will keep some time that is purely for
+developers, where the most technical aspects of Varnish and its
+implementation is discussed.

@@ -47,10 +47,18 @@ Pull requests should be reviewed by core developers (defined as
 developers with significant contributions the last year) within
 reasonable time after they are created. The reviews should be carried
 out by at least one developer from a different company, to ensure a
-minimal amount of independence. Pull requests which have been reviewed
-by a core developer, and no vetos from other core developers exist,
-will be merged after a while. PRs will also be merged if a wide
-concensus has been reached during a "bug-wash".
+minimal amount of independence.
+
+Special developers, called *maintainers*, are appointed (see
+`policy-overnance`_) to approve or veto pull requests.
+
+If two maintainers have OK'ed a PR, and there is no veto from another
+maintainer, then the PR can be merged.
+
+The exception is small, *risk free* changes, which can be commited and
+pushed (by a developer with the *commit bit*) without a
+review. Documentation can also be pushed, unless it concerns policies
+or governance of the project.
 
 Architectural stuff
 -------------------
