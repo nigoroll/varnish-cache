@@ -52,18 +52,23 @@ struct acl_e {
 	unsigned		not;
 	unsigned		para;
 	char			*addr;
-	char			*fixed;
+	const char		*fixed;
 	struct token		*t_addr;
 	struct token		*t_mask;
 };
 
+enum acl_cmp_e {
+	ACL_EQ = 0,
+	ACL_LT = -1,		// a < b
+	ACL_GT = 1,		// b > a
+	ACL_CONTAINED = -2,	// b contains a
+	ACL_CONTAINS = 2,	// a contains b
+	ACL_LEFT = -3,		// a + 1 == b
+	ACL_RIGHT = 3		// a == b + 1
+};
+
 /*
- * Compare two acl rules for ordering
- * returns:
- * 0	same
- * -1/1	strictly less/greater
- * -2/2	b contains a / a contains b
- * -3/3	a left of b / b left of a
+ * Compare two acl rules for relation
  */
 
 #define CMP(n, a, b)							\
@@ -77,12 +82,12 @@ struct acl_e {
 #define CMPA(a, b)							\
 	do {								\
 		if ((a) + 1 == (b))					\
-			return (-3);					\
+			return (ACL_LEFT);				\
 		else if ((b) + 1 == (a))				\
-			return (3);					\
+			return (ACL_RIGHT);				\
 	} while (0)
 
-static int
+static enum acl_cmp_e
 vcl_acl_cmp(struct acl_e *ae1, struct acl_e *ae2)
 {
 	unsigned char *p1, *p2;
@@ -95,7 +100,7 @@ vcl_acl_cmp(struct acl_e *ae1, struct acl_e *ae2)
 	if (ae2->mask < m)
 		m = ae2->mask;
 	for (; m >= 8; m -= 8) {
-		CMP(1, *p1, *p2);
+		CMP(ACL_GT, *p1, *p2);
 		p1++;
 		p2++;
 	}
@@ -105,14 +110,14 @@ vcl_acl_cmp(struct acl_e *ae1, struct acl_e *ae2)
 		a2 = *p2 >> (8 - m);
 		if (ae1->mask == ae2->mask)
 			CMPA(a1, a2);
-		CMP(1, a1, a2);
+		CMP(ACL_GT, a1, a2);
 	} else if (ae1->mask == ae2->mask) {
 		CMPA(*p1, *p2);
 	}
 	/* Long mask is less than short mask */
-	CMP(2, ae2->mask, ae1->mask);
+	CMP(ACL_CONTAINS, ae2->mask, ae1->mask);
 
-	return (0);
+	return (ACL_EQ);
 }
 
 static char *
@@ -173,38 +178,90 @@ static void
 vcc_acl_insert_entry(struct vcc *tl, struct acl_e *aen)
 {
 	struct acl_e *ae2;
-	int i;
+	enum acl_cmp_e i = ACL_GT;
 
 	VTAILQ_FOREACH(ae2, &tl->acl, list) {
 		i = vcl_acl_cmp(aen, ae2);
-		if (i == 0) {
+		if (i == ACL_EQ) {
 			/*
 			 * If the two rules agree, silently ignore it
 			 * XXX: is that counter intuitive ?
 			 */
 			if (aen->not == ae2->not)
 				return;
-			VSB_cat(tl->sb, "Conflicting ACL entries:\n");
+			VSB_cat(tl->sb, "***\nConflicting ACL entries:\n");
 			vcc_ErrWhere(tl, ae2->t_addr);
 			VSB_cat(tl->sb, "vs:\n");
 			vcc_ErrWhere(tl, aen->t_addr);
 			return;
 		}
-		/*
-		 * We could eliminate pointless rules here, for instance in:
-		 *	"10.1.0.1";
-		 *	"10.1";
-		 * The first rule is clearly pointless, as the second one
-		 * covers it.
-		 *
-		 * We do not do this however, because the shmlog may
-		 * be used to gather statistics.
-		 */
-		if (i < 0) {
+		if (tl->acl_merge == 0)
+			i = (i > ACL_EQ) ? ACL_GT : ACL_LT;
+
+		switch (i) {
+		case ACL_LT:
 			VTAILQ_INSERT_BEFORE(ae2, aen, list);
 			return;
+		case ACL_GT:
+			continue;
+		case ACL_CONTAINED:
+			VSB_cat(tl->sb, "***\nACL entry ignored:\n");
+			vcc_ErrWhere(tl, aen->t_addr);
+			VSB_cat(tl->sb, "because already contained in:\n");
+			vcc_ErrWhere(tl, ae2->t_addr);
+			vcc_Warn(tl);
+			return;
+		case ACL_CONTAINS:
+			VSB_cat(tl->sb, "***\nACL entry:\n");
+			vcc_ErrWhere(tl, aen->t_addr);
+			VSB_cat(tl->sb, "supersedes / removes these entries:\n");
+			VTAILQ_INSERT_BEFORE(ae2, aen, list);
+			while (i == ACL_CONTAINS) {
+				vcc_ErrWhere(tl, ae2->t_addr);
+				VTAILQ_REMOVE(&tl->acl, ae2, list);
+				ae2 = VTAILQ_NEXT(aen, list);
+				if (ae2 == NULL) {
+					break;
+				}
+				i = vcl_acl_cmp(aen, ae2);
+			}
+			vcc_Warn(tl);
+			return;
+		case ACL_LEFT:
+			aen->mask--;
+			VSB_cat(tl->sb, "***\nACL entry:\n");
+			vcc_ErrWhere(tl, aen->t_addr);
+			VSB_cat(tl->sb, "left of:\n");
+			vcc_ErrWhere(tl, ae2->t_addr);
+			VSB_printf(tl->sb, "removing the latter and expanding "
+			    "mask of the former by one to /%d\n",
+			    aen->mask - 8);
+			vcc_Warn(tl);
+			VTAILQ_REMOVE(&tl->acl, ae2, list);
+			aen->fixed = "merged";
+			vcc_acl_insert_entry(tl, aen);
+			return;
+		case ACL_RIGHT:
+			ae2->mask--;
+			VSB_cat(tl->sb, "***\nACL entry:\n");
+			vcc_ErrWhere(tl, aen->t_addr);
+			VSB_cat(tl->sb, "right of:\n");
+			vcc_ErrWhere(tl, ae2->t_addr);
+			VSB_printf(tl->sb, "removing the former and expanding "
+			    "mask of the latter by one to /%d\n",
+			    ae2->mask - 8);
+			vcc_Warn(tl);
+			VTAILQ_REMOVE(&tl->acl, ae2, list);
+			aen = ae2;
+			aen->fixed = "merged";
+			vcc_acl_insert_entry(tl, aen);
+			return;
+		default:
+			WRONG("acl_cmp_e");
 		}
+		/* NOTREACHED */
 	}
+	assert (i == ACL_GT);
 	VTAILQ_INSERT_TAIL(&tl->acl, aen, list);
 }
 
