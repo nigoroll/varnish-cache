@@ -489,8 +489,11 @@ vcc_acl_emit(struct vcc *tl, const char *name, const char *rname, int anon)
 					Fh(tl, 0, " \"\\\"\" ");
 					EncToken(tl->fh, t);
 					Fh(tl, 0, " \"\\\"\" ");
-				} else
+				} else if (t == ae->t_mask) {
+					Fh(tl, 0, " \"%u\"", ae->mask - 8);
+				} else {
 					Fh(tl, 0, " \"%.*s\"", PF(t));
+				}
 				if (t == ae->t_mask)
 					break;
 				t = VTAILQ_NEXT(t, list);
