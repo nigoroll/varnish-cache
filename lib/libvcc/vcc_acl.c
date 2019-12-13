@@ -148,44 +148,11 @@ vcc_acl_chk(struct vcc *tl, const struct acl_e *ae, const int l,
 	return (strdup(t));
 }
 
-
 static void
-vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
-    unsigned char *u, int fam)
+vcc_acl_insert_entry(struct vcc *tl, struct acl_e *aen)
 {
-	struct acl_e *ae2, *aen;
+	struct acl_e *ae2;
 	int i;
-
-	if (fam == PF_INET && ae->mask > 32) {
-		VSB_printf(tl->sb,
-		    "Too wide mask (/%u) for IPv4 address\n", ae->mask);
-		if (ae->t_mask != NULL)
-			vcc_ErrWhere(tl, ae->t_mask);
-		else
-			vcc_ErrWhere(tl, ae->t_addr);
-		return;
-	}
-	if (fam == PF_INET6 && ae->mask > 128) {
-		VSB_printf(tl->sb,
-		    "Too wide mask (/%u) for IPv6 address\n", ae->mask);
-		vcc_ErrWhere(tl, ae->t_mask);
-		return;
-	}
-
-	/* Make a copy from the template */
-	aen = TlAlloc(tl, sizeof *ae2);
-	AN(aen);
-	*aen = *ae;
-
-	aen->fixed = vcc_acl_chk(tl, ae, l, u, fam);
-
-	/* We treat family as part of address, it saves code */
-	assert(fam <= 0xff);
-	aen->data[0] = fam & 0xff;
-	aen->mask += 8;
-
-	assert(l + 1UL <= sizeof aen->data);
-	memcpy(aen->data + 1L, u, l);
 
 	VTAILQ_FOREACH(ae2, &tl->acl, list) {
 		i = vcl_acl_cmp(aen, ae2);
@@ -218,6 +185,46 @@ vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
 		}
 	}
 	VTAILQ_INSERT_TAIL(&tl->acl, aen, list);
+}
+
+static void
+vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
+    unsigned char *u, int fam)
+{
+	struct acl_e *aen;
+
+	if (fam == PF_INET && ae->mask > 32) {
+		VSB_printf(tl->sb,
+		    "Too wide mask (/%u) for IPv4 address\n", ae->mask);
+		if (ae->t_mask != NULL)
+			vcc_ErrWhere(tl, ae->t_mask);
+		else
+			vcc_ErrWhere(tl, ae->t_addr);
+		return;
+	}
+	if (fam == PF_INET6 && ae->mask > 128) {
+		VSB_printf(tl->sb,
+		    "Too wide mask (/%u) for IPv6 address\n", ae->mask);
+		vcc_ErrWhere(tl, ae->t_mask);
+		return;
+	}
+
+	/* Make a copy from the template */
+	aen = TlAlloc(tl, sizeof *aen);
+	AN(aen);
+	*aen = *ae;
+
+	aen->fixed = vcc_acl_chk(tl, ae, l, u, fam);
+
+	/* We treat family as part of address, it saves code */
+	assert(fam <= 0xff);
+	aen->data[0] = fam & 0xff;
+	aen->mask += 8;
+
+	assert(l + 1UL <= sizeof aen->data);
+	memcpy(aen->data + 1L, u, l);
+
+	vcc_acl_insert_entry(tl, aen);
 }
 
 static void
