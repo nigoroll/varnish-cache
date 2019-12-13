@@ -43,6 +43,9 @@
 #include <vtcp.h>
 #include <vsa.h>
 
+// diff nicification - can reorder later
+static void vcc_acl_insert_entry(struct vcc *, struct acl_e *);
+
 #define ACL_MAXADDR	(sizeof(struct in6_addr) + 1)
 
 struct acl_e {
@@ -153,8 +156,7 @@ static void
 vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
     unsigned char *u, int fam)
 {
-	struct acl_e *ae2, *aen;
-	int i;
+	struct acl_e *aen;
 
 	if (fam == PF_INET && ae->mask > 32) {
 		VSB_printf(tl->sb,
@@ -173,7 +175,7 @@ vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
 	}
 
 	/* Make a copy from the template */
-	aen = TlAlloc(tl, sizeof *ae2);
+	aen = TlAlloc(tl, sizeof *aen);
 	AN(aen);
 	*aen = *ae;
 
@@ -186,6 +188,15 @@ vcc_acl_add_entry(struct vcc *tl, const struct acl_e *ae, int l,
 
 	assert(l + 1UL <= sizeof aen->data);
 	memcpy(aen->data + 1L, u, l);
+
+	vcc_acl_insert_entry(tl, aen);
+}
+
+static void
+vcc_acl_insert_entry(struct vcc *tl, struct acl_e *aen)
+{
+	struct acl_e *ae2;
+	int i;
 
 	VTAILQ_FOREACH(ae2, &tl->acl, list) {
 		i = vcl_acl_cmp(aen, ae2);
