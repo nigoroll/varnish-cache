@@ -71,3 +71,13 @@ struct vpi_ii {
 	const void *			p;
 	const char * const		name;
 };
+
+struct vcl_sub {
+	unsigned		magic;
+#define VCL_SUB_MAGIC		0x12c1750b
+	const unsigned		methods;	// ok &= ctx->method
+	const char * const	name;
+	const struct VCL_conf	*vcl_conf;
+	vcl_func_f		*func;
+	unsigned		n;
+};
