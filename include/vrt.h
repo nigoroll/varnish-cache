@@ -198,6 +198,7 @@ struct vsmw_cluster;
 struct vsl_log;
 struct ws;
 struct VSC_main;
+struct vcl_sub;
 
 /*
  * VCL_STRANDS:
@@ -273,6 +274,7 @@ typedef double					VCL_REAL;
 typedef const struct stevedore *		VCL_STEVEDORE;
 typedef const struct strands *			VCL_STRANDS;
 typedef const char *				VCL_STRING;
+typedef const struct vcl_sub *			VCL_SUB;
 typedef vtim_real				VCL_TIME;
 typedef struct vcl *				VCL_VCL;
 typedef void					VCL_VOID;
@@ -337,6 +339,8 @@ struct vrt_ctx {
 };
 
 #define VRT_CTX		const struct vrt_ctx *ctx
+
+typedef void vcl_func_f(VRT_CTX);
 
 /***********************************************************************
  * This is the interface structure to a compiled VMOD
