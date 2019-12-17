@@ -37,6 +37,7 @@
 #include "cache/cache_varnishd.h"
 #include "cache/cache_filter.h"
 
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_if.h"
@@ -1010,4 +1011,60 @@ vmod_debug_director_resolve(VRT_CTX, VCL_BACKEND dir)
 
 	VRT_fail(ctx, "fail");
 	return (NULL);
+}
+
+/*---------------------------------------------------------------------*/
+
+static void
+dbg_met(VRT_CTX, const char *name, unsigned mask)
+{
+#define met(x) if (mask & x)					\
+		VSLb(ctx->vsl, SLT_Debug, "%s: %s", name, #x)
+
+	met(VCL_MET_RECV);
+	met(VCL_MET_PIPE);
+	met(VCL_MET_PASS);
+	met(VCL_MET_HASH);
+	met(VCL_MET_PURGE);
+	met(VCL_MET_MISS);
+	met(VCL_MET_HIT);
+	met(VCL_MET_DELIVER);
+	met(VCL_MET_SYNTH);
+	met(VCL_MET_BACKEND_FETCH);
+	met(VCL_MET_BACKEND_RESPONSE);
+	met(VCL_MET_BACKEND_ERROR);
+	met(VCL_MET_INIT);
+	met(VCL_MET_FINI);
+#undef met
+}
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	struct vmod_priv *p;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	p = VRT_priv_task(ctx, (void *)sub->func);
+	if (p == NULL) {
+		VRT_fail(ctx, "no priv task - out of ws?");
+		return;
+	}
+
+	if (p->priv != NULL) {
+		assert (p->priv == (void *)sub->func);
+		VRT_fail(ctx, "recursive call to %s", sub->name);
+		return;
+	}
+
+	p->priv = (void *)sub->func;
+
+	dbg_met(ctx, sub->name, sub->methods);
+
+	if (sub->methods & ctx->method)
+		sub->func(ctx);
+	else
+		VRT_fail(ctx, "not allowed here");
+
+	p->priv = NULL;
 }
