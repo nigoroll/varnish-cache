@@ -274,3 +274,7 @@ $Object director()
 $Method BACKEND .fail()
 
 Return a backend which fails in director context
+
+$Function VOID call(SUB)
+
+Call a sub
