@@ -33,6 +33,9 @@
 #ifndef VSB_H_INCLUDED
 #define VSB_H_INCLUDED
 
+#include <stdlib.h>
+#include <string.h>
+
 /*
  * Structure definition
  */
@@ -56,6 +59,178 @@ struct vsb {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define	KASSERT(e, m)		assert(e)
+#define	SBMALLOC(size)		malloc(size)
+#define	SBFREE(buf)		free(buf)
+
+#define	roundup2(x, y)	(((x)+((y)-1))&(~((y)-1))) /* if y is powers of two */
+
+/*
+ * Predicates
+ */
+#define	VSB_ISDYNAMIC(s)	((s)->s_flags & VSB_DYNAMIC)
+#define	VSB_ISDYNSTRUCT(s)	((s)->s_flags & VSB_DYNSTRUCT)
+#define	VSB_HASROOM(s)		((s)->s_len < (s)->s_size - 1L)
+#define	VSB_FREESPACE(s)	((s)->s_size - ((s)->s_len + 1L))
+#define	VSB_CANEXTEND(s)	((s)->s_flags & VSB_AUTOEXTEND)
+
+/*
+ * Set / clear flags
+ */
+#define	VSB_SETFLAG(s, f)	do { (s)->s_flags |= (f); } while (0)
+#define	VSB_CLEARFLAG(s, f)	do { (s)->s_flags &= ~(f); } while (0)
+
+#define	VSB_MINEXTENDSIZE	16		/* Should be power of 2. */
+
+#ifdef PAGE_SIZE
+#define	VSB_MAXEXTENDSIZE	PAGE_SIZE
+#define	VSB_MAXEXTENDINCR	PAGE_SIZE
+#else
+#define	VSB_MAXEXTENDSIZE	4096
+#define	VSB_MAXEXTENDINCR	4096
+#endif
+
+/*
+ * Debugging support
+ */
+#if !defined(NDEBUG)
+static inline void
+_assert_VSB_integrity(const char *fun, const struct vsb *s)
+{
+
+	(void)fun;
+	(void)s;
+	KASSERT(s != NULL,
+	    ("%s called with a NULL vsb pointer", fun));
+	KASSERT(s->magic == VSB_MAGIC,
+	    ("%s called wih an bogus vsb pointer", fun));
+	KASSERT(s->s_buf != NULL,
+	    ("%s called with uninitialized or corrupt vsb", fun));
+	KASSERT(s->s_len < s->s_size,
+	    ("wrote past end of vsb (%d >= %d)", s->s_len, s->s_size));
+}
+
+static inline void
+_assert_VSB_state(const char *fun, const struct vsb *s, int state)
+{
+
+	(void)fun;
+	(void)s;
+	(void)state;
+	KASSERT((s->s_flags & VSB_FINISHED) == state,
+	    ("%s called with %sfinished or corrupt vsb", fun,
+	    (state ? "un" : "")));
+}
+#define	assert_VSB_integrity(s) _assert_VSB_integrity(__func__, (s))
+#define	assert_VSB_state(s, i)	 _assert_VSB_state(__func__, (s), (i))
+#else
+#define	assert_VSB_integrity(s) do { } while (0)
+#define	assert_VSB_state(s, i)	 do { } while (0)
+#endif
+
+#ifdef CTASSERT
+CTASSERT(powerof2(VSB_MAXEXTENDSIZE));
+CTASSERT(powerof2(VSB_MAXEXTENDINCR));
+#endif
+
+static inline ssize_t
+VSB_extendsize(ssize_t size)
+{
+	ssize_t newsize;
+
+	if (size < (int)VSB_MAXEXTENDSIZE) {
+		newsize = VSB_MINEXTENDSIZE;
+		while (newsize < size)
+			newsize *= 2;
+	} else {
+		newsize = roundup2(size, VSB_MAXEXTENDINCR);
+	}
+	KASSERT(newsize >= size, ("%s: %d < %d\n", __func__, newsize, size));
+	return (newsize);
+}
+
+/*
+ * Extend an vsb.
+ */
+static inline ssize_t
+VSB_extend(struct vsb *s, ssize_t addlen)
+{
+	char *newbuf;
+	ssize_t newsize;
+
+	if (!VSB_CANEXTEND(s))
+		return (-1);
+	newsize = VSB_extendsize(s->s_size + addlen);
+	if (VSB_ISDYNAMIC(s))
+		newbuf = realloc(s->s_buf, newsize);
+	else
+		newbuf = SBMALLOC(newsize);
+	if (newbuf == NULL)
+		return (-1);
+	if (!VSB_ISDYNAMIC(s)) {
+		memcpy(newbuf, s->s_buf, s->s_size);
+		VSB_SETFLAG(s, VSB_DYNAMIC);
+	}
+	s->s_buf = newbuf;
+	s->s_size = newsize;
+	return (0);
+}
+
+static inline void
+_vsb_indent(struct vsb *s)
+{
+	if (s->s_indent == 0 || s->s_error != 0 ||
+	    (s->s_len > 0 && s->s_buf[s->s_len - 1] != '\n'))
+		return;
+	if (VSB_FREESPACE(s) <= s->s_indent &&
+	    VSB_extend(s, s->s_indent) < 0) {
+		s->s_error = ENOMEM;
+		return;
+	}
+	memset(s->s_buf + s->s_len, ' ', s->s_indent);
+	s->s_len += s->s_indent;
+}
+
+
+/*
+ * Append a byte to an vsb.  This is the core function for appending
+ * to an vsb and is the main place that deals with extending the
+ * buffer and marking overflow.
+ */
+static inline void
+VSB_put_byte(struct vsb *s, int c)
+{
+
+	assert_VSB_integrity(s);
+	assert_VSB_state(s, 0);
+
+	if (s->s_error != 0)
+		return;
+	_vsb_indent(s);
+	if (VSB_FREESPACE(s) <= 0) {
+		if (VSB_extend(s, 1) < 0)
+			s->s_error = ENOMEM;
+		if (s->s_error != 0)
+			return;
+	}
+	s->s_buf[s->s_len++] = (char)c;
+}
+
+/*
+ * Append a character to an vsb.
+ */
+static inline int
+VSB_putc(struct vsb *s, int c)
+{
+
+	VSB_put_byte(s, c);
+	if (s->s_error != 0)
+		return (-1);
+	return (0);
+}
+
+
 /*
  * API functions
  */
@@ -71,7 +246,6 @@ int		 VSB_printf(struct vsb *, const char *, ...)
 int		 VSB_vprintf(struct vsb *, const char *, va_list)
 	v_printflike_(2, 0);
 #endif
-int		 VSB_putc(struct vsb *, int);
 int		 VSB_error(const struct vsb *);
 int		 VSB_finish(struct vsb *);
 char		*VSB_data(const struct vsb *);
