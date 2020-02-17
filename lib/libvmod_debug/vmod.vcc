@@ -300,3 +300,7 @@ fail any rollback before ok_rollback() is called
 $Function VOID ok_rollback()
 
 Allow rollbacks. Must be called before the end of the task.
+
+$Function VOID call(SUB)
+
+Call a sub

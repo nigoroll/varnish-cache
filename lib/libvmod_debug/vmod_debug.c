@@ -39,6 +39,7 @@
 #include "cache/cache_varnishd.h"
 #include "cache/cache_filter.h"
 
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_if.h"
@@ -1133,4 +1134,12 @@ xyzzy_ok_rollback(VRT_CTX)
 
 	p->priv = NULL;
 	p->free = NULL;
+}
+
+/*---------------------------------------------------------------------*/
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	VRT_call(ctx, sub);
 }
