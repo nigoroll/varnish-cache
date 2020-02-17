@@ -40,6 +40,7 @@
 #include "cache/cache_filter.h"
 
 #include "vre.h"
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_if.h"
@@ -1161,4 +1162,12 @@ xyzzy_re_quote(VRT_CTX, VCL_STRING s)
 	if (q == NULL)
 		WS_MarkOverflow(ctx->ws);
 	return (q);
+}
+
+/*---------------------------------------------------------------------*/
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	VRT_call(ctx, sub);
 }

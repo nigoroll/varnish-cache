@@ -304,3 +304,7 @@ Allow rollbacks. Must be called before the end of the task.
 $Function STRING re_quote(STRING)
 
 Quote an input string to be usable for an exact match in a regular expression.
+
+$Function VOID call(SUB)
+
+Call a sub
