@@ -1,0 +1,56 @@
+varnishtest "upper/lower"
+
+varnish v1 -arg "-p workspace_client=1m" -vcl {
+	import std;
+	import vtc;
+
+	backend b None;
+
+	sub vcl_recv {
+		return(synth(200));
+	}
+
+	sub tolower {
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+		if (std.tolower(req.http.foo) == "") {
+			return (fail);
+		}
+	}
+
+	sub vcl_synth {
+		std.log("10x std.tolower: " + (vtc.benchmark(tolower, total=10000) *
+		1000 * 1000) + "us");
+		return (deliver);
+	}
+} -start
+
+client c1 {
+	txreq -hdr "foo: abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789abcdefghijklmnopqrstuvqxyz0123456789"
+	rxresp
+} -run
