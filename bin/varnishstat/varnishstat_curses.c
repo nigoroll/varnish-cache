@@ -52,7 +52,7 @@
 #include "varnishstat.h"
 #include "vcurses.h"
 
-#define LINES_STATUS		4
+#define LINES_STATUS		3
 #define LINES_BAR_T		1
 #define LINES_BAR_B		1
 #define LINES_INFO		3
