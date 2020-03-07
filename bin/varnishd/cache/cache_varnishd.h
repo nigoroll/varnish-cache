@@ -419,7 +419,7 @@ const struct vrt_backend_probe *VCL_DefaultProbe(const struct vcl *);
 void VCL_Init(void);
 void VCL_Panic(struct vsb *, const char *nm, const struct vcl *);
 void VCL_Poll(void);
-void VCL_Ref(struct vcl *);
+void VCL_Ref(struct vcl *, struct worker *);
 void VCL_Refresh(struct vcl **);
 void VCL_Recache(struct worker *, struct vcl **);
 void VCL_Rel(struct vcl **);
