@@ -420,7 +420,7 @@ void VCL_Init(void);
 void VCL_Panic(struct vsb *, const char *nm, const struct vcl *);
 void VCL_Poll(void);
 void VCL_Ref(struct vcl *, struct worker *);
-void VCL_Refresh(struct vcl **);
+void VCL_Refresh(struct vcl **, struct worker *);
 void VCL_Rel(struct vcl **, struct worker *);
 void VCL_TaskEnter(struct vrt_privs *);
 void VCL_TaskLeave(struct vrt_privs *);
