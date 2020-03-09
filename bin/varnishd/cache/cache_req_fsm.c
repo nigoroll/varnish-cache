@@ -1115,7 +1115,7 @@ CNT_Request(struct req *req)
 		if (IS_TOPREQ(req)) {
 			VCL_TaskLeave(req->top->privs);
 			if (req->top->vcl0 != NULL)
-				VCL_Rel(&req->top->vcl0);
+				VCL_Rel(&req->top->vcl0, NULL);
 		}
 		VCL_TaskLeave(req->privs);
 		AN(req->vsl->wid);
