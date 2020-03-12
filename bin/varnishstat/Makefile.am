@@ -33,5 +33,5 @@ varnishstat_LDADD = \
 	@CURSES_LIBS@ ${RT_LIBS} ${LIBM} ${PTHREAD_LIBS}
 
 varnishstat_help_gen_LDADD = \
-	$(top_builddir)/lib/libvarnish/libvarnish.a \
+	$(top_builddir)/lib/libvarnish/libvarnish.la \
 	@SAN_LDFLAGS@
