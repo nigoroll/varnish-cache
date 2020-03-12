@@ -80,7 +80,7 @@ main(void)
 	    "\n"
 	    "const int bindings_help_len = %u;\n", u);
 	AZ(VSB_finish(vsb));
-	AZ(VSB_tofile(STDOUT_FILENO, vsb));
+	AZ(VSB_tofile(vsb, STDOUT_FILENO));
 	VSB_delete(vsb);
 	return (0);
 }
