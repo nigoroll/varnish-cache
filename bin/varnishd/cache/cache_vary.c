@@ -273,7 +273,7 @@ VRY_Finish(struct req *req, enum vry_finish_flag flg)
 		if (p != NULL)
 			memcpy(p, req->vary_b, l);
 	}
-	WS_Release(req->ws, 0);
+	WS_ReleaseH(req->ws, 0, l);
 	req->vary_e = NULL;
 	req->vary_b = p;
 }

@@ -126,6 +126,8 @@ WS_Reset(struct ws *ws, uintptr_t pp)
 	assert(ws->r == NULL);
 	assert(p >= ws->s);
 	assert(p <= ws->e);
+	if (ws->f > ws->h)
+		ws->h = ws->f;
 	ws->f = p;
 	WS_Assert(ws);
 }
@@ -267,30 +269,61 @@ WS_ReserveSize(struct ws *ws, unsigned bytes)
 }
 
 void
-WS_Release(struct ws *ws, unsigned bytes)
+WS_ReleaseH(struct ws *ws, unsigned bytes, unsigned high)
 {
+	const char *h;
+
 	WS_Assert(ws);
 	assert(bytes <= ws->e - ws->f);
-	DSLb(DBG_WORKSPACE, "WS_Release(%s, %p, %u)", ws->id, ws, bytes);
+	DSLb(DBG_WORKSPACE, "WS_ReleaseH(%s, %p, %u, %u)", ws->id, ws, bytes, high);
 	assert(ws->r != NULL);
 	assert(ws->f + bytes <= ws->r);
+	h = ws->f + high;
 	ws->f += PRNDUP(bytes);
+	if (h > ws->h)
+		ws->h = h;
+	if (ws->h > ws->r)
+		ws->h = ws->r;
 	ws->r = NULL;
 	WS_Assert(ws);
 }
 
 void
-WS_ReleaseP(struct ws *ws, const char *ptr)
+WS_ReleaseHP(struct ws *ws, const char *ptr, const char *high)
 {
 	WS_Assert(ws);
-	DSLb(DBG_WORKSPACE, "WS_ReleaseP(%s, %p, %p (%zd))", ws->id, ws, ptr,
-	    ptr - ws->f);
+	DSLb(DBG_WORKSPACE, "WS_ReleaseP(%s, %p, %p (%zd), %p (%zd))", ws->id, ws, ptr,
+	    ptr - ws->f, high, high - ws->f);
 	assert(ws->r != NULL);
 	assert(ptr >= ws->f);
 	assert(ptr <= ws->r);
 	ws->f += PRNDUP(ptr - ws->f);
+	if (high > ws->h)
+		ws->h = high;
+	if (ws->h > ws->r)
+		ws->h = ws->r;
 	ws->r = NULL;
 	WS_Assert(ws);
+}
+
+void
+WS_Release(struct ws *ws, unsigned bytes)
+{
+	WS_ReleaseH(ws, bytes, 0);
+}
+
+void
+WS_ReleaseP(struct ws *ws, const char *ptr)
+{
+	WS_ReleaseHP(ws, ptr, NULL);
+}
+
+/* Report the high water mark */
+unsigned
+WS_High(const struct ws *ws)
+{
+	WS_Assert(ws);
+	return (ws->h > ws->f ? ws->h - ws->s : ws->f - ws->s);
 }
 
 void *
