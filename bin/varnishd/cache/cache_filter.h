@@ -33,6 +33,12 @@ struct req;
 struct vfp_entry;
 struct vfp_ctx;
 
+enum vrt_filter_err {
+	FLT_OK = 0,
+	FLT_LOOKUP = -1,	// already found / not found
+	FLT_NAME_TAKEN = -2,
+};
+
 /* Fetch processors --------------------------------------------------*/
 
 enum vfp_status {
@@ -91,8 +97,8 @@ struct vfp_entry *VFP_Push(struct vfp_ctx *, const struct vfp *);
 enum vfp_status VFP_Suck(struct vfp_ctx *, void *p, ssize_t *lp);
 enum vfp_status VFP_Error(struct vfp_ctx *, const char *fmt, ...)
     v_printflike_(2, 3);
-void VRT_AddVFP(VRT_CTX, const struct vfp *);
-void VRT_RemoveVFP(VRT_CTX, const struct vfp *);
+enum vrt_filter_err VRT_AddVFP(VRT_CTX, const struct vfp *);
+enum vrt_filter_err VRT_RemoveVFP(VRT_CTX, const struct vfp *);
 
 /* Deliver processors ------------------------------------------------*/
 
@@ -142,5 +148,5 @@ struct vdp_ctx {
 
 int VDP_bytes(struct req *, enum vdp_action act, const void *ptr, ssize_t len);
 int VDP_Push(struct req *, const struct vdp *, void *priv);
-void VRT_AddVDP(VRT_CTX, const struct vdp *);
-void VRT_RemoveVDP(VRT_CTX, const struct vdp *);
+enum vrt_filter_err VRT_AddVDP(VRT_CTX, const struct vdp *);
+enum vrt_filter_err VRT_RemoveVDP(VRT_CTX, const struct vdp *);
