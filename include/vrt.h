@@ -52,6 +52,12 @@
  * Whenever something is deleted or changed in a way which is not
  * binary/load-time compatible, increment MAJOR version
  *
+ * NEXT (expected 2021-03-15)
+ *	VRT_AddVDP() signature changed for error handling
+ *	VRT_AddVFP() signature changed for error handling
+ *	VRT_RemoveVDP() signature changed for error handling
+ *	VRT_RemoveVFP() signature changed for error handling
+ *
  * 12.0 (2020-09-15)
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
