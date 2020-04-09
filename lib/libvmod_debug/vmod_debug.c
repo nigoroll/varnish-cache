@@ -377,13 +377,12 @@ event_load(VRT_CTX, struct vmod_priv *priv)
 	priv->priv = priv_vcl;
 	priv->free = priv_vcl_free;
 
-	/*
-	 * NB: This is a proof of concept, until we decide what the real
-	 * API should look like, do NOT do this anywhere else.
-	 */
-	VRT_AddVFP(ctx, &xyzzy_rot13);
+	if (VRT_AddVFP(ctx, &xyzzy_rot13) ||
+	    VRT_AddVDP(ctx, &xyzzy_vdp_rot13)) {
+		VSB_cat(ctx->msg, "VFP/VDP registration error");
+		return (-1);
+	}
 
-	VRT_AddVDP(ctx, &xyzzy_vdp_rot13);
 	return (0);
 }
 
@@ -540,8 +539,8 @@ event_discard(VRT_CTX, void *priv)
 
 	AZ(ctx->msg);
 
-	VRT_RemoveVFP(ctx, &xyzzy_rot13);
-	VRT_RemoveVDP(ctx, &xyzzy_vdp_rot13);
+	AZ(VRT_RemoveVFP(ctx, &xyzzy_rot13));
+	AZ(VRT_RemoveVDP(ctx, &xyzzy_vdp_rot13));
 
 	if (--loads)
 		return (0);
