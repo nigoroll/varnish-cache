@@ -30,8 +30,8 @@
 
 """
 Read the vmod.vcc file (inputvcc) and produce:
-    vmod_if.h -- Prototypes for the implementation
-    vmod_if.c -- Magic glue & datastructures to make things a VMOD.
+    vcc_if.h -- Prototypes for the implementation
+    vcc_if.c -- Magic glue & datastructures to make things a VMOD.
     vmod_${name}.rst -- Extracted documentation
     vmod_${name}.man.rst -- Extracted documentation (rst2man input)
 """
@@ -58,7 +58,7 @@ AM_CPPFLAGS = \\
 
 vmoddir = $(pkglibdir)/vmods
 vmodtool = $(top_srcdir)/lib/libvcc/vmodtool.py
-vmodtoolargs ?= --strict --boilerplate
+vmodtoolargs ?= --strict --boilerplate -o PFX
 
 vmod_LTLIBRARIES = libvmod_XXX.la
 
@@ -77,8 +77,8 @@ $(libvmod_XXX_la_OBJECTS): PFX.h
 
 PFX.h vmod_XXX.rst vmod_XXX.man.rst: PFX.c
 
-PFX.c: $(vmodtool) $(srcdir)/vmod.vcc
-\t@PYTHON@ $(vmodtool) $(vmodtoolargs) $(srcdir)/vmod.vcc
+PFX.c: $(vmodtool) $(srcdir)/VCC
+\t@PYTHON@ $(vmodtool) $(vmodtoolargs) $(srcdir)/VCC
 
 EXTRA_DIST = vmod.vcc automake_boilerplate.am
 
@@ -89,7 +89,7 @@ CLEANFILES = $(builddir)/PFX.c $(builddir)/PFX.h \\
 
 AMBOILERPLATE_CHECK = '''
 TESTS = \\
-\tXXX
+\tVTC
 
 EXTRA_DIST += $(TESTS)
 
@@ -987,11 +987,12 @@ class vcc(object):
         ''' Produce boilplate for autocrap tools '''
         fo = self.openfile("automake_boilerplate.am")
         fo.write(AMBOILERPLATE.replace("XXX", self.modname)
+                 .replace("VCC", os.path.basename(self.inputfile))
                  .replace("PFX", self.pfx))
         tests = glob.glob("tests/*.vtc")
         if len(tests) > 0:
             tests.sort()
-            fo.write(AMBOILERPLATE_CHECK.replace("XXX", " \\\n\t".join(tests)))
+            fo.write(AMBOILERPLATE_CHECK.replace("VTC", " \\\n\t".join(tests)))
         fo.close()
 
     def mkdefs(self, fo):
