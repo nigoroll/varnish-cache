@@ -150,6 +150,7 @@ void VJ_fix_fd(int, enum jail_fixfd_e);
 
 extern const struct jail_tech jail_tech_unix;
 extern const struct jail_tech jail_tech_solaris;
+extern const struct jail_tech jail_tech_linux;
 
 /* mgt_main.c */
 extern struct vsb *vident;
