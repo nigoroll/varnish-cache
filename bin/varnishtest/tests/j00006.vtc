@@ -10,7 +10,7 @@ server s1 {
 } -start
 
 varnish v1 \
-	-jail "-jlinux,user=varnish,ccgroup=varnish" \
+	-jail "-jlinux,user=varnish,ccgroup=varnish,mgt_filter=/tmp/mgt_filter" \
 	-vcl+backend {
 } -start
 
