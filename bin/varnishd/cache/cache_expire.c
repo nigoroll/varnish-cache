@@ -105,9 +105,11 @@ exp_mail_it(struct objcore *oc, uint8_t cmds)
 {
 	CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
 	assert(oc->refcnt > 0);
+	AZ(cmds & OC_EF_REFD);
 
-	Lck_Lock(&exphdl->mtx);
-	if ((cmds | oc->exp_flags) & OC_EF_REFD) {
+	Lck_AssertHeld(&exphdl->mtx);
+
+	if (oc->exp_flags & OC_EF_REFD) {
 		if (!(oc->exp_flags & OC_EF_POSTED)) {
 			if (cmds & OC_EF_REMOVE)
 				VSTAILQ_INSERT_HEAD(&exphdl->inbox,
@@ -115,14 +117,32 @@ exp_mail_it(struct objcore *oc, uint8_t cmds)
 			else
 				VSTAILQ_INSERT_TAIL(&exphdl->inbox,
 				    oc, exp_list);
+			VSC_C_main->exp_mailed++;
 		}
 		oc->exp_flags |= cmds | OC_EF_POSTED;
-		AN(oc->exp_flags & OC_EF_REFD);
-		VSC_C_main->exp_mailed++;
 		AZ(pthread_cond_signal(&exphdl->condvar));
 	}
-	Lck_Unlock(&exphdl->mtx);
 }
+
+/*--------------------------------------------------------------------
+ * Setup a new ObjCore for control by expire. Should be called with the
+ * ObjHead locked by HSH_Unbusy(/HSH_Insert) (in private access).
+ */
+
+void
+EXP_RefNewObjcore(struct objcore *oc)
+{
+	CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
+
+	Lck_AssertHeld(&oc->objhead->mtx);
+
+	AZ(oc->exp_flags);
+	assert(oc->refcnt >= 1);
+	oc->refcnt++;
+	oc->exp_flags |= OC_EF_REFD | OC_EF_NEW;
+}
+
+
 
 /*--------------------------------------------------------------------
  * Call EXP's attention to a an oc
@@ -133,8 +153,18 @@ EXP_Remove(struct objcore *oc)
 {
 
 	CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
-	if (oc->exp_flags & OC_EF_REFD)
-		exp_mail_it(oc, OC_EF_REMOVE);
+	if (oc->exp_flags & OC_EF_REFD) {
+		Lck_Lock(&exphdl->mtx);
+		if (oc->exp_flags & OC_EF_NEW) {
+			/* EXP_Insert has not been called for this object
+			 * yet. Mark it for removal, and EXP_Insert will
+			 * clean up once it is called. */
+			AZ(oc->exp_flags & OC_EF_POSTED);
+			oc->exp_flags |= OC_EF_REMOVE;
+		} else
+			exp_mail_it(oc, OC_EF_REMOVE);
+		Lck_Unlock(&exphdl->mtx);
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -146,16 +176,37 @@ EXP_Remove(struct objcore *oc)
 void
 EXP_Insert(struct worker *wrk, struct objcore *oc)
 {
+	unsigned remove_race = 0;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
 	CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
+
+	AZ(oc->flags & OC_F_BUSY);
+
+	if (!(oc->exp_flags & OC_EF_REFD))
+		return;
+
 	assert(oc->refcnt >= 2);
 
-	AZ(oc->exp_flags & (OC_EF_INSERT | OC_EF_MOVE));
-	AZ(oc->flags & OC_F_DYING);
-
 	ObjSendEvent(wrk, oc, OEV_INSERT);
-	exp_mail_it(oc, OC_EF_INSERT | OC_EF_REFD | OC_EF_MOVE);
+
+	Lck_Lock(&exphdl->mtx);
+	AN(oc->exp_flags & OC_EF_NEW);
+	oc->exp_flags &= ~OC_EF_NEW;
+	AZ(oc->exp_flags & (OC_EF_INSERT | OC_EF_MOVE | OC_EF_POSTED));
+	if (oc->exp_flags & OC_EF_REMOVE) {
+		/* We raced some other thread executing EXP_Remove */
+		remove_race = 1;
+		oc->exp_flags &= ~(OC_EF_REFD | OC_EF_REMOVE);
+	} else
+		exp_mail_it(oc, OC_EF_INSERT | OC_EF_MOVE);
+	Lck_Unlock(&exphdl->mtx);
+
+	if (remove_race) {
+		ObjSendEvent(wrk, oc, OEV_EXPIRE);
+		(void)HSH_DerefObjCore(wrk, &oc, 0);
+		AZ(oc);
+	}
 }
 
 /*--------------------------------------------------------------------
@@ -187,8 +238,16 @@ EXP_Rearm(struct objcore *oc, vtim_real now,
 	VSL(SLT_ExpKill, 0, "EXP_Rearm p=%p E=%.6f e=%.6f f=0x%x", oc,
 	    oc->timer_when, when, oc->flags);
 
-	if (when < oc->t_origin || when < oc->timer_when)
-		exp_mail_it(oc, OC_EF_MOVE);
+	if (when < oc->t_origin || when < oc->timer_when) {
+		Lck_Lock(&exphdl->mtx);
+		if (oc->exp_flags & OC_EF_NEW) {
+			/* EXP_Insert has not been called yet, do nothing
+			 * as the initial insert will execute the move
+			 * operation. */
+		} else
+			exp_mail_it(oc, OC_EF_MOVE);
+		Lck_Unlock(&exphdl->mtx);
+	}
 }
 
 /*--------------------------------------------------------------------
