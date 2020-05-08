@@ -286,6 +286,24 @@ VRT_LookupDirector(VRT_CTX, VCL_STRING name)
 /*--------------------------------------------------------------------*/
 
 VCL_BACKEND
+VRT_DirectorResolve(VRT_CTX, VCL_BACKEND d)
+{
+	while (d != NULL) {
+		CHECK_OBJ_NOTNULL(d, DIRECTOR_MAGIC);
+		AN(d->vdir);
+		if (d->vdir->methods->resolve == NULL)
+			break;
+		d = d->vdir->methods->resolve(ctx, d);
+	}
+	CHECK_OBJ_ORNULL(d, DIRECTOR_MAGIC);
+	if (d != NULL)
+		AN(d->vdir);
+	return (d);
+}
+
+/*--------------------------------------------------------------------*/
+
+VCL_BACKEND
 VCL_DefaultDirector(const struct vcl *vcl)
 {
 
