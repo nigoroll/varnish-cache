@@ -77,63 +77,98 @@ VCL_Method_Name(unsigned m)
 /*--------------------------------------------------------------------*/
 
 void
-VCL_Refresh(struct vcl **vcc)
+VCL_Refresh(struct vcl **vclp, struct worker *wrk)
 {
+	AN(vclp);
+	AZ(*vclp);
+	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
 
 	while (vcl_active == NULL)
 		(void)usleep(100000);
 
-	if (*vcc == vcl_active)
+	*vclp = wrk->vcl;
+	wrk->vcl = NULL;
+
+	if (*vclp == vcl_active)
 		return;
 
-	VCL_Update(vcc, NULL);
+	VCL_Update(vclp, NULL);
 }
 
-void
-VCL_Recache(struct worker *wrk, struct vcl **vclp)
+static inline int
+vcl_cancache(const struct vcl *vcl)
 {
-
-	AN(wrk);
-	AN(vclp);
-	CHECK_OBJ_NOTNULL(*vclp, VCL_MAGIC);
-
-	if (*vclp != vcl_active || wrk->vcl == vcl_active) {
-		VCL_Rel(vclp);
-		return;
-	}
-	if (wrk->vcl != NULL)
-		VCL_Rel(&wrk->vcl);
-	wrk->vcl = *vclp;
-	*vclp = NULL;
+	return (vcl == vcl_active || vcl->nlabels > 0);
 }
 
 void
-VCL_Ref(struct vcl *vcl)
+VCL_Ref(struct vcl *vcl, struct worker *wrk)
 {
 
 	CHECK_OBJ_NOTNULL(vcl, VCL_MAGIC);
+	CHECK_OBJ_ORNULL(wrk, WORKER_MAGIC);
 	assert(!vcl->temp->is_cold);
+
+	/* If the worker has the right vcl cached, we just take that
+	 * reference */
+	if (wrk && vcl == wrk->vcl) {
+		wrk->vcl = NULL;
+		return;
+	}
+
 	Lck_Lock(&vcl_mtx);
 	assert(vcl->busy > 0);
 	vcl->busy++;
 	Lck_Unlock(&vcl_mtx);
 }
 
+/*
+ * We do not garbage collect discarded VCL's here, that happens in VCL_Poll()
+ * which is called from the CLI thread.
+ */
+
+#define vcl_rel(vcl) do {			\
+	assert((vcl)->busy > 0);		\
+	(vcl)->busy--;				\
+	(vcl) = NULL;				\
+	} while (0)
+
 void
-VCL_Rel(struct vcl **vcc)
+VCL_Rel(struct vcl **vclp, struct worker *wrk)
 {
 	struct vcl *vcl;
 
-	TAKE_OBJ_NOTNULL(vcl, vcc, VCL_MAGIC);
+	CHECK_OBJ_ORNULL(wrk, WORKER_MAGIC);
+	TAKE_OBJ_NOTNULL(vcl, vclp, VCL_MAGIC);
+
+	/* lockless case first */
+	if (wrk != NULL && wrk->vcl == NULL &&
+	    vcl_cancache(vcl)) {
+		wrk->vcl = vcl;
+		return;
+	}
+
 	Lck_Lock(&vcl_mtx);
-	assert(vcl->busy > 0);
-	vcl->busy--;
-	/*
-	 * We do not garbage collect discarded VCL's here, that happens
-	 * in VCL_Poll() which is called from the CLI thread.
-	 */
+
+	if (wrk == NULL || ! vcl_cancache(vcl))
+		vcl_rel(vcl);
+
+	if (wrk != NULL && wrk->vcl != NULL &&
+	    (vcl != NULL || ! vcl_cancache(wrk->vcl)))
+		vcl_rel(wrk->vcl);
+
 	Lck_Unlock(&vcl_mtx);
+
+	if (wrk == NULL || vcl == NULL) {
+		AZ(vcl);
+		return;
+	}
+
+	AZ(wrk->vcl);
+	wrk->vcl = vcl;
 }
+
+#undef vcl_ref
 
 /*--------------------------------------------------------------------*/
 
@@ -345,7 +380,7 @@ VRT_VCL_Prevent_Cold(VRT_CTX, const char *desc)
 	ref->vcl = ctx->vcl;
 	REPLACE(ref->desc, desc);
 
-	VCL_Ref(ctx->vcl);
+	VCL_Ref(ctx->vcl, NULL);
 
 	Lck_Lock(&vcl_mtx);
 	VTAILQ_INSERT_TAIL(&ctx->vcl->ref_list, ref, list);
@@ -369,7 +404,7 @@ VRT_VCL_Allow_Cold(struct vclref **refp)
 	VTAILQ_REMOVE(&vcl->ref_list, ref, list);
 	Lck_Unlock(&vcl_mtx);
 
-	VCL_Rel(&vcl);
+	VCL_Rel(&vcl, NULL);
 
 	REPLACE(ref->desc, NULL);
 	FREE_OBJ(ref);
