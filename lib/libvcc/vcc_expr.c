@@ -50,6 +50,7 @@ struct expr {
 #define EXPR_CONST	(1<<1)
 #define EXPR_STR_CONST	(1<<2)		// Last STRING_LIST elem is "..."
 	struct token	*t1, *t2;
+	struct symbol	*instance;
 	int		nstr;
 };
 
@@ -484,6 +485,17 @@ vcc_func(struct vcc *tl, struct expr **e, const void *priv,
 		sa = NULL;
 	}
 	vv = VTAILQ_NEXT(vv, list);
+	if (sym->kind == SYM_METHOD) {
+		if (*e == NULL) {
+			VSB_cat(tl->sb, "Syntax error.");
+			tl->err = 1;
+			return;
+		}
+		vcc_NextToken(tl);
+		AZ(extra);
+		AN((*e)->instance);
+		extra = (*e)->instance->rname;
+	}
 	SkipToken(tl, '(');
 	if (extra == NULL) {
 		extra = "";
@@ -651,7 +663,7 @@ vcc_Eval_SymFunc(struct vcc *tl, struct expr **e, struct token *t,
 
 	(void)t;
 	(void)fmt;
-	assert(sym->kind == SYM_FUNC);
+	assert(sym->kind == SYM_FUNC || sym->kind == SYM_METHOD);
 	AN(sym->eval_priv);
 
 	vcc_func(tl, e, sym->eval_priv, sym->extra, sym);
@@ -700,6 +712,12 @@ vcc_expr5(struct vcc *tl, struct expr **e, vcc_type_t fmt)
 		sym = VCC_SymbolGet(tl, SYM_NONE, SYMTAB_PARTIAL, XREF_REF);
 		ERRCHK(tl);
 		AN(sym);
+		if (sym->kind == SYM_INSTANCE) {
+			AZ(*e);
+			*e = vcc_new_expr(sym->type);
+			(*e)->instance = sym;
+			return;
+		}
 		if (sym->kind == SYM_FUNC && sym->type == VOID) {
 			VSB_cat(tl->sb, "Function returns VOID:\n");
 			vcc_ErrWhere(tl, tl->t);
@@ -816,37 +834,25 @@ vcc_expr5(struct vcc *tl, struct expr **e, vcc_type_t fmt)
  * SYNTAX:
  *    Expr4:
  *      Expr5 [ '.' (type_attribute | type_method()) ]*
- *
- * type_attributes is information already existing, requiring no
- * processing or resource usage.
- *
- * type_methods are calls and may do (significant processing, change things,
- * eat workspace etc.
  */
 
-static const struct vcc_methods {
-	vcc_type_t		type_from;
-	vcc_type_t		type_to;
-	const char		*method;
-	const char		*impl;
-	int			func;
-} vcc_methods[] = {
-	//{ BACKEND, BOOL,	"healthy",	"VRT_Healthy(ctx, \v1, 0)" },
+void
+vcc_Eval_TypeMethod(struct vcc *tl, struct expr **e, struct token *t,
+    struct symbol *sym, vcc_type_t fmt)
+{
+	const char *impl;
 
-#define VRTSTVVAR(nm, vtype, ctype, dval) \
-	{ STEVEDORE, vtype, #nm, "VRT_stevedore_" #nm "(\v1)", 0},
-#include "tbl/vrt_stv_var.h"
-
-	{ STRINGS, STRING, "upper", "VRT_UpperLowerStrands(ctx, \vT, 1)", 1 },
-	{ STRINGS, STRING, "lower", "VRT_UpperLowerStrands(ctx, \vT, 0)", 1 },
-
-	{ NULL, NULL,		NULL,		NULL},
-};
+	(void)t;
+	impl = VCC_Type_EvalMethod(tl, sym);
+	ERRCHK(tl);
+	AN(impl);
+	*e = vcc_expr_edit(tl, fmt, impl, *e, NULL);
+}
 
 static void
 vcc_expr4(struct vcc *tl, struct expr **e, vcc_type_t fmt)
 {
-	const struct vcc_methods *vm;
+	struct symbol *sym;
 
 	*e = NULL;
 	vcc_expr5(tl, e, fmt);
@@ -856,33 +862,21 @@ vcc_expr4(struct vcc *tl, struct expr **e, vcc_type_t fmt)
 		vcc_NextToken(tl);
 		ExpectErr(tl, ID);
 
-		for(vm = vcc_methods; vm->type_from != NULL; vm++) {
-
-			if (vm->type_from == (*e)->fmt &&
-			    vcc_IdIs(tl->t, vm->method))
-				break;
-		}
-
-		if (vm->type_from == NULL) {
+		sym = VCC_TypeSymbol(tl, SYM_METHOD, (*e)->fmt);
+		if (sym == NULL) {
 			VSB_cat(tl->sb, "Unknown property ");
 			vcc_ErrToken(tl, tl->t);
-			VSB_printf(tl->sb,
-			 " for type %s\n", (*e)->fmt->name);
+			VSB_printf(tl->sb, " for type %s\n", (*e)->fmt->name);
 			vcc_ErrWhere(tl, tl->t);
 			return;
 		}
-		vcc_NextToken(tl);
-		*e = vcc_expr_edit(tl, vm->type_to, vm->impl, *e, NULL);
+
+		AN(sym->eval);
+		sym->eval(tl, e, tl->t, sym, sym->type);
 		ERRCHK(tl);
 		if ((*e)->fmt == STRING) {
 			(*e)->fmt = STRINGS;
 			(*e)->nstr = 1;
-		}
-		if (vm->func) {
-			ExpectErr(tl, '(');
-			vcc_NextToken(tl);
-			ExpectErr(tl, ')');
-			vcc_NextToken(tl);
 		}
 	}
 }
@@ -1429,6 +1423,24 @@ vcc_Act_Call(struct vcc *tl, struct token *t, struct symbol *sym)
 	}
 	vcc_delete_expr(e);
 }
+
+void v_matchproto_(sym_act_f)
+vcc_Act_Obj(struct vcc *tl, struct token *t, struct symbol *sym)
+{
+
+	struct expr *e = NULL;
+
+	assert(sym->kind == SYM_INSTANCE);
+	ExpectErr(tl, '.');
+	tl->t = t;
+	vcc_expr4(tl, &e, sym->type);
+	ERRCHK(tl);
+	vcc_expr_fmt(tl->fb, tl->indent, e);
+	vcc_delete_expr(e);
+	SkipToken(tl, ';');
+	VSB_cat(tl->fb, ";\n");
+}
+
 /*--------------------------------------------------------------------
  */
 
