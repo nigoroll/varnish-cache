@@ -1,0 +1,57 @@
+varnishtest "Test beresp.fail_reason/detail"
+
+barrier b1 cond 2
+barrier b2 cond 2
+
+server s1 {
+	rxreq
+	barrier b1 sync
+	barrier b2 sync
+	txresp
+} -start
+
+varnish v1 -vcl {
+	import error;
+	backend default {
+		.host = "${s1_addr}";
+		.port = "${s1_port}";
+		.max_connections = 1;
+	}
+
+	sub vcl_recv {
+		return(pass);
+	}
+	
+	sub vcl_backend_error {
+		if (beresp.fail_reason == error.be_fail_busy()) {
+			set beresp.http.wait = "Please wait. We are too busy";
+		}
+		set beresp.http.fail_reason = beresp.fail_reason;
+		set beresp.http.fail_detail = beresp.fail_detail;
+	}
+} -start
+
+client c1 {
+	# Didn't hit v_b_e so not set
+	txreq
+	rxresp
+	expect resp.status == 200
+	expect resp.http.fail_reason == <undef>
+	expect resp.http.fail_detail == <undef>
+} -start
+
+client c2 {
+	barrier b1 sync
+	txreq
+	rxresp
+	expect resp.status == 503
+	expect resp.http.fail_reason == "backend busy"
+	expect resp.http.fail_detail == ""
+	expect resp.http.wait == "Please wait. We are too busy"
+} -run
+
+barrier b2 sync
+client c1 -wait
+
+varnish v1 -expect backend_busy == 1
+

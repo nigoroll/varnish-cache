@@ -64,6 +64,9 @@ static VTAILQ_HEAD(, backend) cool_backends =
     VTAILQ_HEAD_INITIALIZER(cool_backends);
 static struct lock backends_mtx;
 
+#define BACKEND_FAIL(U,l, s)	const char *const BE_FAIL_##U = s;
+#include "tbl/backend_fail.h"
+
 /*--------------------------------------------------------------------*/
 
 void
@@ -137,6 +140,7 @@ vbe_dir_getfd(VRT_CTX, struct worker *wrk, struct backend *bp,
 	if (! VRT_Healthy(ctx, bp->director, NULL)) {
 		VSLb(bo->vsl, SLT_FetchError,
 		     "backend %s: unhealthy", VRT_BACKEND_string(bp->director));
+		bo->fail_reason = BE_FAIL_SICK;
 		bp->vsc->unhealthy++;
 		VSC_C_main->backend_unhealthy++;
 		return (NULL);
@@ -145,6 +149,7 @@ vbe_dir_getfd(VRT_CTX, struct worker *wrk, struct backend *bp,
 	if (bp->max_connections > 0 && bp->n_conn >= bp->max_connections) {
 		VSLb(bo->vsl, SLT_FetchError,
 		     "backend %s: busy", VRT_BACKEND_string(bp->director));
+		bo->fail_reason = BE_FAIL_BUSY;
 		bp->vsc->busy++;
 		VSC_C_main->backend_busy++;
 		return (NULL);
@@ -154,6 +159,7 @@ vbe_dir_getfd(VRT_CTX, struct worker *wrk, struct backend *bp,
 	bo->htc = WS_Alloc(bo->ws, sizeof *bo->htc);
 	if (bo->htc == NULL) {
 		VSLb(bo->vsl, SLT_FetchError, "out of workspace");
+		bo->fail_reason = BE_FAIL_WORKSPACE;
 		/* XXX: counter ? */
 		return (NULL);
 	}
@@ -166,6 +172,9 @@ vbe_dir_getfd(VRT_CTX, struct worker *wrk, struct backend *bp,
 		VSLb(bo->vsl, SLT_FetchError,
 		     "backend %s: fail errno %d (%s)",
 		     VRT_BACKEND_string(bp->director), err, vstrerror(err));
+		bo->fail_reason = BE_FAIL_CONNECT;
+		bo->fail_detail = WS_Printf(bo->ws, "fail errno %d (%s)", err,
+		    vstrerror(err));
 		VSC_C_main->backend_fail++;
 		bo->htc = NULL;
 		return (NULL);
@@ -303,6 +312,7 @@ vbe_dir_gethdrs(VRT_CTX, VCL_BACKEND d)
 				bo->htc->doclose = SC_RX_TIMEOUT;
 				VSLb(bo->vsl, SLT_FetchError,
 				     "Timed out reusing backend connection");
+				bo->fail_reason = BE_FAIL_FIRST_BYTE;
 				extrachance = 0;
 			}
 		}
