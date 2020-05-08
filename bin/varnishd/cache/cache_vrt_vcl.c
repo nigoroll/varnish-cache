@@ -42,6 +42,7 @@
 
 #include "cache_director.h"
 #include "cache_vcl.h"
+#include "vcc_interface.h"
 
 /*--------------------------------------------------------------------*/
 
@@ -495,3 +496,80 @@ VCL_##func##_method(struct vcl *vcl, struct worker *wrk,		\
 }
 
 #include "tbl/vcl_returns.h"
+
+/*--------------------------------------------------------------------
+ */
+
+/*
+ * vrt_call_guard is dynamically put onto the workspace for each VRT_call().
+ * we deliberately omit an additional magic value
+ * - to save one pointer size worth of workspace
+ * - because we magic-check both members
+ */
+struct vrt_call_guard {
+	VRT_CTX;
+	VCL_SUB	sub;
+};
+
+static void
+no_rollback(void *priv)
+{
+	struct vrt_call_guard	*guard = priv;
+
+	CHECK_OBJ_NOTNULL(guard->ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(guard->sub, VCL_SUB_MAGIC);
+
+	VRT_fail(guard->ctx, "Rollback during dynamic call to \"sub %s{}\"",
+	    guard->sub->name);
+}
+
+VCL_VOID
+VRT_call(VRT_CTX, VCL_SUB sub)
+{
+	struct vmod_priv	*p;
+	struct vrt_call_guard	*guard;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(sub, VCL_SUB_MAGIC);
+	CHECK_OBJ_NOTNULL(ctx->vcl, VCL_MAGIC);
+	assert(sub->vcl_conf == ctx->vcl->conf);
+
+	p = VRT_priv_task(ctx, (void *)sub->func);
+	if (p == NULL) {
+		VRT_fail(ctx, "No priv task in dynamic call to \"sub %s{}\"",
+		    sub->name);
+		return;
+	}
+
+	if (p->priv != NULL) {
+		guard = p->priv;
+		assert(guard->ctx == ctx);
+		assert(guard->sub == sub);
+		assert(p->free == no_rollback);
+		VRT_fail(ctx, "Recursive dynamic call to \"sub %s{}\"",
+		    sub->name);
+		return;
+	}
+
+	guard = WS_Alloc(ctx->ws, sizeof *guard);
+	if (guard == NULL) {
+		VRT_fail(ctx, "Out of workspace in dynamic call to "
+		    "\"sub %s{}\"", sub->name);
+		return;
+	}
+
+	guard->ctx = ctx;
+	guard->sub = sub;
+
+	p->priv = guard;
+	p->free = no_rollback;
+
+	if (sub->methods & ctx->method)
+		sub->func(ctx);
+	else
+		VRT_fail(ctx, "Dynamic call to \"sub %s{}\" not allowed "
+		     "from this context", sub->name);
+
+	p->priv = NULL;
+	p->free = NULL;
+}
