@@ -39,6 +39,7 @@
 #include "cache/cache_varnishd.h"
 #include "cache/cache_filter.h"
 
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_if.h"
@@ -1144,4 +1145,34 @@ xyzzy_ok_rollback(VRT_CTX)
 
 	p->priv = NULL;
 	p->free = NULL;
+}
+
+/*---------------------------------------------------------------------*/
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	VRT_call(ctx, sub);
+}
+
+/* the next two are to test WRONG vmod behavior:
+ * holding a VCL_SUB reference across vcls
+ */
+
+static VCL_SUB wrong = NULL;
+
+VCL_VOID v_matchproto_(td_xyzzy_bad_memory)
+xyzzy_bad_memory(VRT_CTX, VCL_SUB sub)
+{
+	(void) ctx;
+
+	wrong = sub;
+}
+
+VCL_SUB v_matchproto_(td_xyzzy_total_recall)
+xyzzy_total_recall(VRT_CTX)
+{
+	(void) ctx;
+
+	return (wrong);
 }
