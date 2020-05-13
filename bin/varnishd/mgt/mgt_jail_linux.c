@@ -88,20 +88,18 @@ static gid_t vjl_cc_gid;
 static int vjl_cc_gid_set;
 
 /* syscall list file path */
-static const char *vjl_scf_path;
+static const char *vjl_mgtf_path;
+static const char *vjl_vccf_path;
 uint32_t vjl_seccomp_mode;
+static int vjl_enable_seccomp;
+scmp_filter_ctx vjl_ctx;
 
-static int vjl_add_rules(scmp_filter_ctx ctx);
-
-static void sig_handler() {
-	printf("aqui\n");
-}
-
+static int vjl_add_rules(scmp_filter_ctx ctx, const char *vjl_filter_path);
 
 static void vjl_sig_handler(int sig, siginfo_t *si, void *unused)
 {
 	// TODO: need to find a way to use SYS_SECCOMP otherwise we intercept all SIGSYS
-	if (sig == SIGSYS && vjl_seccomp_mode == SCMP_ACT_TRAP) {
+	if (sig == SIGSYS) {
 		MGT_Complain(C_ERR, "[%u]syscall: %d not permitted at: %p\n", si->si_pid,
 												si->si_syscall, si->si_call_addr);
 
@@ -109,39 +107,55 @@ static void vjl_sig_handler(int sig, siginfo_t *si, void *unused)
 	(void)unused;
 }
 
-static int vjl_seccomp_init() {
-	scmp_filter_ctx ctx;
+static int vjl_seccomp_reset(const char *vjl_filter_path)
+{
+	int ret;
+
+	ret = 0;
+
+	ret = seccomp_reset(vjl_ctx, vjl_seccomp_mode);
+	/* We reload the empty context here to make sure all previous rules
+	 * are cleared. This is needed when a CLD task is launched as it inherits
+	 * its parent's filters.
+	 */
+	AZ(seccomp_load(vjl_ctx));
+
+	if (ret == 0)
+		ret = vjl_add_rules(vjl_ctx, vjl_filter_path);
+
+	return ret;
+}
+
+/*
+ * We don't release vjl_ctx here as we need it during all
+ * execution time.
+ */
+static int vjl_seccomp_init(const char *vjl_filter_path)
+{
 	struct sigaction sa;
-	stack_t ss;
+	int ret;
 
-	ss.ss_sp = malloc(SIGSTKSZ);
-	AN(ss.ss_sp);
+	ret = 0;
 
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-
-	assert(sigaltstack(&ss, NULL) != -1);
-	sa.sa_flags = SA_SIGINFO | SA_ONSTACK | 0x04000000;
+	sa.sa_flags = SA_SIGINFO;
 	sigemptyset(&sa.sa_mask);
 	sa.sa_sigaction = vjl_sig_handler;
-	sa.sa_restorer = sig_handler;
 	AZ(sigaction(SIGSYS, &sa, NULL));
 
-	ctx = seccomp_init(vjl_seccomp_mode);
+	vjl_ctx = seccomp_init(vjl_seccomp_mode);
 
-	AN(ctx);
+	AN(vjl_ctx);
 
-	vjl_add_rules(ctx);
+	ret = vjl_add_rules(vjl_ctx, vjl_filter_path);
+	AZ(ret);
 
-	seccomp_load(ctx);
+	ret = seccomp_load(vjl_ctx);
 
-	seccomp_release(ctx);
-
-	return 0;
+	return ret;
 }
 
 
-static int vjl_add_rules(scmp_filter_ctx ctx)
+static int vjl_add_rules(scmp_filter_ctx ctx, const char *vjl_filter_path)
 {
 	FILE *f;
 	char line[SYSCALL_MAX_SIZE];
@@ -149,12 +163,12 @@ static int vjl_add_rules(scmp_filter_ctx ctx)
 
 	ret = 0;
 
-	f = fopen(vjl_scf_path, "r");
+	f = fopen(vjl_filter_path, "r");
 
 	if (f == NULL) {
 		MGT_Complain(C_INFO,
 			"Could not open syscall file: %s [errno: %d]\n",
-										 vjl_scf_path, errno);
+                                     vjl_filter_path, errno);
 		return -errno;
 	}
 
@@ -173,11 +187,13 @@ static int vjl_add_rules(scmp_filter_ctx ctx)
 				"SECCOMP returned %d for syscall %d [errno: %d]\n",
 												 rc, syscall, err);
 
-			ret = -1;
+			ret = -err;
 		}
 	}
 
-	return 0;
+	fclose(f);
+
+	return ret;
 }
 
 static void v_matchproto_(jail_subproc_f)
@@ -191,6 +207,11 @@ vjl_subproc(enum jail_subproc_e jse) {
 		AZ(setgid(vjl_wrkgid));
 		AZ(initgroups(vjl_wrkuser, vjl_wrkgid));
 	} else {
+		if (vjl_enable_seccomp) {
+			int ret;
+			ret = vjl_seccomp_reset(vjl_vccf_path);
+			AZ(ret);
+		}
 		AZ(setgid(vjl_gid));
 		AZ(initgroups(vjl_user, vjl_gid));
 	}
@@ -268,6 +289,7 @@ static int v_matchproto_(jail_init_f)
 vjl_init(char **args)
 {
 	vjl_seccomp_mode = SCMP_ACT_TRAP;
+	vjl_enable_seccomp = 0;
 
 	if (args == NULL) {
 		/* We are basically on the same mode as UNIX jail */
@@ -304,12 +326,20 @@ vjl_init(char **args)
 				continue;
 			}
 			if (!strncmp(*args, "mgt_filter=", 11)) {
-				vjl_scf_path = strdup((*args) + 11);
-				AN(vjl_scf_path);
+				vjl_enable_seccomp = 1;
+				vjl_mgtf_path = strdup((*args) + 11);
+				AN(vjl_mgtf_path);
+				continue;
+			}
+			if (!strncmp(*args, "vcc_filter=",11)) {
+				vjl_enable_seccomp = 1;
+				vjl_vccf_path = strdup((*args) + 11);
+				AN(vjl_vccf_path);
 				continue;
 			}
 			if (!strncmp(*args, "audit", 5)) {
 				vjl_seccomp_mode = SCMP_ACT_LOG;
+				continue;
 			}
 		}
 
@@ -321,7 +351,8 @@ vjl_init(char **args)
 
 	AN(vjl_user);
 
-	vjl_seccomp_init();
+	if (vjl_enable_seccomp)
+		AZ(vjl_seccomp_init(vjl_mgtf_path));
 
 	vjl_mgt_gid = getgid();
 
