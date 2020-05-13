@@ -26,8 +26,7 @@ typeset -ra branches_norebase=(
     # other people's PRs
     stevendore/beresp.fail_reason	# #3113
     Dridi/issue_3114			# #3123
-# diverged too much and not semantically relevant
-#    Dridi/_type				# #3158
+    Dridi/_type				# #3158
     daghf/r03266			# #3267
     mbgrydeland/master-exprace		# #3261
     mbgrydeland/master-vtim-format	# #3308
