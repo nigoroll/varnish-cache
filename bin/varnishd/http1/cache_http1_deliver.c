@@ -88,7 +88,8 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 {
 	int err = 0, chunked = 0;
 	enum sess_close sc;
-	uint64_t hdrbytes, bytes;
+	unsigned niov;
+	uint64_t hdrbytes, bytes = 0;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	CHECK_OBJ_ORNULL(boc, BOC_MAGIC);
@@ -131,10 +132,15 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		return;
 	}
 
+	if (HTTP1_Estimate(req->resp) > cache_param->http1_iovs)
+		niov = 0;
+	else
+		niov = cache_param->http1_iovs;
+
 	AZ(req->wrk->v1l);
 	V1L_Open(req->wrk, req->wrk->aws, &req->sp->fd, req->vsl,
 	    req->t_prev + SESS_TMO(req->sp, send_timeout),
-	    cache_param->http1_iovs);
+	    niov);
 
 	if (WS_Overflowed(req->wrk->aws)) {
 		v1d_error(req, "workspace_thread overflow");
@@ -144,7 +150,23 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 
 	hdrbytes = HTTP1_Write(req->wrk, req->resp, HTTP1_Resp);
 
-	if (sendbody) {
+	sc = SC_NULL;
+
+	while (sendbody) {
+		if (niov == 0) {
+			sc = V1L_Reopen(req->wrk, &bytes,
+			    cache_param->http1_iovs);
+
+			if (WS_Overflowed(req->wrk->aws)) {
+				v1d_error(req, "workspace_thread overflow");
+				AZ(req->wrk->v1l);
+				return;
+			}
+		}
+
+		if (sc != SC_NULL)
+			break;
+
 		if (DO_DEBUG(DBG_FLUSH_HEAD))
 			(void)V1L_Flush(req->wrk);
 		if (chunked)
@@ -152,9 +174,11 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 		err = VDP_DeliverObj(req);
 		if (!err && chunked)
 			V1L_EndChunk(req->wrk);
+		break;
 	}
 
-	sc = V1L_Close(req->wrk, &bytes);
+	if (sc == SC_NULL)
+		sc = V1L_Close(req->wrk, &bytes);
 	AZ(req->wrk->v1l);
 
 	/* Bytes accounting */
