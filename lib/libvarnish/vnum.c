@@ -44,9 +44,39 @@
 #include "vas.h"
 #include "vct.h"
 
+#if ! defined(HAVE_UINT128_T) && defined(HAVE___UINT128_T)
+#define uint128_t __uint128_t
+#define HAVE_UINT128_T 1
+#endif
+
+#define P10_LIM 19
+const int64_t p10[P10_LIM] = {
+	1,
+	10,
+	100,
+	1000,
+	10000,
+	100000,
+	1000000,
+	10000000,
+	100000000,
+	1000000000,
+	10000000000,
+	100000000000,
+	1000000000000,
+	10000000000000,
+	100000000000000,
+	1000000000000000,
+	10000000000000000,
+	100000000000000000,
+	1000000000000000000
+};
+
 static const char err_miss_num[] = "Missing number";
 static const char err_invalid_num[] = "Invalid number";
 static const char err_invalid_suff[] = "Invalid suffix";
+static const char err_precision[] = "Number/Unit can not be converted with"
+	" adequate precision";
 
 /**********************************************************************
  * Convert (all of!) a string to a floating point number, and if we can
@@ -97,6 +127,80 @@ VNUMpfx(const char *p, const char **t)
 	if (*p != '\0')
 		*t = p;
 	return (ms * m * pow(10., e + es * ee));
+}
+
+int64_t
+VNUMpfxint(const char *p, const char **t, int *scp)
+{
+	int sc, oflow = 0, neg = 0;
+	int64_t d, r;
+	int8_t m, c;
+
+	AN(p);
+	AN(t);
+	*t = NULL;
+
+	if (scp != NULL)
+		sc = -1;
+	else
+		sc = -2;
+
+	while (vct_issp(*p))
+		p++;
+
+	if (*p == '-') {
+		neg = 1;
+		p++;
+	} else if (*p == '+') {
+		p++;
+	}
+
+	d = neg ? - (INT64_MIN / 10) : INT64_MAX / 10;
+	m = neg ? - (INT64_MIN % 10) : INT64_MAX % 10;
+
+	for (r = 0, c = -1; *p != '\0'; p++) {
+		if (*p == '.') {
+			if (sc != -1)
+				break;
+			sc = 0;
+			continue;
+		}
+		if (! vct_isdigit(*p))
+			break;
+		c = *p - '0';
+		if (r > d || (r == d && c > m)) {
+			oflow = 1;
+			break;
+		}
+		r *= 10;
+		r += c;
+
+		if (sc >= 0)
+			sc++;
+	}
+
+	while (vct_issp(*p))
+		p++;
+	if (*p != '\0')
+		*t = p;
+
+	if (c == -1) {
+		errno = EINVAL;	// no digits
+		return (0);
+	}
+
+	if (oflow) {
+		errno = ERANGE;
+		return (neg ? INT64_MIN : INT64_MAX);
+	}
+
+	if (scp) {
+		assert(sc >= -1);
+		if (sc == -1)
+			sc = 0;
+		*scp = sc;
+	}
+	return (neg ? -r : r);
 }
 
 double
@@ -181,10 +285,20 @@ VNUM_duration(const char *p)
 
 /**********************************************************************/
 
-double
-VNUM_bytes_unit(double r, const char *b, const char *e, uintmax_t rel)
+/*
+ * take quantity i and scale sc, return bytes by unit
+ *
+ * return -1 on error
+ */
+int64_t
+VNUM_bytes_unit(int64_t i, int sc, const char *b, const char *e)
 {
-	double sc = 1.0;
+	int shift = 0;
+	uint64_t r, rr, t;
+
+	assert(sc >= 0);
+	assert(sc < P10_LIM);
+	assert(i >= 0);
 
 	if (e == NULL)
 		e = strchr(b, '\0');
@@ -192,55 +306,105 @@ VNUM_bytes_unit(double r, const char *b, const char *e, uintmax_t rel)
 	while (b < e && vct_issp(*b))
 		b++;
 	if (b == e)
-		return (nan(""));
+		return (-1);
 
-	if (rel != 0 && *b == '%') {
-		r *= rel * 0.01;
-		b++;
-	} else {
-		switch (*b) {
-		case 'k': case 'K': sc = exp2(10); b++; break;
-		case 'm': case 'M': sc = exp2(20); b++; break;
-		case 'g': case 'G': sc = exp2(30); b++; break;
-		case 't': case 'T': sc = exp2(40); b++; break;
-		case 'p': case 'P': sc = exp2(50); b++; break;
-		case 'b': case 'B':
-			break;
-		default:
-			return (nan(""));
-		}
-		if (b < e && (*b == 'b' || *b == 'B'))
-			b++;
+	switch (*b) {
+	case 'k': case 'K': shift = 10; b++; break;
+	case 'm': case 'M': shift = 20; b++; break;
+	case 'g': case 'G': shift = 30; b++; break;
+	case 't': case 'T': shift = 40; b++; break;
+	case 'p': case 'P': shift = 50; b++; break;
+	case 'b': case 'B':
+		break;
+	default:
+		return (-1);
 	}
+	if (b < e && (*b == 'b' || *b == 'B'))
+		b++;
+
 	while (b < e && vct_issp(*b))
 		b++;
 	if (b < e)
-		return (nan(""));
-	return (sc * r);
+		return (-1);
+
+	rr = p10[sc];
+
+	if (shift == 0) {
+		return (i / rr);
+	}
+
+	r = i << shift;
+
+	/* simple case */
+	if (r >> shift == i && r <= INT64_MAX)
+		return (r / rr);
+
+	/* lossless */
+	while (shift > 0 && (rr & 1) == 0) {
+		rr >>= 1;
+		shift--;
+	}
+	r = i << shift;
+	if (r >> shift == i && r <= INT64_MAX)
+		return (r / rr);
+
+	// i << shift / rr = ((i / rr) << shift) + (((i % rr) << shift) / rr)
+
+	t = (i / rr);
+	r = t << shift;
+	if (r >> shift != t || t > INT64_MAX) {
+		errno = EOVERFLOW;
+		return (-1);
+	}
+
+	r += (((i % rr) << shift) / rr);
+
+#if defined(NUM_C_TEST) && defined(HAVE_UINT128_T)
+	// if we can, check that the above is correct
+	uint128_t tr = ((uint128_t)i << shift) / rr;
+
+	if ((uint128_t)r != tr) {
+		fprintf(stderr, "r = %lu, tr = %lu\n", r,
+			(uint64_t)(tr & (uint128_t)UINT64_MAX));
+		assert (0);
+	}
+#endif
+
+	if (r > INT64_MAX) {
+		errno = EOVERFLOW;
+		return (-1);
+	}
+
+	return (r);
 }
 
 const char *
-VNUM_2bytes(const char *p, uintmax_t *r, uintmax_t rel)
+VNUM_2bytes(const char *p, uintmax_t *r)
 {
-	double fval;
+	int64_t rr;
+	int sc;
 	const char *end;
 
 	if (p == NULL || *p == '\0')
 		return (err_miss_num);
 
-	fval = VNUMpfx(p, &end);
-	if (isnan(fval))
+	errno = 0;
+	rr = VNUMpfxint(p, &end, &sc);
+	if (errno || rr < 0)
 		return (err_invalid_num);
 
 	if (end == NULL) {
-		*r = (uintmax_t)fval;
+		*r = (uintmax_t)rr;
 		return (NULL);
 	}
 
-	fval = VNUM_bytes_unit(fval, end, NULL, rel);
-	if (isnan(fval))
+	rr = VNUM_bytes_unit(rr, sc, end, NULL);
+	if (rr < 0) {
+		if (errno == EOVERFLOW)
+			return (err_precision);
 		return (err_invalid_suff);
-	*r = (uintmax_t)round(fval);
+	}
+	*r = (uintmax_t)rr;
 	return (NULL);
 }
 
@@ -249,64 +413,74 @@ VNUM_2bytes(const char *p, uintmax_t *r, uintmax_t rel)
 
 static struct test_case {
 	const char *str;
-	uintmax_t rel;
 	uintmax_t val;
 	const char *err;
 } test_cases[] = {
-	{ "1",			(uintmax_t)0,	(uintmax_t)1 },
-	{ "1B",			(uintmax_t)0,	(uintmax_t)1<<0 },
-	{ "1 B",		(uintmax_t)0,	(uintmax_t)1<<0 },
-	{ "1.3B",		(uintmax_t)0,	(uintmax_t)1 },
-	{ "1.7B",		(uintmax_t)0,	(uintmax_t)2 },
+	{ "1",			(uintmax_t)1 },
+	{ "1B",			(uintmax_t)1<<0 },
+	{ "1 B",		(uintmax_t)1<<0 },
+	{ "1.3B",		(uintmax_t)1 },
+	{ "1.7B",		(uintmax_t)1 },
 
-	{ "1024",		(uintmax_t)0,	(uintmax_t)1024 },
-	{ "1k",			(uintmax_t)0,	(uintmax_t)1<<10 },
-	{ "1kB",		(uintmax_t)0,	(uintmax_t)1<<10 },
-	{ "1.3kB",		(uintmax_t)0,	(uintmax_t)1331 },
-	{ "1.7kB",		(uintmax_t)0,	(uintmax_t)1741 },
+	{ "1024",		(uintmax_t)1024 },
+	{ "1k",			(uintmax_t)1<<10 },
+	{ "1kB",		(uintmax_t)1<<10 },
+	{ "1.3kB",		(uintmax_t)1331 },
+	{ "1.7kB",		(uintmax_t)1740 },
 
-	{ "1048576",		(uintmax_t)0,	(uintmax_t)1048576 },
-	{ "1M",			(uintmax_t)0,	(uintmax_t)1<<20 },
-	{ "1MB",		(uintmax_t)0,	(uintmax_t)1<<20 },
-	{ "1.3MB",		(uintmax_t)0,	(uintmax_t)1363149 },
-	{ "1.7MB",		(uintmax_t)0,	(uintmax_t)1782579 },
+	{ "1048576",		(uintmax_t)1048576 },
+	{ "1M",			(uintmax_t)1<<20 },
+	{ "1MB",		(uintmax_t)1<<20 },
+	{ "1.3MB",		(uintmax_t)1363148 },
+	{ "1.7MB",		(uintmax_t)1782579 },
 
-	{ "1073741824",		(uintmax_t)0,	(uintmax_t)1073741824 },
-	{ "1G",			(uintmax_t)0,	(uintmax_t)1<<30 },
-	{ "1GB",		(uintmax_t)0,	(uintmax_t)1<<30 },
-	{ "1.3GB",		(uintmax_t)0,	(uintmax_t)1395864371 },
-	{ "1.7GB",		(uintmax_t)0,	(uintmax_t)1825361101 },
+	{ "1073741824",		(uintmax_t)1073741824 },
+	{ "1G",			(uintmax_t)1<<30 },
+	{ "1GB",		(uintmax_t)1<<30 },
+	{ "1.3GB",		(uintmax_t)1395864371 },
+	{ "1.7GB",		(uintmax_t)1825361100 },
 
-	{ "1099511627776",	(uintmax_t)0,	(uintmax_t)1099511627776ULL },
-	{ "1T",			(uintmax_t)0,	(uintmax_t)1<<40 },
-	{ "1TB",		(uintmax_t)0,	(uintmax_t)1<<40 },
-	{ "1.3TB",		(uintmax_t)0,	(uintmax_t)1429365116109ULL },
-	{ "1.7\tTB",		(uintmax_t)0,	(uintmax_t)1869169767219ULL },
+	{ "1099511627776",	(uintmax_t)1099511627776ULL },
+	{ "1T",			(uintmax_t)1<<40 },
+	{ "1TB",		(uintmax_t)1<<40 },
+	{ "1.3TB",		(uintmax_t)1429365116108ULL },
+	{ "1.7\tTB",		(uintmax_t)1869169767219ULL },
 
-	{ "1125899906842624",	(uintmax_t)0,	(uintmax_t)1125899906842624ULL},
-	{ "1P\t",		(uintmax_t)0,	(uintmax_t)1125899906842624ULL},
-	{ "1PB ",		(uintmax_t)0,	(uintmax_t)1125899906842624ULL},
-	{ "1.3 PB",		(uintmax_t)0,	(uintmax_t)1463669878895411ULL},
+	{ "1125899906842624",	(uintmax_t)1125899906842624ULL},
+	{ "1P\t",		(uintmax_t)1125899906842624ULL},
+	{ "1PB ",		(uintmax_t)1125899906842624ULL},
+	{ "1.3 PB",		(uintmax_t)1463669878895411ULL},
 
 	// highest integers not rounded for double conversion
-	{ "9007199254740988",	(uintmax_t)0,	(uintmax_t)9007199254740988ULL},
-	{ "9007199254740989",	(uintmax_t)0,	(uintmax_t)9007199254740989ULL},
-	{ "9007199254740990",	(uintmax_t)0,	(uintmax_t)9007199254740990ULL},
-	{ "9007199254740991",	(uintmax_t)0,	(uintmax_t)9007199254740991ULL},
+	{ "9007199254740988",	(uintmax_t)9007199254740988ULL},
+	{ "9007199254740989",	(uintmax_t)9007199254740989ULL},
+	{ "9007199254740990",	(uintmax_t)9007199254740990ULL},
+	{ "9007199254740991",	(uintmax_t)9007199254740991ULL},
 
-	{ "1%",			(uintmax_t)1024,	(uintmax_t)10 },
-	{ "2%",			(uintmax_t)1024,	(uintmax_t)20 },
-	{ "3%",			(uintmax_t)1024,	(uintmax_t)31 },
+	// near INT64_MAX
+	{ "9223372036854775807B", (uintmax_t)9223372036854775807ULL},
+	{ "9223372036854775808B", 0, err_invalid_num },
+	{ "9.223372036854775807B", (uintmax_t)9ULL},
+	{ "922337203685.4775807B", (uintmax_t)922337203685ULL},
+	{ "922337203685.477KB", (uintmax_t)944473296573928ULL},
+	{ "337203685.4775807KB", (uintmax_t)345296573929ULL},
+
+	{ "9007199254740991.99KB", (uintmax_t)9223372036854775797ULL},
+	{ "8796093022207.9999MB", (uintmax_t)9223372036854775703ULL},
+
+	{ "8796093022208.0001MB", 0, err_precision },
+	{ "8796093022207.9999GB", 0, err_precision },
 
 	/* Check the error checks */
-	{ "",			0,	0,	err_miss_num },
-	{ "m",			0,	0,	err_invalid_num },
-	{ "4%",			0,	0,	err_invalid_suff },
-	{ "3*",			0,	0,	err_invalid_suff },
+	{ "",			0,	err_miss_num },
+	{ "m",			0,	err_invalid_num },
+	{ "-5B",			0,	err_invalid_num },
+	{ "4%",			0,	err_invalid_suff },
+	{ "3*",			0,	err_invalid_suff },
 
 	/* TODO: add more */
 
-	{ 0, 0, 0 },
+	{ 0, 0, 0},
 };
 
 static const char *vec[] = {
@@ -334,6 +508,44 @@ static const char *vec[] = {
 	NULL
 };
 
+/*
+ * add one to a numerical string. First digit must be < 9
+ * returns pointer to last digit;
+ */
+static const char *
+strint_inc(char *buf)
+{
+	char *b;
+	const char *e;
+
+	assert(strlen(buf) >= 1);
+	e = b = buf + strlen(buf) - 1;
+	while (*b == '9' && b >= buf) {
+		if (*b == '.')
+			b--;
+		else
+			*b-- = '0';
+	}
+	assert(b >= buf);
+	if (*b < '9')
+		(*b)++;
+	return (e);
+}
+
+/*
+ * insert a period at n digits from the right
+ */
+static void
+strint_sc(char *buf, int n, size_t sz)
+{
+	int l = strlen(buf);
+
+	assert(sz > l + 1);
+	assert(n < l);
+	memmove(buf + l - n + 1, buf + l - n, n + 1);
+	buf[l - n] = '.';
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -341,8 +553,11 @@ main(int argc, char *argv[])
 	struct test_case *tc;
 	uintmax_t val;
 	const char **p;
-	const char *e;
+	const char *e, *ee;
 	double d1, d2;
+	char buf[64];
+	int64_t r;
+	int sc;
 
 	(void)argc;
 
@@ -368,14 +583,14 @@ main(int argc, char *argv[])
 	}
 
 	for (tc = test_cases; tc->str; ++tc) {
-		e = VNUM_2bytes(tc->str, &val, tc->rel);
+		e = VNUM_2bytes(tc->str, &val);
 		if (e != NULL)
 			val = 0;
 		if (e == tc->err && val == tc->val)
 			continue;
 		++ec;
-		printf("%s: VNUM_2bytes(\"%s\", %ju)\n",
-		   *argv, tc->str, tc->rel);
+		printf("%s: VNUM_2bytes(\"%s\")\n",
+		   *argv, tc->str);
 		printf("\tExpected:\tstatus %s - value %ju\n",
 		    tc->err ? tc->err : "Success", tc->val);
 		printf("\tGot:\t\tstatus %s - value %ju\n",
@@ -388,6 +603,90 @@ main(int argc, char *argv[])
 	d1 = VNUM_duration(" 365.24219d ");
 	if (d1 < 31556925.2159 || d1 > 31556925.2161) {
 		printf("%s: VNUM_Duration() wrong: %g\n", *argv, d1);
+		++ec;
+	}
+
+	/* pos in range */
+	snprintf(buf, sizeof(buf), "%jd", (intmax_t) INT64_MAX);
+	errno = 0;
+	e = NULL;
+	r = VNUMpfxint(buf, &e, NULL);
+	if (errno != 0 || r != INT64_MAX || (e != NULL && *e != '\0')) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\"\n",
+		    buf, (intmax_t)r, errno, e ? e : "(null)");
+		++ec;
+	}
+
+	/* pos scale */
+	strint_sc(buf, 3, sizeof(buf));
+	errno = 0;
+	e = NULL;
+	r = VNUMpfxint(buf, &e, &sc);
+	if (errno != 0 || r != INT64_MAX || (e != NULL && *e != '\0') ||
+	    sc != 3) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\" sc %d\n",
+		       buf, (intmax_t)r, errno, e ? e : "(null)", sc);
+		++ec;
+	}
+
+	/* pos scale ERANGE */
+	ee = strint_inc(buf);
+	sc = 0;
+	errno = 0;
+	e = NULL;
+	r = VNUMpfxint(buf, &e, &sc);
+	if (errno != ERANGE || r != INT64_MAX || e == NULL || e != ee) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\" sc %d\n",
+		       buf, (intmax_t)r, errno, e ? e : "(null)", sc);
+		++ec;
+	}
+
+	/* pos ERANGE */
+	snprintf(buf, sizeof(buf), "%jd", (intmax_t) INT64_MAX);
+	ee = strint_inc(buf);
+	errno = 0;
+	e = NULL;
+	r = VNUMpfxint(buf, &e, NULL);
+	if (errno != ERANGE || r != INT64_MAX || e == NULL || e != ee) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\"\n",
+		    buf, (intmax_t)r, errno, e ? e : "(null)");
+		++ec;
+	}
+
+	/* neg in range */
+	snprintf(buf, sizeof(buf), "%jd", (intmax_t) INT64_MIN);
+	errno = 0;
+	e = NULL;
+	r = VNUMpfxint(buf, &e, NULL);
+	if (errno != 0 || r != INT64_MIN || (e != NULL && *e != '\0')) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\"\n",
+		    buf, (intmax_t)r, errno, e ? e : "(null)");
+		++ec;
+	}
+
+	/* neg ERANGE */
+	errno = 0;
+	e = NULL;
+	assert(*buf == '-');
+	ee = strint_inc(buf + 1);
+	r = VNUMpfxint(buf, &e, NULL);
+	if (errno != ERANGE || r != INT64_MIN || e == NULL || e != ee) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\"\n",
+		    buf, (intmax_t)r, errno, e ? e : "(null)");
+		++ec;
+	}
+
+	/* two dots */
+	errno = 0;
+	e = NULL;
+	assert(*buf == '-');
+	strint_sc(buf, 5, sizeof(buf));
+	strint_sc(buf, 3, sizeof(buf));
+	r = VNUMpfxint(buf, &e, &sc);
+	if (errno != 0 || r != INT64_MIN / 1000 || e == NULL ||
+	    e != buf + strlen(buf) - 4) {
+		printf("VNUMpfxint(%s) -> %jd errno %d e \"%s\" sc %d\n",
+		       buf, (intmax_t)r, errno, e ? e : "(null)", sc);
 		++ec;
 	}
 	/* TODO: test invalid strings */
