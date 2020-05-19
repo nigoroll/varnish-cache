@@ -56,6 +56,11 @@
  * NEXT (2020-09-15)
  *	VRT_VDI_Resolve() added
  *	authority field added to struct vrt_backend
+ *	VRT_AddVDP() signature changed for error handling
+ *	VRT_AddVFP() signature changed for error handling
+ *	VRT_RemoveVDP() signature changed for error handling
+ *	VRT_RemoveVFP() signature changed for error handling
+ *
  * 11.0 (2020-03-16)
  *	Changed type of vsa_suckaddr_len from int to size_t
  *	New prefix_{ptr|len} fields in vrt_backend
