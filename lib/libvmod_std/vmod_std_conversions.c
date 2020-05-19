@@ -46,17 +46,9 @@
 #include "vtim.h"
 #include "vcc_if.h"
 
-/*
- * technically, as our VCL_INT is int64_t, its limits are INT64_MIN/INT64_MAX.
- *
- * Yet, for conversions, we use VNUMpfx with a double intermediate, so above
- * 2^53 we see rounding errors. In order to catch a potential floor rounding
- * error, we make our limit 2^53-1
- *
- * Ref: https://stackoverflow.com/a/1848762
- */
-#define VCL_INT_MAX ((INT64_C(1)<<53)-1)
-#define VCL_INT_MIN (-VCL_INT_MAX)
+#define VCL_INT_MAX INT64_MAX
+#define VCL_INT_MIN INT64_MIN
+#define VCL_INT_VALID(x) ((x) >= VCL_INT_MIN && (x) <= VCL_INT_MAX)
 
 #define VCL_BYTES_MAX VCL_INT_MAX
 
@@ -122,7 +114,7 @@ vmod_bytes(VRT_CTX, struct VARGS(bytes) *a)
 		return (0);
 
 	if (a->valid_s &&
-	    VNUM_2bytes(a->s, &r, 0) == NULL &&
+	    VNUM_2bytes(a->s, &r) == NULL &&
 	    r <= VCL_BYTES_MAX)
 		return((VCL_BYTES)r);
 
@@ -146,7 +138,7 @@ VCL_INT v_matchproto_(td_std_integer)
 vmod_integer(VRT_CTX, struct VARGS(integer) *a)
 {
 	const char *e;
-	double r;
+	VCL_INT r;
 	int nargs;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -157,38 +149,37 @@ vmod_integer(VRT_CTX, struct VARGS(integer) *a)
 	if (!onearg(ctx, "integer", nargs))
 		return (0);
 
-	r = NAN;
 	if (a->valid_bool)
 		return (a->bool ? 1 : 0);
 
 	if (a->valid_bytes)
 		return (a->bytes);
 
+	errno = 0;
+
 	if (a->valid_s && a->s != NULL) {
-		r = VNUMpfx(a->s, &e);
-		if (e != NULL)
-			r = NAN;
+		r = VNUMpfxint(a->s, &e, NULL);
+		if ((e == NULL || *e == '.') && errno == 0)
+			return (r);
 	}
 
-	if (a->valid_duration)
-		r = a->duration;
+	if (a->valid_duration && VCL_INT_VALID(a->duration))
+		return ((VCL_INT)a->duration);
 
-	if (a->valid_real)
-		r = a->real;
+	if (a->valid_real && VCL_INT_VALID(a->real))
+		return ((VCL_INT)a->real);
 
-	if (a->valid_time)
-		r = a->time;
-
-	if (!isnan(r)) {
-		r = trunc(r);
-		if (r >= VCL_INT_MIN && r <= VCL_INT_MAX)
-			return ((VCL_INT)r);
-	}
+	if (a->valid_time && VCL_INT_VALID(a->time))
+		return ((VCL_INT)a->time);
 
 	if (a->valid_fallback)
 		return (a->fallback);
 
-	VRT_fail(ctx, "std.integer: conversion failed");
+	if (errno == 0)
+		errno = ERANGE;
+
+	VRT_fail(ctx, "std.integer: conversion failed errno %d (%s)",
+	    errno, vstrerror(errno));
 	return (0);
 }
 
@@ -322,7 +313,7 @@ vmod_real2integer(VRT_CTX, VCL_REAL r, VCL_INT i)
 	if (!isfinite(r))
 		return (i);
 	r = round(r);
-	if (r > VCL_INT_MAX || r < VCL_INT_MIN)
+	if (! VCL_INT_VALID(r))
 		return(i);
 	return ((VCL_INT)r);
 }
@@ -346,7 +337,7 @@ vmod_time2integer(VRT_CTX, VCL_TIME t, VCL_INT i)
 	if (!isfinite(t))
 		return (i);
 	t = round(t);
-	if (t > VCL_INT_MAX || t < VCL_INT_MIN)
+	if (! VCL_INT_VALID(t))
 		return(i);
 	return ((VCL_INT)t);
 }
