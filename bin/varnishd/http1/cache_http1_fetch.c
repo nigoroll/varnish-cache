@@ -77,7 +77,7 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 	struct http *hp;
 	enum sess_close sc;
 	ssize_t i;
-	uint64_t bytes, hdrbytes;
+	uint64_t bytes = 0, hdrbytes;
 	struct http_conn *htc;
 	int do_chunked = 0;
 
