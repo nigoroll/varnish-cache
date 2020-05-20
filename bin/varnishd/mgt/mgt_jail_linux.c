@@ -43,7 +43,6 @@
 
 #include "mgt/mgt.h"
 #include "common/heritage.h"
-#include "mgt_jail_linux.h"
 
 #include <unistd.h>
 #include <stdio.h>
@@ -90,6 +89,7 @@ static int vjl_cc_gid_set;
 /* syscall list file path */
 static const char *vjl_mgtf_path;
 static const char *vjl_vccf_path;
+static const char *vjl_wrk_path;
 uint32_t vjl_seccomp_mode;
 static int vjl_enable_seccomp;
 scmp_filter_ctx vjl_ctx;
@@ -98,7 +98,6 @@ static int vjl_add_rules(scmp_filter_ctx ctx, const char *vjl_filter_path);
 
 static void vjl_sig_handler(int sig, siginfo_t *si, void *unused)
 {
-	// TODO: need to find a way to use SYS_SECCOMP otherwise we intercept all SIGSYS
 	if (sig == SIGSYS) {
 		MGT_Complain(C_ERR, "[%u]syscall: %d not permitted at: %p\n", si->si_pid,
 												si->si_syscall, si->si_call_addr);
@@ -113,7 +112,7 @@ static int vjl_seccomp_reset(const char *vjl_filter_path)
 
 	ret = 0;
 
-	ret = seccomp_reset(vjl_ctx, vjl_seccomp_mode);
+	ret = seccomp_reset(vjl_ctx, SCMP_ACT_LOG);
 	/* We reload the empty context here to make sure all previous rules
 	 * are cleared. This is needed when a CLD task is launched as it inherits
 	 * its parent's filters.
@@ -122,6 +121,10 @@ static int vjl_seccomp_reset(const char *vjl_filter_path)
 
 	if (ret == 0)
 		ret = vjl_add_rules(vjl_ctx, vjl_filter_path);
+
+	AZ(ret);
+
+	ret = seccomp_load(vjl_ctx);
 
 	return ret;
 }
@@ -198,8 +201,10 @@ static int vjl_add_rules(scmp_filter_ctx ctx, const char *vjl_filter_path)
 
 static void v_matchproto_(jail_subproc_f)
 vjl_subproc(enum jail_subproc_e jse) {
-	int i;
+	int i, ret;
 	gid_t gid_list[NGID];
+
+	ret = 0;
 
 	AZ(seteuid(0));
 	if (vjl_wrkuser != NULL &&
@@ -208,9 +213,13 @@ vjl_subproc(enum jail_subproc_e jse) {
 		AZ(initgroups(vjl_wrkuser, vjl_wrkgid));
 	} else {
 		if (vjl_enable_seccomp) {
-			int ret;
-			ret = vjl_seccomp_reset(vjl_vccf_path);
-			AZ(ret);
+			if (vjl_vccf_path != NULL) {
+				ret = vjl_seccomp_reset(vjl_vccf_path);
+				AZ(ret);
+			} else {
+				MGT_Complain(C_SECURITY,
+				 "VCC-Compiler filter not found, falling back to manager's filter.\n");
+			}
 		}
 		AZ(setgid(vjl_gid));
 		AZ(initgroups(vjl_user, vjl_gid));
@@ -226,12 +235,20 @@ vjl_subproc(enum jail_subproc_e jse) {
 
 	if (vjl_wrkuser != NULL &&
 	    (jse == JAIL_SUBPROC_VCLLOAD || jse == JAIL_SUBPROC_WORKER)) {
+		if (vjl_enable_seccomp) {
+			if (vjl_wrk_path != NULL) {
+				ret = vjl_seccomp_reset(vjl_wrk_path);
+				AZ(ret);
+			} else {
+				MGT_Complain(C_SECURITY,
+				 "Worker seccomp filter not found, falling back to manager's filter.\n");
+			}
+		}
 		AZ(setuid(vjl_wrkuid));
 	} else {
 		AZ(setuid(vjl_uid));
 	}
 
-#ifdef __linux__
 	/*
 	 * On linux mucking about with uid/gid disables core-dumps,
 	 * reenable them again.
@@ -240,10 +257,6 @@ vjl_subproc(enum jail_subproc_e jse) {
 		MGT_Complain(C_INFO,
 		    "Could not set dumpable bit.  Core dumps turned off");
 	}
-
-	/*TODO: set seccomp filters for worker here*/
-#endif
-
 }
 
 
@@ -335,6 +348,12 @@ vjl_init(char **args)
 				vjl_enable_seccomp = 1;
 				vjl_vccf_path = strdup((*args) + 11);
 				AN(vjl_vccf_path);
+				continue;
+			}
+			if (!strncmp(*args, "wrk_filter=",11)) {
+				vjl_enable_seccomp = 1;
+				vjl_wrk_path = strdup((*args) + 11);
+				AN(vjl_wrk_path);
 				continue;
 			}
 			if (!strncmp(*args, "audit", 5)) {
@@ -444,7 +463,7 @@ vjl_make_subdir(const char *dname, const char *what, struct vsb *vsb)
 
 const struct jail_tech jail_tech_linux = {
 	.magic =	JAIL_TECH_MAGIC,
-	.name =		"linux",
+	.name =		"linux_experimental",
 	.init =		vjl_init,
 	.master =	vjl_master,
 	.subproc =	vjl_subproc,
