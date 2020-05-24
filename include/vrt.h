@@ -55,6 +55,7 @@
  *
  * NEXT (2020-09-15)
  *	VRT_VDI_Resolve() added
+ *	authority field added to struct vrt_backend
  * 11.0 (2020-03-16)
  *	Changed type of vsa_suckaddr_len from int to size_t
  *	New prefix_{ptr|len} fields in vrt_backend
@@ -379,6 +380,7 @@ extern const void * const vrt_magic_string_unset;
 	rigid char			*port;			\
 	rigid char			*path;			\
 	rigid char			*hosthdr;		\
+	rigid char			*authority;		\
 	vtim_dur			connect_timeout;	\
 	vtim_dur			first_byte_timeout;	\
 	vtim_dur			between_bytes_timeout;	\
@@ -395,6 +397,7 @@ extern const void * const vrt_magic_string_unset;
 		DA(port);			\
 		DA(path);			\
 		DA(hosthdr);			\
+		DA(authority);			\
 		DN(connect_timeout);		\
 		DN(first_byte_timeout);		\
 		DN(between_bytes_timeout);	\
@@ -506,9 +509,9 @@ VCL_VOID VRT_Rollback(VRT_CTX, VCL_HTTP);
 VCL_VOID VRT_synth_page(VRT_CTX, VCL_STRANDS);
 
 /* Backend related */
-VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *);
+VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *, VCL_BACKEND);
 VCL_BACKEND VRT_new_backend_clustered(VRT_CTX,
-    struct vsmw_cluster *, const struct vrt_backend *);
+    struct vsmw_cluster *, const struct vrt_backend *, VCL_BACKEND);
 size_t VRT_backend_vsm_need(VRT_CTX);
 void VRT_delete_backend(VRT_CTX, VCL_BACKEND *);
 
