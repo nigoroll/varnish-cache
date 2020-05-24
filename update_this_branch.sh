@@ -28,6 +28,7 @@ typeset -ra branches_norebase=(
     Dridi/issue_3114			# #3123
 # diverged too much and not semantically relevant
 #    Dridi/_type				# #3158
+    Dridi/vpath-vcc			# #3332 for varnish-objvar
     daghf/r03266			# #3267
     mbgrydeland/master-exprace		# #3261
     mbgrydeland/master-vtim-format	# #3308
