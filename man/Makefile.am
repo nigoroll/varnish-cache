@@ -17,6 +17,7 @@ dist_man_MANS = \
 	varnishtop.1 \
 	vmod_cookie.3 \
 	vmod_directors.3 \
+	vmod_error.3 \
 	vmod_purge.3 \
 	vmod_std.3 \
 	vmod_vtc.3 \
@@ -99,6 +100,9 @@ vmod_cookie.3: $(top_builddir)/lib/libvmod_cookie/vmod_cookie.man.rst
 	$(BUILD_MAN) $? $@
 
 vmod_directors.3: $(top_builddir)/lib/libvmod_directors/vmod_directors.man.rst
+	$(BUILD_MAN) $? $@
+
+vmod_error.3: $(top_builddir)/lib/libvmod_error/vmod_error.man.rst
 	$(BUILD_MAN) $? $@
 
 vmod_purge.3: $(top_builddir)/lib/libvmod_purge/vmod_purge.man.rst
