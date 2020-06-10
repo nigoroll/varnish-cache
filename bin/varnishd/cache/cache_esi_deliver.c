@@ -179,7 +179,7 @@ ved_include(struct req *preq, const char *src, const char *host,
 		req->vcl = req->top->vcl0;
 	else
 		req->vcl = preq->vcl;
-	VCL_Ref(req->vcl);
+	VCL_Ref(req->vcl, wrk);
 
 	req->req_step = R_STP_TRANSPORT;
 	req->t_req = preq->t_req;
@@ -207,7 +207,7 @@ ved_include(struct req *preq, const char *src, const char *host,
 		CNT_Embark(wrk, req);
 	}
 
-	VCL_Rel(&req->vcl);
+	VCL_Rel(&req->vcl, wrk);
 
 	req->wrk = NULL;
 	THR_SetRequest(preq);
