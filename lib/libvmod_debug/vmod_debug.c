@@ -40,6 +40,7 @@
 #include "cache/cache_filter.h"
 
 #include "vre.h"
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_if.h"
@@ -1161,4 +1162,34 @@ xyzzy_re_quote(VRT_CTX, VCL_STRING s)
 	if (q == NULL)
 		WS_MarkOverflow(ctx->ws);
 	return (q);
+}
+
+/*---------------------------------------------------------------------*/
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	VRT_call(ctx, sub);
+}
+
+/* the next two are to test WRONG vmod behavior:
+ * holding a VCL_SUB reference across vcls
+ */
+
+static VCL_SUB wrong = NULL;
+
+VCL_VOID v_matchproto_(td_xyzzy_bad_memory)
+xyzzy_bad_memory(VRT_CTX, VCL_SUB sub)
+{
+	(void) ctx;
+
+	wrong = sub;
+}
+
+VCL_SUB v_matchproto_(td_xyzzy_total_recall)
+xyzzy_total_recall(VRT_CTX)
+{
+	(void) ctx;
+
+	return (wrong);
 }
