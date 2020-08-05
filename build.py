@@ -74,6 +74,7 @@ def make(configure, **kwargs):
 def build(srcdir, prefix, **kwargs):
     configure = bootstrap_autogen_configure(srcdir, prefix, **kwargs)
     run(["make", "distclean"])
+    run(["make", "maintainerclean"])
     with TemporaryDirectory() as builddir:
         with pushd(str(builddir)):
             make(configure, **kwargs)
