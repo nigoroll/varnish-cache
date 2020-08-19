@@ -56,6 +56,10 @@
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
  *	authority field added to struct vrt_backend
+ *	VRT_AddVDP() signature changed for error handling
+ *	VRT_AddVFP() signature changed for error handling
+ *	VRT_RemoveVDP() signature changed for error handling
+ *	VRT_RemoveVFP() signature changed for error handling
  *
  * 11.0 (2020-03-16)
  *	Changed type of vsa_suckaddr_len from int to size_t
