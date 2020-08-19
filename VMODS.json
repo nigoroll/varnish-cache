@@ -1,5 +1,10 @@
 [
   {
+    "vmod": "libvmod-blobdigest",
+    "git": "https://code.uplex.de/uplex-varnish/libvmod-blobdigest.git",
+    "branch": "master"
+  },
+  {
     "vmod": "libvmod-tus",
     "git": "https://code.uplex.de/uplex-varnish/libvmod-tus.git",
     "branch": "master"
@@ -57,11 +62,6 @@
   {
     "vmod": "libvmod-dispatch",
     "git": "https://code.uplex.de/uplex-varnish/libvmod-dispatch.git",
-    "branch": "master"
-  },
-  {
-    "vmod": "libvmod-blobdigest",
-    "git": "https://code.uplex.de/uplex-varnish/libvmod-blobdigest.git",
     "branch": "master"
   },
   {
