@@ -808,9 +808,47 @@ VRT_r_req_##field(VRT_CTX)						\
 
 GIP(local)
 GIP(remote)
-GIP(client)
 GIP(server)
 #undef GIP
+
+// above macro expanded
+static VCL_IP
+r_client_ip(VRT_CTX)
+{
+	struct suckaddr *sa;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(ctx->sp, SESS_MAGIC);
+	AZ(SES_Get_client_addr(ctx->sp, &sa));
+	return (sa);
+}
+
+VCL_IP
+VRT_r_client_ip(VRT_CTX)
+{
+	VCL_IP sa;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	if (ctx->req) {
+		CHECK_OBJ(ctx->req, REQ_MAGIC);
+		sa = ctx->req->client_ip;
+	} else {
+		CHECK_OBJ_NOTNULL(ctx->bo, BUSYOBJ_MAGIC);
+		sa = ctx->bo->client_ip;
+	}
+
+	if (sa != NULL)
+		return (sa);
+	return (r_client_ip(ctx));
+}
+
+void
+VRT_l_client_ip(VRT_CTX, VCL_IP sa)
+{
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
+	ctx->req->client_ip = sa;
+}
 
 /*--------------------------------------------------------------------
  * local.[endpoint|socket]

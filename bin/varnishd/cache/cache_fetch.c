@@ -37,6 +37,7 @@
 #include "hash/hash_slinger.h"
 #include "storage/storage.h"
 #include "vcl.h"
+#include "vsa.h"
 #include "vtim.h"
 
 /*--------------------------------------------------------------------
@@ -256,6 +257,11 @@ vbf_stp_mkbereq(struct worker *wrk, struct busyobj *bo)
 
 	http_CopyHome(bo->bereq0);
 	HTTP_Setup(bo->bereq, bo->ws, bo->vsl, SLT_BereqMethod);
+	if (bo->req->client_ip != NULL)
+		// delayed fail if out of workspace
+		bo->client_ip = WS_Copy(bo->ws, bo->req->client_ip,
+		    vsa_suckaddr_len);
+
 	bo->ws_bo = WS_Snapshot(bo->ws);
 	HTTP_Clone(bo->bereq, bo->bereq0);
 

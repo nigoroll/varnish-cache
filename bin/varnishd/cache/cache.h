@@ -410,6 +410,8 @@ struct busyobj {
 	const char		*no_retry;
 
 	struct http_conn	*htc;
+	const struct suckaddr	*client_ip;
+
 
 	struct pool_task	fetch_task[1];
 
@@ -510,6 +512,7 @@ struct req {
 	struct http_conn	*htc;
 	struct vfp_ctx		*vfc;
 	const char		*client_identity;
+	const struct suckaddr	*client_ip;
 
 	/* HTTP request */
 	struct http		*http;

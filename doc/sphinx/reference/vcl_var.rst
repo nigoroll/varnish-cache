@@ -109,9 +109,12 @@ client.ip
 
 	Readable from: client, backend
 
+	Writable from: client
 
-	The client's IP address, either the same as ``local.ip``
+	The client's IP address, defaults to either the same as ``local.ip``
 	or what the PROXY protocol told us.
+
+	``std.rollback()`` resets it to the default.
 
 client.identity
 

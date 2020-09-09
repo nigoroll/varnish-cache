@@ -143,6 +143,7 @@ ved_include(struct req *preq, const char *src, const char *host,
 
 	memset(req->top, 0, sizeof *req->top);
 	req->top = preq->top;
+	req->client_ip = preq->client_ip;
 
 	HTTP_Setup(req->http, req->ws, req->vsl, SLT_ReqMethod);
 	HTTP_Dup(req->http, preq->http0);
