@@ -142,6 +142,7 @@ struct lock { void *priv; };	// Opaque
 struct ws {
 	unsigned		magic;
 #define WS_MAGIC		0x35fac554
+	uint8_t			gen;
 	char			id[WS_ID_STOR];	/* identity */
 	char			*s;		/* (S)tart of buffer */
 	char			*f;		/* (F)ree/front pointer */
@@ -789,6 +790,7 @@ void WS_Release(struct ws *ws, unsigned bytes);
 void WS_ReleaseP(struct ws *ws, const char *ptr);
 void WS_Assert(const struct ws *ws);
 void WS_Reset(struct ws *ws, uintptr_t);
+uint8_t WS_Generation(const struct ws *);
 void *WS_Alloc(struct ws *ws, unsigned bytes);
 void *WS_Copy(struct ws *ws, const void *str, int len);
 uintptr_t WS_Snapshot(struct ws *ws);

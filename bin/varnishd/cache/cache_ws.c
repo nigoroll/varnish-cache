@@ -180,6 +180,8 @@ WS_Reset(struct ws *ws, uintptr_t pp)
 /*
  * Reset the WS to a cookie or its start and clears any overflow
  *
+ * Increments the generation count
+ *
  * for varnishd internal use only
  */
 
@@ -187,12 +189,26 @@ void
 WS_Rollback(struct ws *ws, uintptr_t pp)
 {
 	WS_Assert(ws);
+	assert(ws->gen < UINT8_MAX);
 
 	if (pp == 0)
 		pp = (uintptr_t)ws->s;
 
 	ws_ClearOverflow(ws);
 	WS_Reset(ws, pp);
+	ws->gen++;
+}
+
+/*
+ * Return the workspace generation. This allows workspace users to detect if
+ * data cached on the workspace is still valid
+ */
+
+uint8_t
+WS_Generation(const struct ws *ws)
+{
+	WS_Assert(ws);
+	return (ws->gen);
 }
 
 void *
