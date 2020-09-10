@@ -136,12 +136,13 @@ struct lock { void *priv; };	// Opaque
  * Workspace structure for quick memory allocation.
  */
 
-#define WS_ID_SIZE 4
+#define WS_ID_STOR 3
+#define WS_ID_SIZE (WS_ID_STOR + 1)
 
 struct ws {
 	unsigned		magic;
 #define WS_MAGIC		0x35fac554
-	char			id[WS_ID_SIZE];	/* identity */
+	char			id[WS_ID_STOR];	/* identity */
 	char			*s;		/* (S)tart of buffer */
 	char			*f;		/* (F)ree/front pointer */
 	char			*r;		/* (R)eserved length */

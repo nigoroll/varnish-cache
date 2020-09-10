@@ -45,8 +45,8 @@ WS_Assert(const struct ws *ws)
 {
 
 	CHECK_OBJ_NOTNULL(ws, WS_MAGIC);
-	DSL(DBG_WORKSPACE, 0, "WS(%p) = (%s, %p %u %u %u)",
-	    ws, ws->id, ws->s, pdiff(ws->s, ws->f),
+	DSL(DBG_WORKSPACE, 0, "WS(%p) = (%*s, %p %u %u %u)",
+	    ws, WS_ID_STOR, ws->id, ws->s, pdiff(ws->s, ws->f),
 	    ws->r == NULL ? 0 : pdiff(ws->f, ws->r),
 	    pdiff(ws->s, ws->e));
 	assert(ws->s != NULL);
@@ -111,7 +111,12 @@ WS_Init(struct ws *ws, const char *id, void *space, unsigned len)
 	memset(ws->e, WS_REDZONE_END, len - l);
 	ws->f = ws->s;
 	assert(id[0] & 0x20);		// cheesy islower()
-	bstrcpy(ws->id, id);
+	l = strlen(id);
+	if (l < WS_ID_STOR)
+		l++;
+	else if (l > WS_ID_STOR)
+		l = WS_ID_STOR;
+	memcpy(ws->id, id, l);
 	WS_Assert(ws);
 }
 
@@ -121,7 +126,8 @@ WS_Id(const struct ws *ws, char *id)
 
 	WS_Assert(ws);
 	AN(id);
-	memcpy(id, ws->id, WS_ID_SIZE);
+	memcpy(id, ws->id, WS_ID_STOR);
+	id[WS_ID_STOR] = '\0';
 	id[0] |= 0x20;			// cheesy tolower()
 }
 
@@ -440,7 +446,7 @@ WS_Panic(const struct ws *ws, struct vsb *vsb)
 	PAN_CheckMagic(vsb, ws, WS_MAGIC);
 	if (ws->id[0] != '\0' && (!(ws->id[0] & 0x20)))	// cheesy islower()
 		VSB_cat(vsb, "OVERFLOWED ");
-	VSB_printf(vsb, "id = \"%s\",\n", ws->id);
+	VSB_printf(vsb, "id = \"%*s\",\n", WS_ID_STOR, ws->id);
 	VSB_printf(vsb, "{s, f, r, e} = {%p", ws->s);
 	if (ws->f >= ws->s)
 		VSB_printf(vsb, ", +%ld", (long) (ws->f - ws->s));
