@@ -111,8 +111,10 @@ client.ip
 
 	Writable from: client
 
-	The client's IP address, defaults to either the same as ``local.ip``
-	or what the PROXY protocol told us.
+	The client's IP address. On the client side, defaults to
+	either the same as ``local.ip`` or what the PROXY protocol
+	told us. On the backend side, defaults to the value from the
+	client side.
 
 	``std.rollback()`` resets it to the default.
 
