@@ -71,6 +71,7 @@
  *	VRT_l_beresp_body() changed
  *	VRT_Format_Proxy() added	// transitional interface
  *	VRT_AllocStrandsWS() added
+ *	VRT_call() added
  * 10.0 (2019-09-15)
  *	VRT_UpperLowerStrands added.
  *	VRT_synth_page now takes STRANDS argument
@@ -195,6 +196,7 @@ struct vsmw_cluster;
 struct vsl_log;
 struct ws;
 struct VSC_main;
+struct vcl_sub;
 
 /*
  * VCL_STRANDS:
@@ -270,6 +272,7 @@ typedef double					VCL_REAL;
 typedef const struct stevedore *		VCL_STEVEDORE;
 typedef const struct strands *			VCL_STRANDS;
 typedef const char *				VCL_STRING;
+typedef const struct vcl_sub *			VCL_SUB;
 typedef vtim_real				VCL_TIME;
 typedef struct vcl *				VCL_VCL;
 typedef void					VCL_VOID;
@@ -331,9 +334,13 @@ struct vrt_ctx {
 	 *    synth+error:	struct vsb *
 	 */
 	void				*specific;
+	/* if present, vbitmap of called subs */
+	void				*called;
 };
 
 #define VRT_CTX		const struct vrt_ctx *ctx
+
+typedef void vcl_func_f(VRT_CTX);
 
 /***********************************************************************
  * This is the interface structure to a compiled VMOD
@@ -633,3 +640,7 @@ void VRT_VCL_Allow_Cold(struct vclref **);
 
 struct vclref * VRT_VCL_Prevent_Discard(VRT_CTX, const char *);
 void VRT_VCL_Allow_Discard(struct vclref **);
+
+/* VCL_SUB */
+
+VCL_VOID VRT_call(VRT_CTX, VCL_SUB);

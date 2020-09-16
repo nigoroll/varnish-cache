@@ -40,6 +40,7 @@
 #include "cache/cache_filter.h"
 
 #include "vre.h"
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_debug_if.h"
@@ -1172,4 +1173,34 @@ xyzzy_priv_task_with_option(VRT_CTX, struct VARGS(priv_task_with_option) *args)
 	if (args->priv->priv == NULL && args->valid_opt)
 		args->priv->priv = WS_Copy(ctx->ws, args->opt, -1);
 	return (args->priv->priv);
+}
+
+/*---------------------------------------------------------------------*/
+
+VCL_VOID v_matchproto_(td_xyzzy_call)
+xyzzy_call(VRT_CTX, VCL_SUB sub)
+{
+	VRT_call(ctx, sub);
+}
+
+/* the next two are to test WRONG vmod behavior:
+ * holding a VCL_SUB reference across vcls
+ */
+
+static VCL_SUB wrong = NULL;
+
+VCL_VOID v_matchproto_(td_xyzzy_bad_memory)
+xyzzy_bad_memory(VRT_CTX, VCL_SUB sub)
+{
+	(void) ctx;
+
+	wrong = sub;
+}
+
+VCL_SUB v_matchproto_(td_xyzzy_total_recall)
+xyzzy_total_recall(VRT_CTX)
+{
+	(void) ctx;
+
+	return (wrong);
 }
