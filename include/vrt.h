@@ -70,6 +70,7 @@
  *	VRT_re_fini removed
  *	VRT_re_match signature changed
  *	VRT_regsub signature changed
+ *	VRT_call() added
  * 12.0 (2020-09-15)
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
@@ -332,6 +333,8 @@ struct vrt_ctx {
 	 *    synth+error:	struct vsb *
 	 */
 	void				*specific;
+	/* if present, vbitmap of called subs */
+	void				*called;
 };
 
 #define VRT_CTX		const struct vrt_ctx *ctx
@@ -407,6 +410,9 @@ char *VRT_Strands(char *, size_t, VCL_STRANDS);
 VCL_STRING VRT_StrandsWS(struct ws *, const char *, VCL_STRANDS);
 VCL_STRING VRT_CollectStrands(VRT_CTX, VCL_STRANDS);
 VCL_STRING VRT_UpperLowerStrands(VRT_CTX, VCL_STRANDS s, int up);
+
+/* VCL_SUB */
+VCL_VOID VRT_call(VRT_CTX, VCL_SUB);
 
 /* Functions to turn types into canonical strings */
 
