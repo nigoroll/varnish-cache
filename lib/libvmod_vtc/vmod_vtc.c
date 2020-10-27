@@ -402,6 +402,11 @@ vmod_benchmark(VRT_CTX, VCL_SUB sub, VCL_INT total, VCL_INT leg)
 		t_tot += e - b;
 	}
 
+	if (WS_Overflowed(ctx->ws)) {
+		VRT_fail(ctx, "vtc.benchmark: workspace overflow");
+		return (0);
+	}
+
 	if (count == 0)
 		return (0);
 
