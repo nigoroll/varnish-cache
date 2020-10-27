@@ -58,6 +58,8 @@
  *	struct vmod_priv_methods added
  *	struct vmod_priv free member replaced with methods
  *	VRT_CTX_Assert() added
+ *	VRT_check_call() added
+ *	VRT_call() added
  * 12.0 (2020-09-15)
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
@@ -74,7 +76,6 @@
  *	VRT_l_beresp_body() changed
  *	VRT_Format_Proxy() added	// transitional interface
  *	VRT_AllocStrandsWS() added
- *	VRT_call() added
  * 10.0 (2019-09-15)
  *	VRT_UpperLowerStrands added.
  *	VRT_synth_page now takes STRANDS argument
@@ -661,4 +662,5 @@ void VRT_VCL_Allow_Discard(struct vclref **);
 
 /* VCL_SUB */
 
+VCL_STRING VRT_check_call(VRT_CTX, VCL_SUB);
 VCL_VOID VRT_call(VRT_CTX, VCL_SUB);
