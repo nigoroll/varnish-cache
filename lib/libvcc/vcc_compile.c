@@ -171,6 +171,7 @@ vcc_EmitProc(struct vcc *tl, struct proc *p)
 {
 	struct vsb *vsbm;
 
+	AN(p->okmask);
 	AZ(VSB_finish(p->cname));
 	AZ(VSB_finish(p->prologue));
 	AZ(VSB_finish(p->body));
