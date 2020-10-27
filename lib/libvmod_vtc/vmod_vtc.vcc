@@ -171,13 +171,18 @@ the interface design
 
 $Function DURATION benchmark(SUB, INT total=1000, INT leg=10)
 
-Benchmark a VCL sub and return the average runtime.
+Benchmark *total* calls to a VCL sub and return the average runtime.
 
-Initially and after every *leg* invocations, the task is rolled back
-in order to avoid workspace overflows, unless the workspace is already
-overflowed, in which case the benchmark is aborted. This implies that
-**the sub to be benchmarked can not use any VCL-generated data or
-PRIV_TASK state**.
+Because a relevant number of calls to any VCL sub is likely to exhaust
+the available workspace, the benchmark is split into a timed inner
+loop with *leg* consecutive invocations and an outer loop which rolls
+back the task and flushes VSL, repeating until *total* is reached.
+
+The rollback implies that **the sub to be benchmarked can not use any
+VCL-generated data or ``PRIV_TASK`` state** from outside the inner
+loop.
+
+Workspace overflows fail the VCL.
 
 The run time is averaged over *total* runs. The actual total may be up
 to *leg* - 1 more, in other words, there are always *leg* calls
