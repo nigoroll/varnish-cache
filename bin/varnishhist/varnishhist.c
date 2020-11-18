@@ -636,9 +636,9 @@ main(int argc, char **argv)
 	AZ(pthread_create(&thr, NULL, do_curses, NULL));
 	vut->dispatch_f = accumulate;
 	vut->dispatch_priv = NULL;
-	(void)VUT_Main(vut);
+	i = VUT_Main(vut);
 	end_of_file = 1;
 	AZ(pthread_join(thr, NULL));
 	VUT_Fini(&vut);
-	exit(0);
+	exit(i < vsl_e_eof ? 1 : 0);
 }

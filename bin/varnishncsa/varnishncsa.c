@@ -1085,6 +1085,7 @@ main(int argc, char * const *argv)
 {
 	signed char opt;
 	char *format = NULL;
+	int i;
 
 	vut = VUT_InitProg(argc, argv, &vopt_spec);
 	AN(vut);
@@ -1182,8 +1183,8 @@ main(int argc, char * const *argv)
 	vut->idle_f = flushout;
 
 	VUT_Setup(vut);
-	(void)VUT_Main(vut);
+	i = VUT_Main(vut);
 	VUT_Fini(&vut);
 
-	exit(0);
+	exit(i < vsl_e_eof ? 1 : 0);
 }

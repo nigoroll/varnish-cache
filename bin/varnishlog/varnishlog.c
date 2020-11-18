@@ -108,7 +108,7 @@ flushout(struct VUT *v)
 int
 main(int argc, char * const *argv)
 {
-	int opt;
+	int opt, i;
 
 	vut = VUT_InitProg(argc, argv, &vopt_spec);
 	AN(vut);
@@ -167,10 +167,10 @@ main(int argc, char * const *argv)
 	vut->idle_f = flushout;
 
 	VUT_Setup(vut);
-	(void)VUT_Main(vut);
+	i = VUT_Main(vut);
 	VUT_Fini(&vut);
 
 	(void)flushout(NULL);
 
-	exit(0);
+	exit(i < vsl_e_eof ? 1 : 0);
 }

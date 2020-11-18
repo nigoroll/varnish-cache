@@ -409,13 +409,18 @@ VUT_Main(struct VUT *vut)
 {
 	struct VSL_cursor *c;
 	int i = -1;
-	int hascursor = -1;
+	int hascursor = -1, trycursor = 0;
 	vtim_mono failcursor = NAN;
 
 	CHECK_OBJ_NOTNULL(vut, VUT_MAGIC);
 	AN(vut->vslq);
 
 	while (!VSIG_int && !VSIG_term) {
+		if (trycursor == 10) {
+			fprintf(stderr,
+			    "Failed to acquire log too many times\n");
+			return (vsl_e_acquire);
+		}
 		if (VSIG_hup != vut->last_sighup) {
 			/* sighup callback */
 			vut->last_sighup = VSIG_hup;
@@ -457,7 +462,9 @@ VUT_Main(struct VUT *vut)
 				hascursor = 0;
 			}
 		}
+
 		if (vut->vsm != NULL && hascursor < 1) {
+			trycursor++;
 			/* Reconnect VSM */
 			AZ(vut->r_arg);
 			VTIM_sleep(0.1);
@@ -472,6 +479,7 @@ VUT_Main(struct VUT *vut)
 			if (hascursor >= 0)
 				fprintf(stderr, "Log reacquired\n");
 			hascursor = 1;
+			trycursor = 0;
 			VSLQ_SetCursor(vut->vslq, &c);
 			AZ(c);
 		}

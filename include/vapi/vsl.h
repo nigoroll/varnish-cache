@@ -344,6 +344,7 @@ VSL_Check(const struct VSL_cursor *c, const struct VSLC_ptr *ptr);
 	 */
 
 enum vsl_status {
+	vsl_e_acquire	= -6,	// Failed to acquire log
 	vsl_e_write	= -5,	// Error from VSL_Write etc.
 	vsl_e_io	= -4,	// I/O read error - see errno
 	vsl_e_overrun	= -3,	// Overrun
