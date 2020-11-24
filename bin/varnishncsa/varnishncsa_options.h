@@ -75,8 +75,8 @@
 	    " specified, then -c is needed to also log client requests"	\
 	)
 #define NCSA_OPT_E							\
-	VOPT("E", "[-E]", "Show ESI request",				\
-	    "Show ESI requests, implies client mode."	\
+	VOPT("E", "[-E]", "Show ESI requests",				\
+	    "Show ESI requests, implies client mode."			\
 	)
 
 NCSA_OPT_a
