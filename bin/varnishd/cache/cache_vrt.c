@@ -795,7 +795,10 @@ VRT_Rollback(VRT_CTX, VCL_HTTP hp)
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(hp, HTTP_MAGIC);
-	if (hp == ctx->http_req) {
+	if (ctx->method & VCL_MET_PIPE) {
+		VRT_fail(ctx, "Cannot rollback in vcl_pipe {}");
+		return;
+	} else if (hp == ctx->http_req) {
 		CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
 		Req_Rollback(ctx->req);
 		if (ctx->method & VCL_MET_DELIVER)
