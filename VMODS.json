@@ -96,7 +96,7 @@
   },
   {
     "vmod": "libvmod-xcounter",
-    "git": "https://github.com/xcir/libvmod-xcounter.git",
+    "git": "https://github.com/nigoroll/libvmod-xcounter.git",
     "branch": "master"
   }
 ]
