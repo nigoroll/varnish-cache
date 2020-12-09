@@ -1,0 +1,32 @@
+varnishtest "Corrupted log segment"
+
+varnish v1 -vcl {backend be none;} -start
+
+shell {
+	vsl=$(echo ${v1_name}/_.vsm_child/_.Log.*)
+	printf CORRUPT |
+	dd bs=1 count=7 conv=notrunc of=$vsl
+}
+
+process p1 -expect-exit 1 {
+	varnishhist -n ${v1_name} -d
+} -start
+
+process p2 -expect-exit 1 {
+	varnishtop -n ${v1_name} -d
+} -start
+
+shell -err -expect "Failed to acquire log too many times" {
+	varnishlog -n ${v1_name} -d
+}
+
+shell -err -expect "Failed to acquire log too many times" {
+	varnishncsa -n ${v1_name} -d
+}
+
+shell -err -expect "Failed to acquire log too many times" {
+	varnishtop -n ${v1_name} -d -1
+}
+
+process p1 -stop
+process p2 -stop

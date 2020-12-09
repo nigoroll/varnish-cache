@@ -510,8 +510,8 @@ main(int argc, char **argv)
 				break;
 			}
 			/* else check if valid definition */
-			if (colon == optarg + 1 &&
-			    (*optarg == 'b' || *optarg == 'c')) {
+			if (colon == optarg + 1 && (*optarg == 'b' ||
+			    *optarg == 'c' || *optarg == 'E')) {
 				cli_p.VSL_arg = *optarg;
 				ptag = colon + 1;
 				colon = strchr(colon + 1, ':');
@@ -605,7 +605,8 @@ main(int argc, char **argv)
 		VUT_Error(vut, 1, "-P: No such profile '%s'", profile);
 
 	assert(active_profile->VSL_arg == 'b' ||
-	    active_profile->VSL_arg == 'c');
+	    active_profile->VSL_arg == 'c' ||
+	    active_profile->VSL_arg == 'E');
 	assert(VUT_Arg(vut, active_profile->VSL_arg, NULL));
 	match_tag = active_profile->tag;
 	fnum = active_profile->field;
@@ -636,9 +637,9 @@ main(int argc, char **argv)
 	AZ(pthread_create(&thr, NULL, do_curses, NULL));
 	vut->dispatch_f = accumulate;
 	vut->dispatch_priv = NULL;
-	(void)VUT_Main(vut);
+	i = VUT_Main(vut);
 	end_of_file = 1;
 	AZ(pthread_join(thr, NULL));
 	VUT_Fini(&vut);
-	exit(0);
+	exit(i < vsl_e_eof ? 1 : 0);
 }

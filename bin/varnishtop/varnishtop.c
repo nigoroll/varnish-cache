@@ -310,7 +310,7 @@ dump(void)
 int
 main(int argc, char **argv)
 {
-	int o, once = 0;
+	int o, once = 0, i;
 	pthread_t thr;
 	char *e = NULL;
 
@@ -357,14 +357,14 @@ main(int argc, char **argv)
 	vut->dispatch_f = accumulate;
 	vut->dispatch_priv = NULL;
 	if (once) {
-		(void)VUT_Main(vut);
+		i = VUT_Main(vut);
 		dump();
 	} else {
 		AZ(pthread_create(&thr, NULL, do_curses, NULL));
-		(void)VUT_Main(vut);
+		i = VUT_Main(vut);
 		end_of_file = 1;
 		AZ(pthread_join(thr, NULL));
 	}
 	VUT_Fini(&vut);
-	return (0);
+	exit(i < vsl_e_eof ? 1 : 0);
 }
