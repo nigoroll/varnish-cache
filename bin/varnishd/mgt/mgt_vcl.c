@@ -760,7 +760,7 @@ mgt_vcl_discard_depcheck(struct cli *cli)
 }
 
 static void
-mgt_vcl_discard_clear()
+mgt_vcl_discard_clear(void)
 {
 	struct vclprog *vp, *vp2;
 
