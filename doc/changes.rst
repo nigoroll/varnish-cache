@@ -56,6 +56,23 @@ Varnish Cache Next (2021-03-15)
 * All shard ``Error`` and ``Notice`` messages now use the unified
   prefix ``vmod_directors: shard %s``.
 
+* The ``VCL_SUB`` data type is now supported for VMODs to save
+  references to subroutines to be called later using
+  ``VRT_call()``. This will fail the VCL for calls from a wrong
+  context (e.g. calling a subroutine accessing ``req`` from the
+  backend side) and for recursive calls.
+
+  Note that, for performance reasons, recursive call detection only
+  happens for the second dynamic call. This implementation detail is
+  subject to change and must not be relied on.
+
+* ``VRT_check_call()`` can be used to check if a ``VRT_call()`` would
+  succeed in order to avoid the potential VCL failure in case it would
+  not.
+
+  It returns ``NULL`` if ``VRT_call()`` would make the call or an
+  error string why not.
+
 ================================
 Varnish Cache 6.5.1 (2020-09-25)
 ================================
