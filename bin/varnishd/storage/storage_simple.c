@@ -236,6 +236,7 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
     void *priv, objiterate_f *func, int final)
 {
 	struct boc *boc;
+	enum boc_state_e state;
 	struct object *obj;
 	struct storage *st;
 	struct storage *checkpoint = NULL;
@@ -278,6 +279,7 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 	p = NULL;
 	l = 0;
 
+	u = 0;
 	while (1) {
 		ol = len;
 		nl = ObjWaitExtend(wrk, oc, ol);
@@ -328,16 +330,21 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 		st = VTAILQ_NEXT(st, list);
 		if (st != NULL && st->len == 0)
 			st = NULL;
+		state = boc->state;
 		Lck_Unlock(&boc->mtx);
-		assert(l > 0 || boc->state == BOS_FINISHED);
+		assert(l > 0 || state == BOS_FINISHED);
 		u = 0;
 		if (st == NULL || final)
 			u |= OBJ_ITER_FLUSH;
+		if (st == NULL && state == BOS_FINISHED)
+			u |= OBJ_ITER_END;
 		ret = func(priv, u, p, l);
 		if (ret)
 			break;
 	}
 	HSH_DerefBoc(wrk, oc);
+	if ((u & OBJ_ITER_END) == 0)
+		func(priv, OBJ_ITER_END, NULL, 0);
 	return (ret);
 }
 
