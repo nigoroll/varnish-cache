@@ -61,6 +61,10 @@
  *	authority field added to struct vrt_backend
  *	VRT_check_call() added
  *	VRT_call() added
+ *	VRT_AddVDP() signature changed for error handling
+ *	VRT_AddVFP() signature changed for error handling
+ *	VRT_RemoveVDP() signature changed for error handling
+ *	VRT_RemoveVFP() signature changed for error handling
  * 12.0 (2020-09-15)
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
