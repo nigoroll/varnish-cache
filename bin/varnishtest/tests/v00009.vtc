@@ -1,6 +1,6 @@
-varnishtest "Test vcl ban()"
+varnishtest "Test std.ban()"
 
-# see also v00009.vtc
+# see also v00011.vtc
 
 server s1 {
 	rxreq
@@ -11,19 +11,23 @@ server s1 {
 } -start
 
 varnish v1 -vcl+backend {
+	import std;
+
+	sub vcl_synth {
+		set resp.http.b1 = std.ban(req.http.doesntexist);
+		set resp.http.b2 = std.ban("");
+		set resp.http.b3 = std.ban("req.url");
+		set resp.http.b4 = std.ban("req.url //");
+		set resp.http.b5 = std.ban("req.url // bar");
+		set resp.http.b6 = std.ban("req.url == bar //");
+		set resp.http.b7 = std.ban("foo == bar //");
+		set resp.http.b8 = std.ban("obj.age == 4");
+		set resp.http.b9 = std.ban("obj.age // 4d");
+		set resp.http.b10 = std.ban("obj.http.foo > 4d");
+		set resp.http.b11 = std.ban("req.url ~ ^/$");
+	}
 	sub vcl_recv {
 		if (req.method == "BAN") {
-			ban(req.http.doesntexist);
-			ban("");
-			ban("req.url");
-			ban("req.url //");
-			ban("req.url // bar");
-			ban("req.url == bar //");
-			ban("foo == bar //");
-			ban("obj.age == 4");
-			ban("obj.age // 4d");
-			ban("obj.http.foo > 4d");
-			ban("req.url ~ ^/$");
 			return (synth(209,"foo"));
 		}
 	}
@@ -56,6 +60,17 @@ client c1 {
 	rxresp
 	expect resp.http.X-Varnish == "1004"
 	expect resp.status == 209
+	expect resp.http.b1 == {Null argument}
+	expect resp.http.b2 == {No ban conditions found.}
+	expect resp.http.b3 == {Expected comparison operator.}
+	expect resp.http.b4 == {Expected second operand.}
+	expect resp.http.b5 == {expected conditional (==, !=, ~ or !~) got "//"}
+	expect resp.http.b6 == {Expected && between conditions, found "//"}
+	expect resp.http.b7 == {Unknown or unsupported field "foo"}
+	expect resp.http.b8 == {expected duration <n.nn>[ms|s|m|h|d|w|y] got "4"}
+	expect resp.http.b9 == {expected conditional (==, !=, >, >=, < or <=) got "//"}
+	expect resp.http.b10 == {expected conditional (==, !=, ~ or !~) got ">"}
+	expect resp.http.b11 == {}
 } -run
 
 logexpect l1 -wait

@@ -561,6 +561,12 @@ Example::
 
 	std.rollback(bereq);
 
+$Function STRING ban(STRING)
+
+Same as :ref:`vcl(7)_ban`, but returns a textual error description if
+the ban operation failed.
+
+``NULL`` string is returned if the ban succeeded.
 
 DEPRECATED functions
 ====================
@@ -629,8 +635,6 @@ be returned.
 Example::
 
 	set req.http.real = std.time2real(now, 1.0);
-
-
 
 SEE ALSO
 ========

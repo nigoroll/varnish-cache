@@ -311,3 +311,11 @@ vmod_fnmatch(VRT_CTX, VCL_STRING pattern, VCL_STRING subject,
 		flags |= FNM_PERIOD;
 	return (fnmatch(pattern, subject, flags) != FNM_NOMATCH);
 }
+
+VCL_STRING v_matchproto_(td_std_ban)
+vmod_ban(VRT_CTX, VCL_STRING s)
+{
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	return (VRT_ban_string(ctx, s));
+}
