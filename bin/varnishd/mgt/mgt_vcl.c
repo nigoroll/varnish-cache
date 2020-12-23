@@ -33,6 +33,7 @@
 
 #include "config.h"
 
+#include <fnmatch.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,7 @@ static const struct vclstate VCL_STATE_LABEL[1] = {{ "label" }};
 static unsigned vcl_count;
 
 struct vclproghead vclhead = VTAILQ_HEAD_INITIALIZER(vclhead);
+struct vclproghead discardhead = VTAILQ_HEAD_INITIALIZER(discardhead);
 struct vmodfilehead vmodhead = VTAILQ_HEAD_INITIALIZER(vmodhead);
 static struct vclprog		*active_vcl;
 static struct vev *e_poker;
@@ -660,8 +662,11 @@ mgt_vcl_discard(struct cli *cli, struct vclprog *vp)
 	unsigned status;
 
 	AN(vp);
+	AN(vp->discard);
 	assert(vp != active_vcl);
-	assert(VTAILQ_EMPTY(&vp->dto));
+
+	while (!VTAILQ_EMPTY(&vp->dto))
+		mgt_vcl_discard(cli, VTAILQ_FIRST(&vp->dto)->from);
 
 	if (mcf_is_label(vp)) {
 		AN(vp->warm);
@@ -675,7 +680,37 @@ mgt_vcl_discard(struct cli *cli, struct vclprog *vp)
 			assert(status == CLIS_OK || status == CLIS_COMMS);
 		free(p);
 	}
+	VTAILQ_REMOVE(&discardhead, vp, discard_list);
 	mgt_vcl_del(vp);
+}
+
+static int
+mgt_vcl_discard_mark(struct cli *cli, const char *glob)
+{
+	struct vclprog *vp;
+	unsigned marked = 0;
+
+	VTAILQ_FOREACH(vp, &vclhead, list) {
+		if (fnmatch(glob, vp->name, 0))
+			continue;
+		if (vp == active_vcl) {
+			VCLI_SetResult(cli, CLIS_CANT);
+			VCLI_Out(cli, "Cannot discard active VCL program %s\n",
+			    vp->name);
+			return (-1);
+		}
+		if (!vp->discard)
+			VTAILQ_INSERT_TAIL(&discardhead, vp, discard_list);
+		vp->discard = 1;
+		marked++;
+	}
+
+	if (marked == 0) {
+		VCLI_SetResult(cli, CLIS_PARAM);
+		VCLI_Out(cli, "No VCL name matches %s\n", glob);
+	}
+
+	return (marked);
 }
 
 static void
@@ -707,113 +742,58 @@ mgt_vcl_discard_depfail(struct cli *cli, struct vclprog *vp)
 	}
 }
 
-static struct vclprog **
-mgt_vcl_discard_depcheck(struct cli *cli, const char * const *names,
-    unsigned *lp)
+static int
+mgt_vcl_discard_depcheck(struct cli *cli)
 {
-	struct vclprog **res, *vp;
+	struct vclprog *vp;
 	struct vcldep *vd;
-	const char * const *s;
-	unsigned i, j, l;
 
-	l = 0;
-	s = names;
-	while (*s != NULL) {
-		l++;
-		s++;
-	}
-	AN(l);
-
-	res = calloc(l, sizeof *res);
-	AN(res);
-
-	/* NB: Build a list of VCL programs and labels to discard. A null
-	 * pointer in the array is a VCL program that no longer needs to be
-	 * discarded.
-	 */
-	for (i = 0; i < l; i++) {
-		vp = mcf_find_vcl(cli, names[i]);
-		if (vp == NULL)
-			break;
-		if (vp == active_vcl) {
-			VCLI_SetResult(cli, CLIS_CANT);
-			VCLI_Out(cli, "Cannot discard active VCL program %s\n",
-			    vp->name);
-			break;
-		}
-		for (j = 0; j < i; j++)
-			if (vp == res[j])
-				break;
-		if (j < i)
-			continue; /* skip duplicates */
-		//lint -e{661}
-		res[i] = vp;
+	VTAILQ_FOREACH(vp, &discardhead, list) {
+		VTAILQ_FOREACH(vd, &vp->dto, lto)
+			if (!vd->from->discard) {
+				mgt_vcl_discard_depfail(cli, vp);
+				return (-1);
+			}
 	}
 
-	if (i < l) {
-		free(res);
-		return (NULL);
-	}
+	return (0);
+}
 
-	/* NB: Check that all direct dependent VCL programs and labels belong
-	 * to the list of VCLs to be discarded. This mechanically ensures that
-	 * indirect dependent VCLs also belong.
-	 */
-	for (i = 0; i < l; i++) {
-		if (res[i] == NULL || VTAILQ_EMPTY(&res[i]->dto))
-			continue;
-		VTAILQ_FOREACH(vd, &res[i]->dto, lto) {
-			for (j = 0; j < l; j++)
-				if (res[j] == vd->from)
-					break;
-			if (j == l)
-				break;
-		}
-		if (vd != NULL)
-			break;
-	}
+static void
+mgt_vcl_discard_clear(void)
+{
+	struct vclprog *vp, *vp2;
 
-	if (i < l) {
-		mgt_vcl_discard_depfail(cli, res[i]);
-		free(res);
-		return (NULL);
+	VTAILQ_FOREACH_SAFE(vp, &discardhead, discard_list, vp2) {
+		AN(vp->discard);
+		vp->discard = 0;
+		VTAILQ_REMOVE(&discardhead, vp, discard_list);
 	}
-
-	*lp = l;
-	return (res);
 }
 
 static void v_matchproto_(cli_func_t)
 mcf_vcl_discard(struct cli *cli, const char * const *av, void *priv)
 {
-	struct vclprog **vp;
-	unsigned i, l, done;
+	const struct vclprog *vp;
 
 	(void)priv;
-	vp = mgt_vcl_discard_depcheck(cli, av + 2, &l);
-	if (vp == NULL)
-		return;
 
-	/* NB: discard VCLs in topological order. At this point it
-	 * can only succeed, but the loop ensures that it eventually
-	 * completes even if the dependency check is ever broken.
-	 */
-	AN(l);
-	do {
-		done = 0;
-		for (i = 0; i < l; i++) {
-			if (vp[i] == NULL || vp[i]->nto > 0)
-				continue;
-			mgt_vcl_discard(cli, vp[i]);
-			vp[i] = NULL;
-			done++;
+	assert(VTAILQ_EMPTY(&discardhead));
+	VTAILQ_FOREACH(vp, &vclhead, list)
+		AZ(vp->discard);
+
+	for (av += 2; *av != NULL; av++) {
+		if (mgt_vcl_discard_mark(cli, *av) <= 0) {
+			mgt_vcl_discard_clear();
+			break;
 		}
-	} while (done > 0);
+	}
 
-	for (i = 0; i < l; i++)
-		if (vp[i] != NULL)
-			WRONG(vp[i]->name);
-	free(vp);
+	if (mgt_vcl_discard_depcheck(cli) != 0)
+		mgt_vcl_discard_clear();
+
+	while (!VTAILQ_EMPTY(&discardhead))
+		mgt_vcl_discard(cli, VTAILQ_FIRST(&discardhead));
 }
 
 static void v_matchproto_(cli_func_t)
