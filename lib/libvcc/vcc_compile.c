@@ -161,7 +161,7 @@ vcc_NewProc(struct vcc *tl, struct symbol *sym)
 	AN(p->body);
 	p->cname = VSB_new_auto();
 	AN(p->cname);
-	p->okmask = UINT_MAX;
+	p->okmask = VCL_MET_TASK_ALL;
 	sym->proc = p;
 	return (p);
 }
