@@ -27,6 +27,9 @@ varnish v1 -vcl {
 	sub rollback {
 		std.rollback(req);
 	}
+	sub priv_top {
+		debug.test_priv_top("only works on client side");
+	}
 
 	sub vcl_recv {
 		if (req.url == "/wrong") {
@@ -37,6 +40,9 @@ varnish v1 -vcl {
 		}
 		if (req.url == "/recursive_indirect") {
 			call recursive_indirect;
+		}
+		if (req.url == "/priv_top") {
+			return (pass);
 		}
 		return (synth(200));
 	}
@@ -60,6 +66,14 @@ varnish v1 -vcl {
 			synthetic(debug.check_call(bar));
 			set resp.status = 500;
 		}
+		return (deliver);
+	}
+	sub vcl_backend_fetch {
+		debug.call(priv_top);
+	}
+	sub vcl_backend_error {
+		# falling through to None backend would be success
+		set beresp.status = 200;
 		return (deliver);
 	}
 } -start
@@ -111,6 +125,11 @@ client c5 {
 	expect resp.status == 500
 	expect resp.body == {Dynamic call to "sub bar{}" not allowed from here}
 } -start
+client c6 {
+	txreq -url "/priv_top"
+	rxresp
+	expect resp.status == 503
+} -start
 
 varnish v1 -errvcl {Impossible Subroutine('<vcl.inline>' Line 8 Pos 13)} {
 	import std;
@@ -133,3 +152,4 @@ client c2 -wait
 client c3 -wait
 client c4 -wait
 client c5 -wait
+client c6 -wait
