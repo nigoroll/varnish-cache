@@ -163,6 +163,7 @@ vcc_NewProc(struct vcc *tl, struct symbol *sym)
 	AN(p->cname);
 	p->okmask = VCL_MET_TASK_ALL;
 	sym->proc = p;
+	p->sym = sym;
 	return (p);
 }
 
