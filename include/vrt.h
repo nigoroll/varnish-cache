@@ -341,13 +341,19 @@ struct vrt_ctx {
 #define VRT_CTX		const struct vrt_ctx *ctx
 void VRT_CTX_Assert(VRT_CTX);
 
+enum vcl_func_call_e {
+	VSUB_STATIC,	// VCL "call" action, only allowed from VCC
+	VSUB_DYNAMIC,	// VRT_call()
+	VSUB_CHECK	// VRT_check_call()
+};
+
 enum vcl_func_fail_e {
 	VSUB_E_OK,
 	VSUB_E_RECURSE, // call would recurse
 	VSUB_E_METHOD	// can not be called from this method
 };
 
-typedef void vcl_func_f(VRT_CTX);
+typedef void vcl_func_f(VRT_CTX, enum vcl_func_call_e, enum vcl_func_fail_e *);
 
 /***********************************************************************
  * This is the interface structure to a compiled VMOD

@@ -487,7 +487,7 @@ vcl_call_method(struct worker *wrk, struct req *req, struct busyobj *bo,
 	wrk->seen_methods |= method;
 	AN(ctx.vsl);
 	VSLb(ctx.vsl, SLT_VCL_call, "%s", VCL_Method_Name(method));
-	func(&ctx);
+	func(&ctx, VSUB_STATIC, NULL);
 	VSLb(ctx.vsl, SLT_VCL_return, "%s", VCL_Return_Name(wrk->handling));
 	wrk->cur_method |= 1;		// Magic marker
 	if (wrk->handling == VCL_RET_FAIL)
@@ -524,29 +524,32 @@ VCL_##func##_method(struct vcl *vcl, struct worker *wrk,		\
 VCL_STRING
 VRT_check_call(VRT_CTX, VCL_SUB sub)
 {
-	struct vbitmap *vbm;
 	VCL_STRING err = NULL;
+	enum vcl_func_fail_e fail;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(sub, VCL_SUB_MAGIC);
-	CHECK_OBJ_NOTNULL(ctx->vcl, VCL_MAGIC);
-	assert(sub->vcl_conf == ctx->vcl->conf);
-	vbm = ctx->called;
-	AN(vbm);
 
-	if ((sub->methods & ctx->method) == 0) {
+	AN(sub->func);
+	sub->func(ctx, VSUB_CHECK, &fail);
+
+	switch (fail) {
+	case VSUB_E_OK:
+		break;
+	case VSUB_E_METHOD:
 		err = WS_Printf(ctx->ws, "Dynamic call to \"sub %s{}\""
 		    " not allowed from here", sub->name);
 		if (err == NULL)
 			err = "Dynamic call not allowed and workspace overflow";
-		return (err);
-	}
-
-	if (vbit_test(vbm, sub->n)) {
+		break;
+	case VSUB_E_RECURSE:
 		err = WS_Printf(ctx->ws, "Recursive dynamic call to"
 		    " \"sub %s{}\"", sub->name);
 		if (err == NULL)
 			err = "Recursive dynamic call and workspace overflow";
+		break;
+	default:
+		INCOMPL();
 	}
 
 	return (err);
@@ -555,23 +558,10 @@ VRT_check_call(VRT_CTX, VCL_SUB sub)
 VCL_VOID
 VRT_call(VRT_CTX, VCL_SUB sub)
 {
-	struct vbitmap *vbm;
-	VCL_STRING err;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(sub, VCL_SUB_MAGIC);
 
-	err = VRT_check_call(ctx, sub);
-	if (err != NULL) {
-		VRT_fail(ctx, "%s", err);
-		return;
-	}
-
-	vbm = ctx->called;
-	AN(vbm);
-
-	vbit_set(vbm, sub->n);
 	AN(sub->func);
-	sub->func(ctx);
-	vbit_clr(vbm, sub->n);
+	sub->func(ctx, VSUB_DYNAMIC, NULL);
 }
