@@ -473,10 +473,7 @@ VCL_SUB
 	``VRT_call()`` fails the VCL for recursive calls and when the
 	``VCL_SUB`` can not be called from the current context
 	(e.g. calling a subroutine accessing ``req`` from the backend
-	side). Note that, for performance reasons, recursive call
-	detection only happens for the second dynamic call. This
-	implementation detail is subject to change and must not be
-	relied on.
+	side).
 
 	``VRT_check_call()`` can be used to check if a ``VRT_call()``
 	would succeed in order to avoid the potential VCL failure.  It
