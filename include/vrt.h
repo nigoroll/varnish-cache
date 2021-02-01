@@ -253,6 +253,7 @@ struct VSC_main;
 struct vsc_seg;
 struct vsl_log;
 struct vsmw_cluster;
+struct wrk_vpi;
 struct ws;
 
 /***********************************************************************
@@ -351,7 +352,8 @@ struct vrt_ctx {
 	unsigned			syntax;
 	unsigned			vclver;
 	unsigned			method;
-	unsigned			*handling;
+
+	struct wrk_vpi			*vpi;
 
 	/*
 	 * msg is for error messages and exists only for
