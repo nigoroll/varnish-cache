@@ -6,27 +6,46 @@ varnish v1 -vcl {
 
 	backend dummy None;
 
+	# call: 1 ref: 5 + 1
 	sub foo {
 		set resp.http.it = "works";
 	}
+	# call: 1 ref: 1 + 1 (from bar walk)
+	sub barbar {
+		# called from bar only, must be marked dynamic
+		call barbarbar;
+	}
+	# call: 2 (1 from bar walk, 1 from barbar walk)
+	# ref: 2 + 1
+	sub barbarbar {
+		# 2nd level call from dynamic
+	}
+	# call: 0 ref: 1
 	sub bar {
 		set beresp.http.it = "works";
+		call barbar;
 	}
+	# call: 0 ref: 1
 	sub indirect {
 		debug.call(foo);
 	}
+	# call: 0 ref: 1
 	sub direct {
 		call foo;
 	}
+	# call: 0 ref: 2
 	sub recursive {
 		debug.call(recursive);
 	}
+	# call: 1 ref: 1
 	sub recursive_indirect {
 		debug.call(recursive_indirect);
 	}
+	# call: 1 ref: 1
 	sub rollback {
 		std.rollback(req);
 	}
+	# call: 0 ref: 1
 	sub priv_top {
 		debug.test_priv_top("only works on client side");
 	}
