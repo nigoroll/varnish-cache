@@ -38,6 +38,8 @@
 
 #include "cache/cache_varnishd.h"
 #include "cache/cache_filter.h"
+#include "vcc_interface.h"	// struct wrk_vpi
+
 
 #include "vsa.h"
 #include "vtim.h"
@@ -459,7 +461,7 @@ event_load(VRT_CTX, struct vmod_priv *priv)
 	// This should fail
 	AN(VRT_AddFilter(ctx, &xyzzy_vfp_rot13, &xyzzy_vdp_rot13));
 	// Reset the error, we know what we're doing.
-	*ctx->handling = 0;
+	ctx->vpi->handling = 0;
 
 	VRT_RemoveVFP(ctx, &xyzzy_vfp_rot13);
 	VRT_RemoveVDP(ctx, &xyzzy_vdp_rot13);
