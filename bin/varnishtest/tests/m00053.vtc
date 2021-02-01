@@ -35,10 +35,12 @@ varnish v1 -vcl {
 	}
 	# call: 0 ref: 2
 	sub recursive {
+		std.log("recursive called");
 		debug.call(recursive);
 	}
 	# call: 1 ref: 1
 	sub recursive_indirect {
+		std.log("recursive_indirect called");
 		debug.call(recursive_indirect);
 	}
 	# call: 1 ref: 1
@@ -123,10 +125,26 @@ client c1 {
 	rxresp
 	expect resp.status == 503
 } -start
+logexpect l2 -v v1 -g vxid -q {ReqURL ~ "^/recursive$"} {
+	expect *  *	VCL_Log	"^recursive called"
+	fail add  *	VCL_Log	"^recursive called"
+	expect 0  =	VCL_Error	{^Recursive call to "sub recursive..}
+	expect 0  =	VCL_return	"^fail"
+	expect *  =	End
+	fail clear
+} -start
 client c2 {
 	txreq -url "/recursive"
 	rxresp
 	expect resp.status == 503
+} -start
+logexpect l3 -v v1 -g vxid -q {ReqURL ~ "^/recursive_indirect$"} {
+	expect *  *	VCL_Log	"^recursive_indirect called"
+	fail add  *	VCL_Log	"^recursive_indirect called"
+	expect 0  =	VCL_Error	{^Recursive call to "sub recursive_indirect..}
+	expect 0  =	VCL_return	"^fail"
+	expect *  =	End
+	fail clear
 } -start
 client c3 {
 	txreq -url "/recursive_indirect"
@@ -168,7 +186,9 @@ varnish v1 -errvcl {Impossible Subroutine('<vcl.inline>' Line 8 Pos 13)} {
 
 client c1 -wait
 client c2 -wait
+logexpect l2 -wait
 client c3 -wait
+logexpect l3 -wait
 client c4 -wait
 client c5 -wait
 client c6 -wait
