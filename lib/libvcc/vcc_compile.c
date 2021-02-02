@@ -211,7 +211,7 @@ vcc_EmitProc(struct vcc *tl, struct proc *p)
 	Fh(tl, 1, "}};\n");
 
 	if (dyn) {
-		Fc(tl, 1, "\nstatic void %s\n", cc_adv);
+		Fc(tl, 1, "\nstatic inline void %s\n", cc_adv);
 		Fc(tl, 1, "%s_checked(VRT_CTX)\n{\n", VSB_data(p->cname));
 	} else {
 		Fc(tl, 1, "\nvoid %sv_matchproto_(vcl_func_f)\n", cc_adv);
