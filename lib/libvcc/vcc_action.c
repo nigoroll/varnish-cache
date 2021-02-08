@@ -52,8 +52,8 @@ vcc_act_call(struct vcc *tl, struct token *t, struct symbol *sym)
 	t0 = tl->t;
 	sym = VCC_SymbolGet(tl, SYM_MAIN, SYM_NONE, SYMTAB_NOERR, XREF_NONE);
 	tl->t = t0;
-	// only SYM_FUNC may evaluate to SUB
-	if (sym != NULL && sym->kind == SYM_FUNC) {
+	// only functions/methods may evaluate to SUB
+	if (sym != NULL && (sym->kind == SYM_FUNC || sym->kind == SYM_METHOD)) {
 		u = tl->unique++;
 
 		Fb(tl, 1, "{\n");
