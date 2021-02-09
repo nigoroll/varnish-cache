@@ -63,6 +63,7 @@
  *	VRT_AddVFP() deprecated
  *	VRT_RemoveVDP() deprecated
  *	VRT_RemoveVFP() deprecated
+ *	VRT_trace() added
  * 15.0 (2022-03-15)
  *	VRT_r_req_transport() added
  *	VRT_Assign_Backend() added
@@ -662,6 +663,7 @@ VCL_VOID VRT_UnsetHdr(VRT_CTX, VCL_HEADER);
 VCL_VOID VRT_SetHdr(VRT_CTX, VCL_HEADER, const char *pfx, VCL_STRANDS);
 VCL_VOID VRT_handling(VRT_CTX, unsigned hand);
 unsigned VRT_handled(VRT_CTX);
+VCL_VOID VRT_trace(VRT_CTX, VCL_BOOL);
 VCL_VOID VRT_fail(VRT_CTX, const char *fmt, ...) v_printflike_(2,3);
 VCL_VOID VRT_hashdata(VRT_CTX, VCL_STRANDS);
 
