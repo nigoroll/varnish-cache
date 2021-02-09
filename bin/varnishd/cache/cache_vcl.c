@@ -125,7 +125,7 @@ VCL_Get_CliCtx(int msg)
 
 	ASSERT_CLI();
 	INIT_OBJ(&ctx_cli, VRT_CTX_MAGIC);
-	memset(&wrk_vpi_cli, 0, sizeof wrk_vpi_cli);
+	INIT_OBJ(&wrk_vpi_cli, WRK_VPI_MAGIC);
 	ctx_cli.vpi = &wrk_vpi_cli;
 	ctx_cli.now = VTIM_real();
 	if (msg) {
