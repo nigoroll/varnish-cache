@@ -299,11 +299,6 @@ pan_wrk(struct vsb *vsb, const struct worker *wrk)
 	else
 		VSB_printf(vsb, "0x%x,\n", m);
 
-	hand = VCL_Return_Name(wrk->vpi->handling);
-	if (hand != NULL)
-		VSB_printf(vsb, "VCL::return = %s,\n", hand);
-	else
-		VSB_printf(vsb, "VCL::return = 0x%x,\n", wrk->vpi->handling);
 	VSB_cat(vsb, "VCL::methods = {");
 	m = wrk->seen_methods;
 	p = "";
@@ -357,6 +352,7 @@ static void
 pan_busyobj(struct vsb *vsb, const struct busyobj *bo)
 {
 	const char *p;
+	const struct worker *wrk;
 
 	if (PAN_dump_struct(vsb, bo, BUSYOBJ_MAGIC, "busyobj"))
 		return;
@@ -367,8 +363,9 @@ pan_busyobj(struct vsb *vsb, const struct busyobj *bo)
 		pan_req(vsb, bo->req);
 	if (bo->sp != NULL)
 		pan_sess(vsb, bo->sp);
-	if (bo->wrk != NULL)
-		pan_wrk(vsb, bo->wrk);
+	wrk = bo->wrk;
+	if (wrk != NULL)
+		pan_wrk(vsb, wrk);
 
 	if (bo->vfc != NULL)
 		pan_vfp(vsb, bo->vfc);
@@ -410,6 +407,9 @@ pan_busyobj(struct vsb *vsb, const struct busyobj *bo)
 	else
 		VDI_Panic(bo->director_resp, vsb, "director_resp");
 	VCL_Panic(vsb, "vcl", bo->vcl);
+	if (wrk != NULL)
+		VPI_Panic(vsb, wrk->vpi, bo->vcl);
+
 	VSB_indent(vsb, -2);
 	VSB_cat(vsb, "},\n");
 }
@@ -434,6 +434,7 @@ static void
 pan_req(struct vsb *vsb, const struct req *req)
 {
 	const struct transport *xp;
+	const struct worker *wrk;
 
 	if (PAN_dump_struct(vsb, req, REQ_MAGIC, "req"))
 		return;
@@ -468,8 +469,9 @@ pan_req(struct vsb *vsb, const struct req *req)
 	if (req->sp != NULL)
 		pan_sess(vsb, req->sp);
 
-	if (req->wrk != NULL)
-		pan_wrk(vsb, req->wrk);
+	wrk = req->wrk;
+	if (wrk != NULL)
+		pan_wrk(vsb, wrk);
 
 	WS_Panic(vsb, req->ws);
 	if (VALID_OBJ(req->htc, HTTP_CONN_MAGIC))
@@ -481,6 +483,8 @@ pan_req(struct vsb *vsb, const struct req *req)
 		VDP_Panic(vsb, req->vdc);
 
 	VCL_Panic(vsb, "vcl", req->vcl);
+	if (wrk != NULL)
+		VPI_Panic(vsb, wrk->vpi, req->vcl);
 
 	if (req->body_oc != NULL)
 		pan_objcore(vsb, "BODY", req->body_oc);
