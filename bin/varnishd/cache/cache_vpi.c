@@ -78,6 +78,73 @@ VPI_count(VRT_CTX, unsigned u)
 		    ctx->vcl->conf->ref[u].line, ctx->vcl->conf->ref[u].pos);
 }
 
+static void
+vpi_ref_panic(struct vsb *vsb, unsigned n, const struct vcl *vcl)
+{
+	const struct VCL_conf *conf = NULL;
+	const struct vpi_ref *ref;
+
+	AN(vsb);
+
+	if (vcl != NULL)
+		conf = vcl->conf;
+	if (conf != NULL && conf->magic != VCL_CONF_MAGIC)
+		conf = NULL;
+
+	if (conf == NULL) {
+		VSB_printf(vsb, "ref = %u, nref = ?,\n", n);
+		return;
+	}
+	if (n >= conf->nref) {
+		VSB_printf(vsb, "ref = %u *invalid*, nref = %u\n",
+		    n, conf->nref);
+		return;
+	}
+
+	VSB_printf(vsb, "ref = %u,\n", n);
+
+	ref = &conf->ref[n];
+	if (PAN_dump_struct(vsb, ref, VPI_REF_MAGIC, "vpi_ref"))
+		return;
+
+	if (ref->source < conf->nsrc)
+		VSB_printf(vsb, "source = %u (\"%s\"),\n", ref->source,
+		    conf->srcname[ref->source]);
+	else
+		VSB_printf(vsb, "source = %u *invalid*,\n", ref->source);
+
+	VSB_printf(vsb, "offset = %u,\n", ref->offset);
+	VSB_printf(vsb, "line = %u,\n", ref->line);
+	VSB_printf(vsb, "pos = %u,\n", ref->pos);
+	VSB_printf(vsb, "token = %s\n", ref->token);
+	VSB_indent(vsb, -2);
+	VSB_cat(vsb, "},\n");
+
+}
+void
+VPI_Panic(struct vsb *vsb, const struct wrk_vpi *vpi, const struct vcl *vcl)
+{
+	const char *hand;
+
+	AN(vsb);
+	if (PAN_dump_struct(vsb, vpi, WRK_VPI_MAGIC, "vpi"))
+		return;
+
+	hand = VCL_Return_Name(vpi->handling);
+	if (vpi->handling == 0)
+		hand = "none";
+	else if (hand == NULL)
+		hand = "*invalid*";
+
+	VSB_printf(vsb, "handling (VCL::return) = 0x%x (%s),\n",
+	    vpi->handling, hand);
+
+	vpi_ref_panic(vsb, vpi->ref, vcl);
+
+	VSB_indent(vsb, -2);
+	VSB_cat(vsb, "},\n");
+}
+
 /*
  * After vcl_fini {} == VGC_function_vcl_fini() is called from VGC_Discard(),
  * handling must either be OK from VCL "return (ok)" or FAIL from VRT_fail().
