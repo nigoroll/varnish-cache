@@ -1607,6 +1607,15 @@ PARAM_VCC(
 	"Allow 'import ... from ...'."
 )
 
+PARAM_VCC(
+	/* name */	vcc_trace,
+	/* def */	"off",
+	/* descr */
+	"Generate VCL_trace log entries for newly loaded vcls.\n"
+	"Use vsl_mask=-VCL_trace to suppress trace log entries after enabling"
+	"them with this parameter."
+)
+
 /*--------------------------------------------------------------------
  * PCRE parameters
  */
