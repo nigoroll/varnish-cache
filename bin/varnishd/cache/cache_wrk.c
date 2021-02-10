@@ -94,6 +94,7 @@ wrk_bgthread(void *arg)
 	THR_SetName(bt->name);
 	THR_Init();
 	INIT_OBJ(&wrk, WORKER_MAGIC);
+	// bgthreads do not have a vpi member
 	memset(&ds, 0, sizeof ds);
 	wrk.stats = &ds;
 
@@ -128,6 +129,7 @@ WRK_Thread(struct pool *qp, size_t stacksize, unsigned thread_workspace)
 	struct worker *w, ww;
 	struct VSC_main_wrk ds;
 	unsigned char ws[thread_workspace];
+	unsigned char vpi[vpi_wrk_len];
 
 	AN(qp);
 	AN(stacksize);
@@ -142,6 +144,8 @@ WRK_Thread(struct pool *qp, size_t stacksize, unsigned thread_workspace)
 	AZ(pthread_cond_init(&w->cond, NULL));
 
 	WS_Init(w->aws, "wrk", ws, thread_workspace);
+	VPI_wrk_init(w, vpi, sizeof vpi);
+	AN(w->vpi);
 
 	VSL(SLT_WorkThread, 0, "%p start", w);
 

@@ -73,6 +73,15 @@ Varnish Cache Next (2021-03-15)
   It returns ``NULL`` if ``VRT_call()`` would make the call or an
   error string why not.
 
+* VCL tracing now needs to be explicitly activated by setting the
+  ``vcc_trace`` parameter to ``on``. Only then will ``VCL_trace`` log
+  records be generated for that VCL.
+
+  Consequently, ``VCL_trace`` has been removed from the default
+  ``vsl_mask``, so whenever a VCL compiled with ``vcc_trace`` enabled
+  runs, the log records will be emitted by default. ``vsl_mask`` can
+  still be used to filter ``VCL_trace`` records.
+
 ================================
 Varnish Cache 6.5.1 (2020-09-25)
 ================================
