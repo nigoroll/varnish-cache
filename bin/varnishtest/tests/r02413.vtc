@@ -5,7 +5,7 @@ server s1 {
 	txresp
 } -start
 
-varnish v1 -arg "-p vsl_mask=+VCL_trace" -vcl+backend {
+varnish v1 -arg "-p vcc_trace=on" -vcl+backend {
 	sub vcl_deliver {
 		set resp.http.vcl = "vclA";
 	}
