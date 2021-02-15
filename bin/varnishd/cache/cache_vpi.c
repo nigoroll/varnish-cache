@@ -62,14 +62,15 @@ VPI_wrk_init(struct worker *wrk, void *p, size_t spc)
 }
 
 void
-VPI_count(VRT_CTX, unsigned u)
+VPI_trace(VRT_CTX)
 {
+	unsigned u;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(ctx->vcl, VCL_MAGIC);
 	CHECK_OBJ_NOTNULL(ctx->vcl->conf, VCL_CONF_MAGIC);
+	u = ctx->vpi->ref;
 	assert(u < ctx->vcl->conf->nref);
-	ctx->vpi->ref = u;
 	if (ctx->vsl != NULL)
 		VSLb(ctx->vsl, SLT_VCL_trace, "%s %u %u.%u.%u",
 		    ctx->vcl->loaded_name, u, ctx->vcl->conf->ref[u].source,
@@ -78,6 +79,22 @@ VPI_count(VRT_CTX, unsigned u)
 		VSL(SLT_VCL_trace, 0, "%s %u %u.%u.%u",
 		    ctx->vcl->loaded_name, u, ctx->vcl->conf->ref[u].source,
 		    ctx->vcl->conf->ref[u].line, ctx->vcl->conf->ref[u].pos);
+}
+
+void
+VPI_l_vcl_trace(struct wrk_vpi *vpi, VCL_BOOL u)
+{
+
+       CHECK_OBJ_NOTNULL(vpi, WRK_VPI_MAGIC);
+       vpi->vcl_trace = u ? 1 : 0;
+}
+
+VCL_BOOL
+VPI_r_vcl_trace(struct wrk_vpi *vpi)
+{
+
+       CHECK_OBJ_NOTNULL(vpi, WRK_VPI_MAGIC);
+       return (vpi->vcl_trace);
 }
 
 static void
