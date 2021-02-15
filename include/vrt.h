@@ -62,6 +62,8 @@
  *	VRT_AddVFP() deprecated
  *	VRT_RemoveVDP() deprecated
  *	VRT_RemoveVFP() deprecated
+ *	VRT_r_vcl_trace() added
+ *	VRT_l_vcl_trace() added
  * 15.0 (2022-03-15)
  *	VRT_r_req_transport() added
  *	VRT_Assign_Backend() added
