@@ -47,9 +47,9 @@ static void vcc_Compound(struct vcc *tl);
 	tl->indent -= INDENT;	\
 } while (0)
 
-#define C(tl, sep)	do {					\
-	Fb(tl, 1, "VPI_count(ctx, %u)%s\n", ++tl->cnt, sep);	\
-	tl->t->cnt = tl->cnt;					\
+#define C(tl, sep)	do {						\
+	Fb(tl, 1, "VPI_count(ctx, VGC_NREFS, %u)%s\n", ++tl->cnt, sep);	\
+	tl->t->cnt = tl->cnt;						\
 } while (0)
 
 /*--------------------------------------------------------------------
