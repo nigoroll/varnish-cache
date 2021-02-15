@@ -61,10 +61,17 @@ struct wrk_vpi {
 #define WRK_VPI_MAGIC	0xaa3d3df3
 	unsigned	handling;
 	unsigned	ref;	// index into (struct vpi_ref)[]
+	unsigned	vcl_trace:1;
 };
 
-
-void VPI_count(VRT_CTX, unsigned);
+#define VPI_count(ctx, max, u)						\
+	do {								\
+		assert(u < max);					\
+		(ctx)->vpi->ref = u;					\
+		if ((ctx)->vpi->vcl_trace)				\
+			VPI_trace(ctx);					\
+	} while(0)
+void VPI_trace(VRT_CTX);
 void VPI_vcl_fini(VRT_CTX);
 
 int VPI_Vmod_Init(VRT_CTX, struct vmod **hdl, unsigned nbr, void *ptr, int len,
