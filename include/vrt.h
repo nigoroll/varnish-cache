@@ -74,6 +74,8 @@
  *	VRT_call() added
  *	VRT_check_call() added
  *	VRT_handled() added
+ *	VRT_r_vcl_trace() added
+ *	VRT_l_vcl_trace() added
  * 12.0 (2020-09-15)
  *	Added VRT_DirectorResolve()
  *	Added VCL_STRING VRT_BLOB_string(VRT_CTX, VCL_BLOB)
