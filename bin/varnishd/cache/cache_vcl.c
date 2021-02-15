@@ -93,6 +93,7 @@ VCL_Bo2Ctx(struct vrt_ctx *ctx, struct busyobj *bo)
 	ctx->ws = bo->ws;
 	ctx->vpi = bo->wrk->vpi;
 	ctx->vpi->handling = 0;
+	VPI_l_vcl_trace(ctx->vpi, DO_DEBUG(DBG_VCL_TRACE));
 }
 
 void
@@ -116,6 +117,7 @@ VCL_Req2Ctx(struct vrt_ctx *ctx, struct req *req)
 	ctx->ws = req->ws;
 	ctx->vpi = req->wrk->vpi;
 	ctx->vpi->handling = 0;
+	VPI_l_vcl_trace(ctx->vpi, DO_DEBUG(DBG_VCL_TRACE));
 }
 
 /*--------------------------------------------------------------------*/
@@ -127,6 +129,7 @@ VCL_Get_CliCtx(int msg)
 	ASSERT_CLI();
 	INIT_OBJ(&ctx_cli, VRT_CTX_MAGIC);
 	INIT_OBJ(&wrk_vpi_cli, WRK_VPI_MAGIC);
+	VPI_l_vcl_trace(&wrk_vpi_cli, DO_DEBUG(DBG_VCL_TRACE));
 	ctx_cli.vpi = &wrk_vpi_cli;
 	ctx_cli.now = VTIM_real();
 	if (msg) {
