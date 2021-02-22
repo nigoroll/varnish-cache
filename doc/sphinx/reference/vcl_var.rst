@@ -1274,6 +1274,20 @@ now
 	When converted to STRING in expressions it returns
 	a formatted timestamp like ``Tue, 20 Feb 2018 09:30:31 GMT``
 
+vcl.trace
+
+	Type: BOOL
+
+	Readable from: all
+
+	Writable from: all
+
+	Default: ``vcl_trace`` :ref:`ref_param_debug` parameter.
+
+	Control emission of ``VCL_trace`` :ref:`vsl(7)` records for
+	the duration of the current built-in sub (see
+	:ref:`vcl-built-in-subs`).
+
 sess
 ~~~~
 
