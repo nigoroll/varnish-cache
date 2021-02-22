@@ -17,7 +17,7 @@
   {
     "vmod": "varnish-objvar",
     "git": "https://code.uplex.de/uplex-varnish/varnish-objvar.git",
-    "branch": "unmerged_code"
+    "branch": "master"
   },
   {
     "vmod": "libvmod-all_healthy",
