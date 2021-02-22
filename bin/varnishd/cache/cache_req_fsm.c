@@ -51,6 +51,7 @@
 #include "storage/storage.h"
 #include "common/heritage.h"
 #include "vcl.h"
+#include "vsha256.h"
 #include "vtim.h"
 
 #define REQ_STEPS \
@@ -891,6 +892,7 @@ static enum req_fsm_nxt v_matchproto_(req_state_f)
 cnt_recv(struct worker *wrk, struct req *req)
 {
 	unsigned recv_handling;
+	struct VSHA256Context sha256ctx;
 	const char *ci, *cp, *endpname;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
@@ -961,12 +963,13 @@ cnt_recv(struct worker *wrk, struct req *req)
 		}
 	}
 
-	memset(req->digest, 0, sizeof req->digest);
-	VCL_hash_method(req->vcl, wrk, req, NULL, NULL);
+	VSHA256_Init(&sha256ctx);
+	VCL_hash_method(req->vcl, wrk, req, NULL, &sha256ctx);
 	if (wrk->vpi->handling == VCL_RET_FAIL)
 		recv_handling = wrk->vpi->handling;
 	else
 		assert(wrk->vpi->handling == VCL_RET_LOOKUP);
+	VSHA256_Final(req->digest, &sha256ctx);
 
 	switch (recv_handling) {
 	case VCL_RET_VCL:
