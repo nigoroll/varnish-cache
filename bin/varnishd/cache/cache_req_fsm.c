@@ -208,9 +208,60 @@ Resp_Setup_Synth(struct req *req)
 		http_SetHeader(h, "Connection: close");
 }
 
+/* QUICK HACK: delay deref of the objcore until the end of the task */
+
+static void
+fini_DerefObjCore(VRT_CTX, void *priv)
+{
+	struct objcore *oc;
+
+	CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
+	CAST_OBJ_NOTNULL(oc, priv, OBJCORE_MAGIC);
+	priv = NULL;
+	(void)HSH_DerefObjCore(ctx->req->wrk, &oc, HSH_RUSH_POLICY);
+}
+
+const struct vmod_priv_methods deref_methods[] = {{
+		.magic = VMOD_PRIV_METHODS_MAGIC,
+		.type = "deref_methods",
+		.fini = fini_DerefObjCore
+	}};
+
+static void
+task_DerefObjCore(struct worker *wrk, struct req *req, struct objcore **ocp)
+{
+	struct vrt_ctx ctx[1];
+	struct vmod_priv *priv;
+	struct objcore *oc;
+
+	assert(wrk->handling != VCL_RET_FAIL);
+	INIT_OBJ(ctx, VRT_CTX_MAGIC);
+	VCL_Req2Ctx(ctx, req);
+	priv = VRT_priv_task(ctx, *ocp);
+
+	if (priv == NULL) {
+		(void)HSH_DerefObjCore(wrk, ocp, HSH_RUSH_POLICY);
+		VRT_fail(ctx, "Out of workspace in delayed objcore deref");
+		return;
+	}
+
+	if (priv->priv != NULL) {
+		// already have that oc referenced
+		CAST_OBJ_NOTNULL(oc, priv->priv, OBJCORE_MAGIC);
+		assert(oc == *ocp);
+		(void)HSH_DerefObjCore(wrk, ocp, HSH_RUSH_POLICY);
+		return;
+	}
+
+	priv->priv = *ocp;
+	*ocp = NULL;
+}
+
+
 static enum req_fsm_nxt v_matchproto_(req_state_f)
 cnt_deliver(struct worker *wrk, struct req *req)
 {
+	unsigned handling;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
@@ -224,6 +275,7 @@ cnt_deliver(struct worker *wrk, struct req *req)
 	ObjTouch(req->wrk, req->objcore, req->t_prev);
 
 	if (Resp_Setup_Deliver(req)) {
+		// XXX rollback
 		(void)HSH_DerefObjCore(wrk, &req->objcore, HSH_RUSH_POLICY);
 		req->err_code = 500;
 		req->req_step = R_STP_SYNTH;
@@ -235,12 +287,17 @@ cnt_deliver(struct worker *wrk, struct req *req)
 
 	assert(req->restarts <= cache_param->max_restarts);
 
-	if (wrk->handling != VCL_RET_DELIVER) {
+	handling = wrk->handling;
+	if (handling != VCL_RET_DELIVER) {
 		HSH_Cancel(wrk, req->objcore, NULL);
-		(void)HSH_DerefObjCore(wrk, &req->objcore, HSH_RUSH_POLICY);
+		if (handling == VCL_RET_FAIL)
+			(void)HSH_DerefObjCore(wrk,
+			    &req->objcore, HSH_RUSH_POLICY);
+		else
+			task_DerefObjCore(wrk, req, &req->objcore);
 		http_Teardown(req->resp);
 
-		switch (wrk->handling) {
+		switch (handling) {
 		case VCL_RET_RESTART:
 			req->req_step = R_STP_RESTART;
 			break;
@@ -257,7 +314,7 @@ cnt_deliver(struct worker *wrk, struct req *req)
 		return (REQ_FSM_MORE);
 	}
 
-	assert(wrk->handling == VCL_RET_DELIVER);
+	assert(handling == VCL_RET_DELIVER);
 
 	if (IS_TOPREQ(req) && RFC2616_Do_Cond(req))
 		http_PutResponse(req->resp, "HTTP/1.1", 304, NULL);
