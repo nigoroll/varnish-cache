@@ -53,6 +53,8 @@
  * Whenever something is deleted or changed in a way which is not
  * binary/load-time compatible, increment MAJOR version
  *
+ * NEXT (2021-09-15)
+ *	authority field added to struct vrt_backend
  * 13.0 (2021-03-15)
  *	Move VRT_synth_page() to deprecated status
  *	Add VRT_synth_strands() and VRT_synth_blob()
@@ -468,6 +470,7 @@ struct vrt_endpoint {
 #define VRT_BACKEND_FIELDS(rigid)				\
 	rigid char			*vcl_name;		\
 	rigid char			*hosthdr;		\
+	rigid char			*authority;		\
 	vtim_dur			connect_timeout;	\
 	vtim_dur			first_byte_timeout;	\
 	vtim_dur			between_bytes_timeout;	\
@@ -478,6 +481,7 @@ struct vrt_endpoint {
 	do {					\
 		DA(vcl_name);			\
 		DA(hosthdr);			\
+		DA(authority);			\
 		DN(connect_timeout);		\
 		DN(first_byte_timeout);		\
 		DN(between_bytes_timeout);	\
@@ -520,9 +524,9 @@ struct vrt_backend_probe {
 };
 
 /* Backend related */
-VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *);
+VCL_BACKEND VRT_new_backend(VRT_CTX, const struct vrt_backend *, VCL_BACKEND);
 VCL_BACKEND VRT_new_backend_clustered(VRT_CTX,
-    struct vsmw_cluster *, const struct vrt_backend *);
+    struct vsmw_cluster *, const struct vrt_backend *, VCL_BACKEND);
 size_t VRT_backend_vsm_need(VRT_CTX);
 void VRT_delete_backend(VRT_CTX, VCL_BACKEND *);
 struct vrt_endpoint *VRT_Endpoint_Clone(const struct vrt_endpoint *vep);
