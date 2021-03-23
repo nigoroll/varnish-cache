@@ -366,7 +366,14 @@ struct {								\
  * from the bottom up to the root, to update augmented node data.
  */
 #ifndef VRBT_AUGMENT
-#define VRBT_AUGMENT(x)	break
+#define VRBT_AUGMENT(x)	(void) 0
+#define VRBT_AUGMENT_LOOP(parent, field)
+#else
+#define VRBT_AUGMENT_LOOP(parent, field)				\
+	while (parent != NULL) {					\
+		VRBT_AUGMENT(parent);					\
+		parent = VRBT_PARENT(parent, field);			\
+	}
 #endif
 
 #define VRBT_SWAP_CHILD(head, out, in, field) do {			\
@@ -627,10 +634,7 @@ name##_VRBT_REMOVE(struct name *head, struct type *elm)			\
 		VRBT_SET_PARENT(child, parent, field);			\
 	if (parent != NULL)						\
 		name##_VRBT_REMOVE_COLOR(head, parent, child);		\
-	while (parent != NULL) {					\
-		VRBT_AUGMENT(parent);					\
-		parent = VRBT_PARENT(parent, field);			\
-	}								\
+	VRBT_AUGMENT_LOOP(parent, field)					\
 	return (old);							\
 }
 
@@ -661,10 +665,7 @@ name##_VRBT_INSERT(struct name *head, struct type *elm)			\
 	else								\
 		VRBT_RIGHT(parent, field) = elm;				\
 	name##_VRBT_INSERT_COLOR(head, elm);				\
-	while (elm != NULL) {						\
-		VRBT_AUGMENT(elm);					\
-		elm = VRBT_PARENT(elm, field);				\
-	}								\
+	VRBT_AUGMENT_LOOP(elm, field)					\
 	return (NULL);							\
 }
 
