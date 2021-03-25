@@ -410,6 +410,7 @@ struct busyobj {
 
 	/* Timers */
 	vtim_real		t_first;	/* First timestamp logged */
+	vtim_real		t_resp;		/* response received */
 	vtim_real		t_prev;		/* Previous timestamp logged */
 
 	/* Acct */
@@ -501,6 +502,7 @@ struct req {
 	vtim_real		t_first;	/* First timestamp logged */
 	vtim_real		t_prev;		/* Previous timestamp logged */
 	vtim_real		t_req;		/* Headers complete */
+	vtim_real		t_resp;		/* Entry to last deliver/synth */
 
 	struct http_conn	*htc;
 	struct vfp_ctx		*vfc;
