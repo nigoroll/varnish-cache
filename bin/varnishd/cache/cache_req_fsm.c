@@ -1110,17 +1110,13 @@ cnt_deadline(struct req *req)
 	}
 	if (req->stale_oc != NULL) {
 		CHECK_OBJ(req->stale_oc, OBJCORE_MAGIC);
-		if (req->stale_oc->flags & OC_F_BUSY)
-			HSH_Unbusy(req->wrk, req->stale_oc);
-		(void)HSH_DerefObjCore(req->wrk, &req->stale_oc,
-				       HSH_RUSH_POLICY);
+		AZ(req->stale_oc->flags & OC_F_BUSY);
+		(void)HSH_DerefObjCore(req->wrk, &req->stale_oc, 0);
 	}
 	if (req->body_oc != NULL) {
 		CHECK_OBJ(req->body_oc, OBJCORE_MAGIC);
-		if (req->body_oc->flags & OC_F_BUSY)
-			HSH_Unbusy(req->wrk, req->body_oc);
-		(void)HSH_DerefObjCore(req->wrk, &req->body_oc,
-				       HSH_RUSH_POLICY);
+		AZ(req->body_oc->flags & OC_F_BUSY);
+		(void)HSH_DerefObjCore(req->wrk, &req->body_oc, 0);
 	}
 	if (req->vary_b != NULL)
 		VRY_Finish(req, DISCARD);
