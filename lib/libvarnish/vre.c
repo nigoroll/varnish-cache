@@ -219,8 +219,10 @@ vre_capture(const vre_t *code, const char *subject, size_t length,
 		AN(*count);
 		ovector = pcre2_get_ovector_pointer(data);
 		nov = pcre2_get_ovector_count(data);
-		if (nov > *count)
+		if (nov > *count) {
 			nov = *count;
+			matches = nov + 1;
+		}
 		for (g = 0; g < nov; g++) {
 			b = ovector[2 * g];
 			e = ovector[2 * g + 1];
@@ -262,7 +264,6 @@ int
 VRE_capture(const vre_t *code, const char *subject, size_t length, int options,
     txt *groups, size_t count, const volatile struct vre_limits *lim)
 {
-	int i;
 
 	CHECK_OBJ_NOTNULL(code, VRE_MAGIC);
 	AN(subject);
@@ -273,12 +274,8 @@ VRE_capture(const vre_t *code, const char *subject, size_t length, int options,
 	if (length == 0)
 		length = PCRE2_ZERO_TERMINATED;
 	vre_limit(code, lim);
-	i = vre_capture(code, subject, length, 0, options,
-	    groups, &count, NULL);
-
-	if (i <= 0)
-		return (i);
-	return (count);
+	return (vre_capture(code, subject, length, 0, options,
+	    groups, &count, NULL));
 }
 
 int
