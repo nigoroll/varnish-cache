@@ -527,6 +527,13 @@ void VMOD_Panic(struct vsb *);
 void WRK_Init(void);
 void WRK_AddStat(const struct worker *);
 
+/* cache_vpi.c */
+extern const size_t vpi_wrk_len;
+void VPI_wrk_init(struct worker *, void *, size_t);
+void VPI_Panic(struct vsb *, const struct wrk_vpi *, const struct vcl *);
+void VPI_l_vcl_trace(struct wrk_vpi *, VCL_BOOL);
+VCL_BOOL VPI_r_vcl_trace(struct wrk_vpi *);
+
 /* cache_ws.c */
 void WS_Panic(struct vsb *, const struct ws *);
 static inline int
