@@ -6,7 +6,7 @@
     },
     {
         "git": "https://code.uplex.de/uplex-varnish/libvdp-pesi.git",
-        "rev": "58a1f11",
+        "rev": "025880f",
         "vmod": "libvdp-pesi"
     },
     {
