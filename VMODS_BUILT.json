@@ -91,7 +91,7 @@
     },
     {
         "git": "https://code.uplex.de/uplex-varnish/libvmod-selector.git",
-        "rev": "v2.6.0-5-g2c1b3d3",
+        "rev": "13e6114",
         "vmod": "libvmod-selector"
     },
     {
