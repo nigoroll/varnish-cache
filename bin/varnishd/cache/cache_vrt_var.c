@@ -1029,3 +1029,21 @@ SESS_VAR_DUR(timeout_idle, )
 SESS_VAR_DUR(timeout_linger, )
 SESS_VAR_DUR(send_timeout, )
 SESS_VAR_DUR(idle_send_timeout, set_idle_send_timeout(ctx->sp, d))
+
+/*--------------------------------------------------------------------*/
+
+VCL_BOOL
+VRT_r_vcl_trace(VRT_CTX)
+{
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	return (VPI_r_vcl_trace(ctx->vpi));
+}
+
+void
+VRT_l_vcl_trace(VRT_CTX, VCL_BOOL u)
+{
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	VPI_l_vcl_trace(ctx->vpi, u);
+}
