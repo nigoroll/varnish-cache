@@ -93,6 +93,7 @@ void VPI_acl_log(VRT_CTX, const char *);
 struct vpi_ii {
 	uintptr_t *			p;
 	const char * const		name;
+	uintptr_t *			clip;
 };
 
 /* Compile time regexp */
@@ -119,3 +120,7 @@ enum vcl_func_fail_e VPI_Call_Check(VRT_CTX, const struct VCL_conf *conf,
 void VPI_Call_Begin(VRT_CTX, unsigned n);
 void VPI_Call_End(VRT_CTX, unsigned n);
 VCL_BOOL VPI_PtrCmp(const void *p1, const void *p2);
+
+// return value should be a VCLI_status_e
+typedef VCL_INT vmod_cli_f(VRT_CTX, void *, VCL_STRANDS);
+int VPI_Tell(VRT_CTX, VCL_STRING, VCL_STRANDS);
