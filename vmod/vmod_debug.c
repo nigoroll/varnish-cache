@@ -935,10 +935,31 @@ xyzzy_catflap_last(struct req *req, struct objcore **oc,
 	return (VCF_DEFAULT);
 }
 
+static void v_matchproto_(vmod_priv_fini_f)
+xyzzy_clear_vcf(VRT_CTX, void *ptr)
+{
+	struct req *req;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	(void)ptr;
+	req = ctx->req;
+	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
+
+	req->vcf = NULL;
+}
+
+static const struct vmod_priv_methods
+xyzzy_clear_vcf_methods[1] = {{
+	.magic = VMOD_PRIV_METHODS_MAGIC,
+	.type = "debug_clear_vcf",
+	.fini = xyzzy_clear_vcf
+}};
+
 VCL_VOID
 xyzzy_catflap(VRT_CTX, VCL_ENUM type)
 {
 	struct req *req;
+	struct vmod_priv *p;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 	req = ctx->req;
@@ -948,6 +969,15 @@ xyzzy_catflap(VRT_CTX, VCL_ENUM type)
 	if (req->vcf == NULL) {
 		VRT_fail(ctx, "WS_Alloc failed in debug.catflap()");
 		return;
+	}
+	p = VRT_priv_task(ctx, (void *)req);
+	if (p == NULL) {
+		VRT_fail(ctx, "No priv_task in debug.catflap()");
+		return;
+	}
+	if (p->methods == NULL) {
+		p->priv = ctx->req;
+		p->methods = xyzzy_clear_vcf_methods;
 	}
 	INIT_OBJ(req->vcf, VCF_MAGIC);
 	if (type == VENUM(first) || type == VENUM(miss)) {
