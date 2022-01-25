@@ -65,7 +65,8 @@
  *	BODY can either be a BLOB or a STRANDS, but only a STRANDS
  *	can take a non-NULL const char * prefix. The changes to BODY
  *	assignments doesn't break the ABI or the API.
- *
+ *	VRT_r_vcl_trace() added
+ *	VRT_l_vcl_trace() added
  * 14.0 (2021-09-15)
  *	VIN_n_Arg() no directly returns the directory name.
  *	VSB_new() and VSB_delete() removed
@@ -268,6 +269,7 @@ struct VSC_main;
 struct vsc_seg;
 struct vsl_log;
 struct vsmw_cluster;
+struct wrk_vpi;
 struct ws;
 
 typedef const struct stream_close *stream_close_t;
@@ -374,7 +376,8 @@ struct vrt_ctx {
 	unsigned			syntax;
 	unsigned			vclver;
 	unsigned			method;
-	unsigned			*handling;
+
+	struct wrk_vpi			*vpi;
 
 	/*
 	 * msg is for error messages and exists only for
