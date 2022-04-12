@@ -984,7 +984,7 @@ VRT_CacheReqBody(VRT_CTX, VCL_BYTES maxsize)
 		return (-1);
 	}
 	CHECK_OBJ_NOTNULL(ctx->req, REQ_MAGIC);
-	return (VRB_Cache(ctx->req, maxsize));
+	return (VRB_Cache(ctx->req, maxsize, 0));
 }
 
 /*--------------------------------------------------------------------
