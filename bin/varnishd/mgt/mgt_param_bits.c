@@ -235,7 +235,6 @@ struct parspec VSL_parspec[] = {
 		"-ObjProtocol,"
 		"-ObjReason,"
 		"-ObjStatus,"
-		"-VCL_trace,"
 		"-VdpAcct,"
 		"-VfpAcct,"
 		"-WorkThread",
