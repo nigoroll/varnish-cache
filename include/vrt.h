@@ -62,6 +62,8 @@
  *	VRT_AddVFP() deprecated
  *	VRT_RemoveVDP() deprecated
  *	VRT_RemoveVFP() deprecated
+ *	VRT_r_vcl_trace() added
+ *	VRT_l_vcl_trace() added
  * 15.0 (2022-03-15)
  *	VRT_r_req_transport() added
  *	VRT_Assign_Backend() added
@@ -279,6 +281,7 @@ struct VSC_main;
 struct vsc_seg;
 struct vsl_log;
 struct vsmw_cluster;
+struct wrk_vpi;
 struct ws;
 
 typedef const struct stream_close *stream_close_t;
@@ -385,7 +388,8 @@ struct vrt_ctx {
 	unsigned			syntax;
 	unsigned			vclver;
 	unsigned			method;
-	unsigned			*handling;
+
+	struct wrk_vpi			*vpi;
 
 	/*
 	 * msg is for error messages and exists only for
