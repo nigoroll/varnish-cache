@@ -35,6 +35,14 @@ release process.
 Varnish Cache NEXT (2023-03-15)
 ===============================
 
+* Support for backend connections through a proxy with a PROXY2
+  preamble has been added:
+
+  * VCL ``backend``\ s gained attributes ``.via`` and ``.authority``
+
+  * The ``VRT_new_backend_clustered()`` and ``VRT_new_backend()``
+    signatures have been changed
+
 ================================
 Varnish Cache 7.2.0 (2022-09-15)
 ================================
