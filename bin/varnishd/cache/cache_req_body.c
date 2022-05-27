@@ -138,8 +138,6 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 	else
 		stv = stv_transient;
 
-	req->storage = NULL;
-
 	if (STV_NewObject(req->wrk, req->body_oc, stv, 8) == 0) {
 		req->req_body_status = BS_ERROR;
 		HSH_DerefBoc(req->wrk, req->body_oc);
