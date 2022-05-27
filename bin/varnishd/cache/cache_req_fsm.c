@@ -1201,7 +1201,7 @@ CNT_Request(struct req *req)
 		}
 		VCL_TaskLeave(ctx, req->privs);
 		AN(req->vsl->wid);
-		VRB_Free(req);
+		VRB_Deref(req);
 		VRT_Assign_Backend(&req->director_hint, NULL);
 		req->wrk = NULL;
 	}

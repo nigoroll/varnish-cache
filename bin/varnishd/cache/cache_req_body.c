@@ -349,7 +349,7 @@ VRB_Ignore(struct req *req)
  */
 
 void
-VRB_Free(struct req *req)
+VRB_Deref(struct req *req)
 {
 	int r;
 
