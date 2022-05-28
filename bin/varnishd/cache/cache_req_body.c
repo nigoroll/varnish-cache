@@ -92,8 +92,10 @@ vrb_cached(struct req *req, ssize_t req_bodybytes)
 /*----------------------------------------------------------------------
  * Pull the req.body in via/into a objcore
  *
- * This can be called only once per request, twice for a partial cached
- * payload.
+ * called once for caching with func == NULL
+ * called once without caching with func != NULL
+ * called twice for partial caching:
+ * first call with func == NULL second with func != NULL
  *
  */
 
@@ -199,6 +201,9 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 
 	} while (vfps == VFP_OK && (maxsize < 0 || req_bodybytes < maxsize));
 
+	AZ(ObjSetU64(req->wrk, req->body_oc, OA_LEN, req_bodybytes));
+	HSH_DerefBoc(req->wrk, req->body_oc);
+
 	if (!partial) {
 		/* VFP_END means that the body fit into the given size, but we
 		 * might need one extra read to see it if a chunked encoding
@@ -209,37 +214,42 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 			vfps = VFP_Suck(vfc, &c, &l);
 		}
 		if (vfps == VFP_OK)
-			(void)VFP_Error(vfc, "Request body too big to cache");
+			vfps = VFP_Error(vfc, "Request body too big to cache");
+	}
 
+	if (r)
+		vfps = VFP_Error(vfc, "Iterator failed");
+
+	switch (vfps) {
+	case VFP_ERROR:
+		req->req_body_status = BS_ERROR;
+		if (r == 0)
+			r = -1;
+		/* FALLTHROUGH */
+	case VFP_END:
 		req->acct.req_bodybytes += VFP_Close(vfc);
 		VSLb_ts_req(req, "ReqBody", VTIM_real());
-		if (func != NULL) {
-			HSH_DerefBoc(req->wrk, req->body_oc);
-			AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
-			if (vfps != VFP_END) {
-				req->req_body_status = BS_ERROR;
-				if (r == 0)
-					r = -1;
-			}
-			return (r);
-		}
+		break;
+	default:
+		break;
 	}
 
-	AZ(ObjSetU64(req->wrk, req->body_oc, OA_LEN, req_bodybytes));
-	HSH_DerefBoc(req->wrk, req->body_oc);
-
-	if (vfps == VFP_OK && partial) {
-		req->req_body_partial = 1;
-		return (vrb_cached(req, req_bodybytes));
-	}
-
-	if (vfps != VFP_END) {
-		req->req_body_status = BS_ERROR;
+	if (func != NULL || vfps == VFP_ERROR) {
+		/* no caching or error */
 		AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
-		return (-1);
+		return (r);
 	}
 
-	return (vrb_cached(req, req_bodybytes));
+	switch (vfps) {
+	case VFP_OK:
+		AN(partial);
+		req->req_body_partial = 1;
+		/* FALLTHROUGH */
+	case VFP_END:
+		return (vrb_cached(req, req_bodybytes));
+	default:
+		WRONG("vfp status");
+	}
 }
 
 /*----------------------------------------------------------------------
