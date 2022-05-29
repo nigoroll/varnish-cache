@@ -53,7 +53,7 @@ vrb_cached(struct req *req, ssize_t req_bodybytes)
 	ssize_t l0, l;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
-	AZ(req->req_body_cached);
+	AN(req->body_oc);
 	assert(req_bodybytes >= 0);
 
 	l0 = http_GetContentLength(req->http0);
@@ -85,7 +85,6 @@ vrb_cached(struct req *req, ssize_t req_bodybytes)
 		    (uintmax_t)req_bodybytes);
 	}
 
-	req->req_body_cached = 1;
 	return (req_bodybytes);
 }
 
@@ -287,8 +286,7 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 
 	allow_partial = (req->vsl == vsl) && (func != httpq_req_body_discard);
 
-	if (req->req_body_cached && (allow_partial || !req->req_body_partial)) {
-		AN(req->body_oc);
+	if (req->body_oc && (allow_partial || !req->req_body_partial)) {
 		if (ObjIterate(wrk, req->body_oc, priv, func, 0))
 			return (-1);
 		return (0);
@@ -306,7 +304,6 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 		return (-1);
 	}
 	if (req->req_body_partial) {
-		AN(req->req_body_cached);
 		AN(req->body_oc);
 		if (ObjIterate(wrk, req->body_oc, priv, func, 0)) {
 			VSLb(vsl, SLT_FetchError,
@@ -364,7 +361,6 @@ VRB_Deref(struct req *req)
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 
 	if (req->body_oc == NULL) {
-		AZ(req->req_body_cached);
 		AZ(req->req_body_partial);
 		return;
 	}
@@ -378,7 +374,6 @@ VRB_Deref(struct req *req)
 	if (r != 0)
 		return;
 
-	req->req_body_cached = 0;
 	req->req_body_partial = 0;
 }
 
@@ -407,13 +402,13 @@ VRB_Cache(struct req *req, ssize_t maxsize, unsigned partial)
 	 * where we know we will have no competition or conflicts for the
 	 * updates to req.http.* etc.
 	 */
-	if (req->restarts > 0 && !req->req_body_cached) {
+	if (req->restarts > 0 && req->body_oc == NULL) {
 		VSLb(req->vsl, SLT_VCL_Error,
 		    "req.body must be cached before restarts");
 		return (-1);
 	}
 
-	if (req->req_body_cached) {
+	if (req->body_oc) {
 		AZ(ObjGetU64(req->wrk, req->body_oc, OA_LEN, &u));
 		return (u);
 	}
