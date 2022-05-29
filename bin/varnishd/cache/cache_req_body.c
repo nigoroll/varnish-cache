@@ -119,7 +119,6 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 	CHECK_OBJ_NOTNULL(req->htc, HTTP_CONN_MAGIC);
 	CHECK_OBJ_NOTNULL(req->vfc, VFP_CTX_MAGIC);
 	vfc = req->vfc;
-	AZ(req->req_body_cached);
 	AN(maxsize);
 
 	if (req->req_body_partial) {
@@ -128,9 +127,6 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 		AZ(ObjGetU64(req->wrk, req->body_oc, OA_LEN, &oa_len));
 		AN(oa_len);
 		req_bodybytes = oa_len;
-		AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
-		req->req_body_cached = 0;
-		req->req_body_partial = 0;
 	}
 
 	oc = HSH_Private(req->wrk);
@@ -317,7 +313,6 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 			    "Failed to send a partial req.body");
 			return (-1);
 		}
-		req->req_body_cached = 0;
 	}
 	Lck_Lock(&req->sp->mtx);
 	if (req->req_body_status->avail > 0) {
@@ -368,18 +363,23 @@ VRB_Deref(struct req *req)
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 
-	AZ(req->req_body_partial);
 	if (req->body_oc == NULL) {
 		AZ(req->req_body_cached);
+		AZ(req->req_body_partial);
 		return;
 	}
 
 	r = HSH_DerefObjCore(req->wrk, &req->body_oc, 0);
-	req->req_body_cached = 0;
 
 	// each busyobj may have gained a reference
 	assert (r >= 0);
 	assert ((unsigned)r <= req->restarts + 1);
+
+	if (r != 0)
+		return;
+
+	req->req_body_cached = 0;
+	req->req_body_partial = 0;
 }
 
 /*----------------------------------------------------------------------
