@@ -109,6 +109,7 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 	const struct stevedore *stv;
 	ssize_t req_bodybytes = 0;
 	uint64_t oa_len;
+	char c;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 
@@ -201,7 +202,15 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 	} while (vfps == VFP_OK && (maxsize < 0 || req_bodybytes < maxsize));
 
 	if (!partial) {
-		if (maxsize >= 0 && req_bodybytes > maxsize)
+		/* VFP_END means that the body fit into the given size, but we
+		 * might need one extra read to see it if a chunked encoding
+		 * zero chunk is delayed
+		 */
+		if (vfps == VFP_OK) {
+			l = 1;
+			vfps = VFP_Suck(vfc, &c, &l);
+		}
+		if (vfps == VFP_OK)
 			(void)VFP_Error(vfc, "Request body too big to cache");
 
 		req->acct.req_bodybytes += VFP_Close(vfc);
