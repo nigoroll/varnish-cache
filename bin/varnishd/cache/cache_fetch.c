@@ -294,6 +294,8 @@ vbf_stp_mkbereq(struct worker *wrk, struct busyobj *bo)
 		HSH_Ref(bo->bereq_body);
 		bo->req = NULL;
 		ObjSetState(bo->wrk, oc, BOS_REQ_DONE);
+	} else if (bo->req->req_body_status == BS_TAKEN) {
+		// preserve req for check in startfetch
 	} else if (bo->req->req_body_status->avail == 0) {
 		bo->req = NULL;
 		ObjSetState(bo->wrk, oc, BOS_REQ_DONE);
@@ -422,6 +424,16 @@ vbf_stp_startfetch(struct worker *wrk, struct busyobj *bo)
 	bo->vfc->oc = oc;
 	bo->vfc->resp = bo->beresp;
 	bo->vfc->req = bo->bereq;
+
+	if (bo->req != NULL &&
+	    (bo->req->body_oc == NULL || bo->req->req_body_partial) &&
+	    bo->req->req_body_status == BS_TAKEN) {
+		bo->req = NULL;
+		ObjSetState(bo->wrk, oc, BOS_REQ_DONE);
+		bo->no_retry = "req.body taken";
+		VSLb(bo->vsl, SLT_Error, "Body already taken");
+		return (F_STP_ERROR);
+	}
 
 	if (wrk->handling == VCL_RET_ERROR)
 		return (F_STP_ERROR);

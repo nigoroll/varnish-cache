@@ -274,9 +274,8 @@ httpq_req_body_discard(void *priv, unsigned flush, const void *ptr, ssize_t len)
 
 ssize_t
 VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
-    struct req *req, objiterate_f *func, void *priv)
+    struct req *req, objiterate_f *func, void *priv, enum vrb_what_e what)
 {
-	unsigned allow_partial;
 	int i;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
@@ -284,32 +283,38 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 	AN(vsl);
 	AN(func);
 
-	allow_partial = (req->vsl == vsl) && (func != httpq_req_body_discard);
+	if (func == httpq_req_body_discard)
+		assert (what == VRB_ALL);
 
-	if (req->body_oc && (allow_partial || !req->req_body_partial)) {
+	if (req->body_oc && !req->req_body_partial) {
+		if (what == VRB_REMAIN)
+			return (0);
+
 		if (ObjIterate(wrk, req->body_oc, priv, func, 0))
 			return (-1);
 		return (0);
 	}
 	if (req->req_body_status == BS_NONE)
 		return (0);
-	if (req->req_body_status == BS_TAKEN) {
-		VSLb(vsl, SLT_VCL_Error,
-		    "Uncached req.body can only be consumed once.");
-		return (-1);
-	}
 	if (req->req_body_status == BS_ERROR) {
 		VSLb(vsl, SLT_FetchError,
 		    "Had failed reading req.body before.");
 		return (-1);
 	}
-	if (req->req_body_partial) {
-		AN(req->body_oc);
+
+	if (req->req_body_partial && what != VRB_REMAIN) {
 		if (ObjIterate(wrk, req->body_oc, priv, func, 0)) {
 			VSLb(vsl, SLT_FetchError,
 			    "Failed to send a partial req.body");
 			return (-1);
 		}
+	}
+	if (what == VRB_CACHED)
+		return (0);
+	if (req->req_body_status == BS_TAKEN) {
+		VSLb(vsl, SLT_VCL_Error,
+		    "Uncached req.body can only be consumed once.");
+		return (-1);
 	}
 	Lck_Lock(&req->sp->mtx);
 	if (req->req_body_status->avail > 0) {
@@ -344,7 +349,7 @@ VRB_Ignore(struct req *req)
 		return (0);
 	if (req->req_body_status->avail > 0)
 		(void)VRB_Iterate(req->wrk, req->vsl, req,
-		    httpq_req_body_discard, NULL);
+		    httpq_req_body_discard, NULL, VRB_ALL);
 	if (req->req_body_status == BS_ERROR)
 		req->doclose = SC_RX_BODY;
 	return (0);

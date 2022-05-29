@@ -375,6 +375,12 @@ $Method VOID .call()
 
 $Method SUB .xsub()
 
+$Function STRANDS req_body(ENUM { all, cached, remain } what = all)
+
+Test access to the request body by returning all of it, only the
+cached or the remaining part. Only works on textual data. The
+number of segments is limited to eight.
+
 DEPRECATED
 ==========
 

@@ -39,6 +39,7 @@
 #include "cache/cache_varnishd.h"
 #include "cache/cache_filter.h"
 
+#include "vcl.h"
 #include "vsa.h"
 #include "vtim.h"
 #include "vcc_debug_if.h"
@@ -1340,4 +1341,95 @@ xyzzy_caller_xsub(VRT_CTX, struct VPFX(debug_caller) *caller)
 	AN(caller->sub);
 
 	return (caller->sub);
+}
+
+/*---------------------------------------------------------------------*/
+
+struct body2strads_priv {
+	unsigned		magic;
+#define BODY2STRANDS_PRIV_MAGIC	0x2188c92c
+	VRT_CTX;
+	struct strands		s[1];
+};
+
+static int v_matchproto_(objiterate_f)
+body2strads_iter_f(void *priva, unsigned flush, const void *ptr, ssize_t len)
+{
+	struct body2strads_priv *priv;
+	char *cp;
+
+	CAST_OBJ_NOTNULL(priv, priva, BODY2STRANDS_PRIV_MAGIC);
+	(void)flush;
+
+	AN(priv->s);
+	AN(priv->s->p);
+
+	if (priv->s->n == 0) {
+		VSL(SLT_Debug, 0, "body2strands: no strands left");
+		return (-1);
+	}
+
+	if (len == 0) {
+		VSL(SLT_Debug, 0, "body2strands: len %zd", len);
+		return (0);
+	}
+
+	cp = WS_Copy(priv->ctx->ws, ptr, len + 1);
+	if (cp == NULL)
+		return (-1);
+	cp[len] = '\0';
+	*priv->s->p++ = cp;
+	priv->s->n--;
+
+	return (0);
+}
+
+VCL_STRANDS v_matchproto_(td_xyzzy_debug_req_body)
+xyzzy_req_body(VRT_CTX, VCL_ENUM w)
+{
+	struct strands *rs;
+	enum vrb_what_e what;
+	struct body2strads_priv priv[1];
+	int r;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if (! (ctx->method & VCL_MET_TASK_C)) {
+		VRT_fail(ctx, "debug.req_body() can only be called from "
+		    "client subroutines");
+		return (vrt_null_strands);
+	}
+
+	rs = VRT_AllocStrandsWS(ctx->ws, 8);
+	if (rs == NULL) {
+		VRT_fail(ctx, "debug.req_body(): No workspace");
+		return (vrt_null_strands);
+	}
+
+	INIT_OBJ(priv, BODY2STRANDS_PRIV_MAGIC);
+	priv->ctx = ctx;
+	/*
+	 * we work on s, increasing p and decresing n as we ref strings
+	 */
+	memcpy(priv->s, rs, sizeof priv->s);
+
+	if (w == VENUM(all))
+		what = VRB_ALL;
+	else if (w == VENUM(cached))
+		what = VRB_CACHED;
+	else if (w == VENUM(remain))
+		what = VRB_REMAIN;
+	else
+		INCOMPL();
+
+	AN(ctx->req);
+	r = VRB_Iterate(ctx->req->wrk, ctx->vsl, ctx->req,
+	    body2strads_iter_f, priv, what);
+
+	if (r)
+		return (vrt_null_strands);
+
+	assert(rs->n >= priv->s->n);
+	rs->n -= priv->s->n;
+	return (rs);
 }

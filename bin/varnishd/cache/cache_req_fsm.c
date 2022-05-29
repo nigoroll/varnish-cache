@@ -797,11 +797,16 @@ cnt_pipe(struct worker *wrk, struct req *req)
 	case VCL_RET_PIPE:
 		VSLb_ts_req(req, "Process", W_TIM_real(wrk));
 		VSLb_ts_busyobj(bo, "Process", wrk->lastused);
+		if (req->req_body_status == BS_TAKEN) {
+			VSLb(bo->vsl, SLT_Error, "Body already taken");
+			req->req_step = R_STP_VCLFAIL;
+			nxt = REQ_FSM_MORE;
+			break;
+		}
 		if (V1P_Enter() == 0) {
 			AZ(bo->req);
 			bo->req = req;
 			bo->wrk = wrk;
-			/* Unless cached, reqbody is not our job */
 			if (req->body_oc == NULL)
 				req->req_body_status = BS_NONE;
 			SES_Close(req->sp, VDI_Http1Pipe(req, bo));

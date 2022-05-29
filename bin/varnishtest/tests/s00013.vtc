@@ -45,15 +45,42 @@ server s1 {
 
 varnish v1 -cliok "param.set debug +syncvsl,+flush_head,+slow_bereq"
 varnish v1 -vcl+backend {
+	import debug;
 	import std;
 	import vtc;
 
 	sub vcl_recv {
 		std.cache_req_body(10b, partial=true);
+		if (req.url == "/taken") {
+			set req.http.bodyall = debug.req_body(all);
+			if (req.method == "POST") {
+				return (pass);
+			} else
+			if (req.method == "PIPE") {
+				return (pipe);
+			}
+			return (synth(500, "wrong"));
+		}
+		if (req.url ~ "/.") {
+			return (synth(200));
+		}
+	}
+
+	sub vcl_deliver {
+		set resp.http.bodycached = debug.req_body(cached);
+	}
+
+	sub vcl_synth {
+		if (req.url == "/all") {
+			set resp.http.bodyall = debug.req_body(all);
+		} else if (req.url == "/separate") {
+			set resp.http.bodycached = debug.req_body(cached);
+			set resp.http.bodyremain = debug.req_body(remain);
+		}
 	}
 
 	sub vcl_backend_fetch {
-		if (bereq.retries == 1) {
+		if (bereq.retries == 1 && bereq.http.barrier) {
 			vtc.barrier_sync(bereq.http.barrier);
 		}
 		set bereq.http.connection = "close";
@@ -69,6 +96,15 @@ logexpect l1 -v v1 -i FetchError -g raw {
 	expect 0 1002 FetchError "backend write error"
 } -start
 
+logexpect l2 -v v1 -q "BereqMethod ~ \"POST\" and BereqURL ~ \"^/taken\"" -b {
+	expect * 1010 Error	 "^Body already taken"
+	expect * 1010 Error	 "^Retry not possible, req.body taken"
+} -start
+
+logexpect l3 -v v1 -q "BereqMethod ~ \"PIPE\" and BereqURL ~ \"^/taken\"" -b {
+	expect * *    Error	 "^Body already taken"
+} -start
+
 client c1 {
 	txreq -method POST -nolen -hdr "transfer-encoding: chunked" \
 		-hdr "barrier: ${b1_sock}"
@@ -79,6 +115,7 @@ client c1 {
 	rxresp
 	expect resp.status == 200
 	expect resp.http.x-varnish == 1001
+	expect resp.http.bodycached == "0123456701"
 
 	txreq -method POST -nolen -hdr "content-length: 19" \
 		-hdr "barrier: ${b2_sock}"
@@ -88,6 +125,33 @@ client c1 {
 	rxresp
 	expect resp.status == 200
 	expect resp.http.x-varnish == 1004
+	expect resp.http.bodycached == "hello part"
+
+	txreq -url "/all" -method POST -nolen -hdr "transfer-encoding: chunked"
+	chunkedlen 20
+	chunkedlen 0
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == 1007
+	expect resp.http.bodyall == "01234567012345670123"
+
+	txreq -url "/separate" -method POST -nolen \
+	      -hdr "transfer-encoding: chunked"
+	chunkedlen 20
+	chunkedlen 0
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == 1008
+	expect resp.http.bodycached == "0123456701"
+	expect resp.http.bodyremain == "2345670123"
+
+	txreq -url "/taken" -method POST -nolen \
+	      -hdr "transfer-encoding: chunked"
+	chunkedlen 20
+	chunkedlen 0
+	rxresp
+	expect resp.status == 503
+	expect resp.http.x-varnish == 1009
 
 	txreq -method PIPE -nolen -hdr "transfer-encoding: chunked"
 	chunkedlen 100
@@ -107,5 +171,16 @@ client c2 {
 	expect resp.http.x-varnish == <undef>
 } -run
 
+client c3 {
+	txreq -url "/taken" -method PIPE -nolen \
+	      -hdr "transfer-encoding: chunked"
+	chunkedlen 20
+	chunkedlen 0
+	rxresp
+	expect resp.status == 503
+} -run
+
 logexpect l1 -wait
+logexpect l2 -wait
+logexpect l3 -wait
 server s1 -wait

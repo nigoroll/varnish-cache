@@ -742,8 +742,14 @@ int ObjGetU64(struct worker *, struct objcore *, enum obj_attr, uint64_t *);
 int ObjCheckFlag(struct worker *, struct objcore *, enum obj_flags of);
 
 /* cache_req_body.c */
+enum vrb_what_e {
+	VRB_ALL,
+	VRB_CACHED,
+	VRB_REMAIN
+};
+
 ssize_t VRB_Iterate(struct worker *, struct vsl_log *, struct req *,
-    objiterate_f *func, void *priv);
+    objiterate_f *, void *, enum vrb_what_e);
 
 /* cache_session.c [SES] */
 
