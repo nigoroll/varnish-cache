@@ -109,6 +109,7 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 	uint8_t *ptr;
 	enum vfp_status vfps = VFP_ERROR;
 	const struct stevedore *stv;
+	struct objcore *oc;
 	ssize_t req_bodybytes = 0;
 	uint64_t oa_len;
 	char c;
@@ -132,24 +133,24 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 		req->req_body_partial = 0;
 	}
 
-	req->body_oc = HSH_Private(req->wrk);
-	AN(req->body_oc);
+	oc = HSH_Private(req->wrk);
+	AN(oc);
 
 	if (req->storage != NULL)
 		stv = req->storage;
 	else
 		stv = stv_transient;
 
-	if (STV_NewObject(req->wrk, req->body_oc, stv, 8) == 0) {
+	if (STV_NewObject(req->wrk, oc, stv, 8) == 0) {
 		req->req_body_status = BS_ERROR;
-		HSH_DerefBoc(req->wrk, req->body_oc);
-		AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
+		HSH_DerefBoc(req->wrk, oc);
+		AZ(HSH_DerefObjCore(req->wrk, &oc, 0));
 		(void)VFP_Error(vfc, "Object allocation failed:"
 		    " Ran out of space in %s", stv->vclname);
 		return (-1);
 	}
 
-	vfc->oc = req->body_oc;
+	vfc->oc = oc;
 
 	/* NB: we need to open the VFP exactly once, even though we may work
 	 * on up to two pairs of objcore/boc for the same request body when
@@ -161,8 +162,8 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 
 		if (VFP_Open(ctx, vfc) < 0) {
 			req->req_body_status = BS_ERROR;
-			HSH_DerefBoc(req->wrk, req->body_oc);
-			AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
+			HSH_DerefBoc(req->wrk, oc);
+			AZ(HSH_DerefObjCore(req->wrk, &oc, 0));
 			return (-1);
 		}
 	}
@@ -194,15 +195,15 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 				if (r)
 					break;
 			} else {
-				ObjExtend(req->wrk, req->body_oc, l,
+				ObjExtend(req->wrk, oc, l,
 				    vfps == VFP_END ? 1 : 0);
 			}
 		}
 
 	} while (vfps == VFP_OK && (maxsize < 0 || req_bodybytes < maxsize));
 
-	AZ(ObjSetU64(req->wrk, req->body_oc, OA_LEN, req_bodybytes));
-	HSH_DerefBoc(req->wrk, req->body_oc);
+	AZ(ObjSetU64(req->wrk, oc, OA_LEN, req_bodybytes));
+	HSH_DerefBoc(req->wrk, oc);
 
 	if (!partial) {
 		/* VFP_END means that the body fit into the given size, but we
@@ -236,9 +237,12 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 
 	if (func != NULL || vfps == VFP_ERROR) {
 		/* no caching or error */
-		AZ(HSH_DerefObjCore(req->wrk, &req->body_oc, 0));
+		AZ(HSH_DerefObjCore(req->wrk, &oc, 0));
 		return (r);
 	}
+
+	/* caching, can not cache twice, reference kept */
+	AZ(req->body_oc);
 
 	switch (vfps) {
 	case VFP_OK:
@@ -246,6 +250,7 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 		req->req_body_partial = 1;
 		/* FALLTHROUGH */
 	case VFP_END:
+		req->body_oc = oc;
 		return (vrb_cached(req, req_bodybytes));
 	default:
 		WRONG("vfp status");
