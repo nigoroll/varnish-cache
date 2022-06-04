@@ -1,0 +1,36 @@
+varnishtest "request body gzip"
+
+varnish v1 -arg "-p debug=+syncvsl" -vcl {
+	import debug;
+	import std;
+
+	backend proforma none;
+
+	sub vcl_recv {
+		std.cache_req_body(1KB);
+		if (req.url ~ "/.") {
+			return (synth(200));
+		}
+	}
+
+	sub vcl_deliver {
+		set resp.http.bodycached = debug.req_body(cached);
+	}
+
+	sub vcl_synth {
+		if (req.url == "/all") {
+			set resp.http.bodyall = debug.req_body(all);
+		} else if (req.url == "/separate") {
+			set resp.http.bodycached = debug.req_body(cached);
+			set resp.http.bodyremain = debug.req_body(remain);
+		}
+	}
+} -start
+
+client c1 {
+	txreq -url "/all" -method POST -gziplevel 9 \
+	    -gzipbody {Hello compressed world!}
+	rxresp
+	expect resp.status == 200
+	expect resp.http.bodyall == "Hello compressed world!"
+} -run

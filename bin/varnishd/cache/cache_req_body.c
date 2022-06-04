@@ -47,43 +47,34 @@
  * Check and potentially update req framing headers.
  */
 
+static void
+updcl(struct http *hp, ssize_t bytes)
+{
+	ssize_t l;
+
+	http_Unset(hp, H_Transfer_Encoding);
+	l = http_GetContentLength(hp);
+	if (l == bytes)
+		return;
+	http_Unset(hp, H_Content_Length);
+	http_PrintfHeader(hp, "Content-Length: %ju", (uintmax_t)bytes);
+}
+
 static ssize_t
 vrb_cached(struct req *req, ssize_t req_bodybytes)
 {
-	ssize_t l0, l;
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	AN(req->body_oc);
 	assert(req_bodybytes >= 0);
 
-	l0 = http_GetContentLength(req->http0);
-	l = http_GetContentLength(req->http);
-
 	assert(req->req_body_status->avail > 0);
-	if (req->req_body_status->length_known) {
-		if (req->req_body_partial) {
-			assert(req_bodybytes < l0);
-			assert(req_bodybytes < l);
-		} else {
-			assert(req_bodybytes == l0);
-			assert(req_bodybytes == l);
-		}
-		AZ(http_GetHdr(req->http0, H_Transfer_Encoding, NULL));
-		AZ(http_GetHdr(req->http, H_Transfer_Encoding, NULL));
-	} else if (!req->req_body_partial) {
-		/* We must update also the "pristine" req.* copy */
-		AZ(http_GetHdr(req->http0, H_Content_Length, NULL));
-		assert(l0 < 0);
-		http_Unset(req->http0, H_Transfer_Encoding);
-		http_PrintfHeader(req->http0, "Content-Length: %ju",
-		    (uintmax_t)req_bodybytes);
+	if (req->req_body_partial)
+		return (req_bodybytes);
 
-		AZ(http_GetHdr(req->http, H_Content_Length, NULL));
-		assert(l < 0);
-		http_Unset(req->http, H_Transfer_Encoding);
-		http_PrintfHeader(req->http, "Content-Length: %ju",
-		    (uintmax_t)req_bodybytes);
-	}
+	// XXX does not survive rollback
+	updcl(req->http0, req_bodybytes);
+	updcl(req->http, req_bodybytes);
 
 	return (req_bodybytes);
 }
