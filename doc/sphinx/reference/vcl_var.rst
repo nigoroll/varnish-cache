@@ -210,6 +210,36 @@ req.esi_level
 	A count of how many levels of ESI requests we're currently at.
 
 
+req.filters
+
+	Type: STRING
+
+	Readable from: vcl_recv
+
+	Writable from: vcl_recv
+
+	Defaults to the empty string ``""``.
+
+	List of Varnish Fetch Processor (VFP) filters the req.body
+	will be pulled through. The order left to right signifies
+	processing from client to cache, iow the leftmost filter is
+	run first on the body as received from the client after
+	decoding of any transfer encodings.
+
+	These filters change the body before being cached using
+	``std.cache_req_body()`` and/or being sent to a backend.
+
+	See ``beresp.filters`` for a list of bundled VFPs, but note
+	that some may not make any sense when applied to a client
+	request.
+
+	The default is the empty string in order to have the request
+	body sent to backends unaltered by default.
+
+	Any attempt to modify ``req.filters`` after processing of the
+	request body has begun results in VCL failure.
+
+
 req.grace
 
 	Type: DURATION

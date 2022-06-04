@@ -501,6 +501,7 @@ struct req {
 	/* HTTP request */
 	struct http		*http;
 	struct http		*http0;
+	const char		*req_filter_list;
 
 	/* HTTP response */
 	struct http		*resp;

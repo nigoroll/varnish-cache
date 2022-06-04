@@ -1,13 +1,69 @@
-varnishtest "request body gzip"
+varnishtest "partial std.cache_req_body() (s13.vtc) but with gzip"
 
-varnish v1 -arg "-p debug=+syncvsl" -vcl {
+barrier b1 sock 2
+barrier b2 sock 2
+
+# server receives uncompressed body
+server s1 {
+	# chunked with retry
+	close
+
+	accept
+	rxreq
+	expect req.http.transfer-encoding == chunked
+	expect req.http.content-length == <undef>
+	expect req.bodylen == 150
+	txresp
+	expect_close
+
+	# straight with retry - turned into chunked because of filter
+	accept
+	close
+
+	accept
+	rxreq
+	expect req.http.transfer-encoding == chunked
+	expect req.http.content-length == <undef>
+	expect req.bodylen == 150
+	txresp
+	expect_close
+
+	# chunked pipe
+	accept
+	rxreq
+	expect req.http.transfer-encoding == chunked
+	expect req.http.content-length == <undef>
+	expect req.bodylen == 150
+	txresp
+	close
+
+	# straight pipe - turned into chunked because of filter
+	accept
+	rxreq
+	expect req.http.transfer-encoding == chunked
+	expect req.http.content-length == <undef>
+	expect req.bodylen == 33
+	expect req.body == "hello partially cached gzip world"
+	txresp
+} -start
+
+varnish v1 -cliok "param.set debug +syncvsl,+flush_head,+slow_bereq"
+varnish v1 -vcl+backend {
 	import debug;
 	import std;
-
-	backend proforma none;
+	import vtc;
 
 	sub vcl_recv {
-		std.cache_req_body(1KB);
+		if (req.http.Content-Encoding ~ "(?i)^gzip$") {
+			set req.filters = "gunzip";
+			set req.http.filters = req.filters;
+		}
+		std.cache_req_body(10b, partial=true);
+		if (req.url == "/set") {
+			# WRONG
+			set req.filters = "gzip";
+			set req.http.filters = req.filters;
+		}
 		if (req.url ~ "/.") {
 			return (synth(200));
 		}
@@ -25,12 +81,114 @@ varnish v1 -arg "-p debug=+syncvsl" -vcl {
 			set resp.http.bodyremain = debug.req_body(remain);
 		}
 	}
+
+	sub vcl_backend_fetch {
+		if (bereq.retries == 1) {
+			vtc.barrier_sync(bereq.http.barrier);
+		}
+		set bereq.http.connection = "close";
+	}
+
+	sub vcl_backend_error {
+		return (retry);
+	}
+} -start
+
+logexpect l1 -v v1 -i FetchError -g raw {
+	expect 0 1002 FetchError "Failed to send a partial req.body"
+	expect 0 1002 FetchError "backend write error"
 } -start
 
 client c1 {
-	txreq -url "/all" -method POST -gziplevel 9 \
-	    -gzipbody {Hello compressed world!}
+	txreq -method POST -nolen -hdr "transfer-encoding: chunked" \
+		-hdr "Content-Encoding: gzip" \
+		-hdr "barrier: ${b1_sock}"
+	send "16\n"
+	sendhex "1f 8b 08 00 00 00 00 00 02 03 33 30 34 32 36 31"
+	sendhex "35 33 37 a0 21 9d"
+	send "\n"
+	barrier b1 sync
+	send "13\n"
+	sendhex "98 94 9c 92 9a 96 9e 41 3c 0d 00 0d bf aa 7e 96"
+	sendhex "00 00 00"
+	send "\n"
+	chunkedlen 0
 	rxresp
 	expect resp.status == 200
-	expect resp.http.bodyall == "Hello compressed world!"
+	expect resp.http.x-varnish == 1001
+	expect resp.http.bodycached == "0123456701"
+
+	txreq -method POST -nolen -hdr "content-length: 41" \
+		-hdr "Content-Encoding: gzip" \
+		-hdr "barrier: ${b2_sock}"
+	sendhex "1f 8b 08 00 00 00 00 00 02 03 33 30 34 32 36 31"
+	sendhex "35 33 37 a0 21 9d"
+	barrier b2 sync
+	sendhex "98 94 9c 92 9a 96 9e 41 3c 0d 00 0d bf aa 7e 96"
+	sendhex "00 00 00"
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == 1004
+	expect resp.http.bodycached == "0123456701"
+
+	txreq -url "/all" -method POST -nolen \
+		-hdr "transfer-encoding: chunked" \
+		-hdr "Content-Encoding: gzip"
+	send "1e\n"
+	sendhex "1f 8b 08 00 00 00 00 00 02 03 33 30 34 32 36 31"
+	sendhex "35 33 37 40 a2 01 f9 39 2e c3 14 00 00 00"
+	send "\n"
+	chunkedlen 0
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == 1007
+	expect resp.http.bodyall == "01234567012345670123"
+
+	txreq -url "/separate" -method POST -nolen \
+		-hdr "transfer-encoding: chunked" \
+		-hdr "Content-Encoding: gzip"
+	send "1e\n"
+	sendhex "1f 8b 08 00 00 00 00 00 02 03 33 30 34 32 36 31"
+	sendhex "35 33 37 40 a2 01 f9 39 2e c3 14 00 00 00"
+	send "\n"
+	chunkedlen 0
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == 1008
+	expect resp.http.bodycached == "0123456701"
+	expect resp.http.bodyremain == "2345670123"
+
+	txreq -method PIPE -nolen -hdr "transfer-encoding: chunked" \
+		-hdr "Content-Encoding: gzip"
+	send "16\n"
+	sendhex "1f 8b 08 00 00 00 00 00 02 03 33 30 34 32 36 31"
+	sendhex "35 33 37 a0 21 9d"
+	send "\n"
+	send "13\n"
+	sendhex "98 94 9c 92 9a 96 9e 41 3c 0d 00 0d bf aa 7e 96"
+	sendhex "00 00 00"
+	send "\n"
+	chunkedlen 0
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == <undef>
+	expect_close
 } -run
+
+client c2 {
+	txreq -method PIPE -gziplevel 9 \
+		-gzipbody {hello partially cached gzip world}
+	rxresp
+	expect resp.status == 200
+	expect resp.http.x-varnish == <undef>
+} -run
+
+client c3 {
+	txreq -url "/set" -method POST -gziplevel 9 \
+	    -gzipbody {Hello compressed world!}
+	rxresp
+	expect resp.status == 503
+} -run
+
+logexpect l1 -wait
+server s1 -wait

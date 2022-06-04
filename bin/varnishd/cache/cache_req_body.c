@@ -80,6 +80,28 @@ vrb_cached(struct req *req, ssize_t req_bodybytes)
 }
 
 /*----------------------------------------------------------------------
+ * Set up filters for request body processing.
+ * When caching, we cache the filter-processed version
+ */
+
+static ssize_t
+vrb_filtersetup(struct req *req)
+{
+	const char *p;
+
+	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
+
+	assert(req->req_body_status != BS_NONE);
+	assert(req->req_body_status != BS_ERROR);
+
+	p = req->req_filter_list;
+	if (p == NULL || *p == '\0')
+		return (0);
+	return (VCL_StackVFP(req->vfc, req->vcl, req->req_filter_list));
+}
+
+
+/*----------------------------------------------------------------------
  * Pull the req.body in via/into a objcore
  *
  * called once for caching with func == NULL
@@ -146,7 +168,7 @@ vrb_pull(struct req *req, ssize_t maxsize, unsigned partial,
 		INIT_OBJ(ctx, VRT_CTX_MAGIC);
 		VCL_Req2Ctx(ctx, req);
 
-		if (VFP_Open(ctx, vfc) < 0) {
+		if (vrb_filtersetup(req) < 0 || VFP_Open(ctx, vfc) < 0) {
 			req->req_body_status = BS_ERROR;
 			HSH_DerefBoc(req->wrk, oc);
 			AZ(HSH_DerefObjCore(req->wrk, &oc, 0));

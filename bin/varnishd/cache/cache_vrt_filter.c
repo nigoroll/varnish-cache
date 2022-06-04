@@ -419,6 +419,42 @@ resp_Get_Filter_List(struct req *req)
 	return (filter_on_ws(req->ws, resp_default_filter_list, req));
 }
 
+/*--------------------------------------------------------------------
+ * req.filters write after processing has begun results in VCL
+ * failure
+ */
+
+VCL_STRING
+VRT_r_req_filters(VRT_CTX)
+{
+	const char *p;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	p = ctx->req->req_filter_list;
+	return (p != NULL ? p : "");
+}
+
+VCL_VOID
+VRT_l_req_filters(VRT_CTX, const char *str, VCL_STRANDS s)
+{
+	const char *b;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+
+	if (ctx->req->req_body_status == BS_TAKEN ||
+	    ctx->req->req_body_status == BS_ERROR ||
+	    ctx->req->body_oc != NULL) {
+		VRT_fail(ctx, "Too late to set req.filters");
+		return;
+	}
+
+	b = VRT_StrandsWS(ctx->req->ws, str, s);
+	if (b == NULL)
+		WS_MarkOverflow(ctx->req->ws);
+	else
+		ctx->req->req_filter_list = b;
+}
+
 /*--------------------------------------------------------------------*/
 
 #define FILTER_VAR(vcl, in, func, fld)					\
