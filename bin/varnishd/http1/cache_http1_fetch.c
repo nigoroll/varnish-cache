@@ -93,7 +93,9 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 	assert(*htc->rfd > 0);
 	hp = bo->bereq;
 
-	if (bo->req != NULL && !bo->req->req_body_status->length_known) {
+	if (bo->req != NULL &&
+	    bo->req->req_body_status != BS_NONE &&
+	    !http_GetHdr(hp, H_Content_Length, NULL)) {
 		http_ForceHeader(hp, H_Transfer_Encoding, "chunked");
 		do_chunked = 1;
 	}
@@ -111,8 +113,7 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 		AZ(do_chunked);
 		(void)ObjIterate(bo->wrk, bo->bereq_body,
 		    bo, vbf_iter_req_body, VRB_ALL);
-	} else if (bo->req != NULL &&
-	    bo->req->req_body_status != BS_NONE) {
+	} else if (bo->req != NULL && bo->req->req_body_status != BS_NONE) {
 		if (DO_DEBUG(DBG_FLUSH_HEAD))
 			(void)V1L_Flush(wrk);
 		if (do_chunked)
