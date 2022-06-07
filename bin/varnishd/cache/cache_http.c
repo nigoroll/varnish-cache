@@ -41,12 +41,11 @@
 #include "vnum.h"
 #include "vtim.h"
 
-#define BODYSTATUS(U, l, n, a, k)				\
+#define BODYSTATUS(U, l, n, a)				\
 	const struct body_status BS_##U[1] = {{			\
 		.name = #l,					\
 		.nbr = n,					\
-		.avail = a,					\
-		.length_known = k				\
+		.avail = a					\
 	}};
 #include "tbl/body_status.h"
 
