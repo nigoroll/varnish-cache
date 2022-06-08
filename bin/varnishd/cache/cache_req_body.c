@@ -289,10 +289,7 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 	if (req->body_oc && !req->req_body_partial) {
 		if (what == VRB_REMAIN)
 			return (0);
-
-		if (ObjIterate(wrk, req->body_oc, priv, func, 0))
-			return (-1);
-		return (0);
+		return (ObjIterate(wrk, req->body_oc, priv, func, 0));
 	}
 	if (req->req_body_status == BS_NONE)
 		return (0);
@@ -303,11 +300,9 @@ VRB_Iterate(struct worker *wrk, struct vsl_log *vsl,
 	}
 
 	if (req->req_body_partial && what != VRB_REMAIN) {
-		if (ObjIterate(wrk, req->body_oc, priv, func, 0)) {
-			VSLb(vsl, SLT_FetchError,
-			    "Failed to send a partial req.body");
-			return (-1);
-		}
+		i = ObjIterate(wrk, req->body_oc, priv, func, 0);
+		if (i)
+			return (i);
 	}
 	if (what == VRB_CACHED)
 		return (0);

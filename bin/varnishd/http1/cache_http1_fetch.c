@@ -138,7 +138,14 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 			    "req.body read error: %d (%s)",
 			    errno, VAS_errtxt(errno));
 			bo->req->doclose = SC_RX_BODY;
+		} else if (i < 0 && bo->req->req_body_partial) {
+			VSLb(bo->vsl, SLT_FetchError,
+			     "Failed to send a partial req.body");
+		} else if (i < 0) {
+			VSLb(bo->vsl, SLT_FetchError,
+			     "Failed to send req.body");
 		}
+
 		if (do_chunked)
 			V1L_EndChunk(wrk);
 	}
