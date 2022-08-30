@@ -258,6 +258,13 @@ typedef struct {
 #define Tcheck(t)	do { (void)pdiff((t).b, (t).e); } while (0)
 #define Tlen(t)		(pdiff((t).b, (t).e))
 
-/* #3020 dummy definitions until PR is merged*/
-#define LIKELY(x)	(x)
-#define UNLIKELY(x)	(x)
+/* Branch prediction hints */
+#ifdef __GNUC__
+// GCC/Clang/ICC
+#  define LIKELY(x)   __builtin_expect(!!(x), 1)
+#  define UNLIKELY(x) __builtin_expect(!!(x), 0)
+#else
+// TCC, Sun CC etc.
+#  define LIKELY(x)   (x)
+#  define UNLIKELY(x) (x)
+#endif
