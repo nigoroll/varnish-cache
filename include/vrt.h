@@ -663,7 +663,7 @@ VCL_VOID VRT_UnsetHdr(VRT_CTX, VCL_HEADER);
 VCL_VOID VRT_SetHdr(VRT_CTX, VCL_HEADER, const char *pfx, VCL_STRANDS);
 VCL_VOID VRT_handling(VRT_CTX, unsigned hand);
 unsigned VRT_handled(VRT_CTX);
-VCL_VOID VRT_fail(VRT_CTX, const char *fmt, ...) v_printflike_(2,3);
+VCL_VOID VRT_fail(VRT_CTX, const char *fmt, ...) v_printflike_(2,3) _v_cold;
 VCL_VOID VRT_hashdata(VRT_CTX, VCL_STRANDS);
 
 VCL_VOID VRT_Rollback(VRT_CTX, VCL_HTTP);
