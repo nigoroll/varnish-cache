@@ -35,6 +35,19 @@ release process.
 Varnish Cache NEXT (2023-03-15)
 ===============================
 
+* VCL tracing now needs to be explicitly activated by setting the
+  ``req.trace`` or ``bereq.trace`` VCL variables, which are
+  initialized from the ``feature +trace`` flag. Only if the trace
+  variables are set will ``VCL_trace`` log records be generated.
+
+  Consequently, ``VCL_trace`` has been removed from the default
+  ``vsl_mask``, so any trace records will be emitted by
+  default. ``vsl_mask`` can still be used to filter ``VCL_trace``
+  records.
+
+  To trace ``vcl_init {}`` and ``vcl_fini {}``, set the ``feature
+  +trace`` flag while the vcl is loaded/discarded.
+
 ================================
 Varnish Cache 7.2.0 (2022-09-15)
 ================================
