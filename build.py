@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python3
 
 # - build and test varnish-cache and a number of vmods from a JSON
 #   config file
