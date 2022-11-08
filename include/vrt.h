@@ -61,6 +61,7 @@
  *	VRT_new_backend() signature changed
  *	VRT_new_backend_clustered() signature changed
  *	authority field added to struct vrt_backend
+ *	VRT_trace() added
  * 16.0 (2022-09-15)
  *	VMOD C-prototypes moved into JSON
  *	VRT_AddVDP() deprecated
@@ -668,6 +669,7 @@ VCL_VOID VRT_UnsetHdr(VRT_CTX, VCL_HEADER);
 VCL_VOID VRT_SetHdr(VRT_CTX, VCL_HEADER, const char *pfx, VCL_STRANDS);
 VCL_VOID VRT_handling(VRT_CTX, unsigned hand);
 unsigned VRT_handled(VRT_CTX);
+VCL_VOID VRT_trace(VRT_CTX, VCL_BOOL) _v_cold;
 VCL_VOID VRT_fail(VRT_CTX, const char *fmt, ...) v_printflike_(2,3) _v_cold;
 VCL_VOID VRT_hashdata(VRT_CTX, VCL_STRANDS);
 
