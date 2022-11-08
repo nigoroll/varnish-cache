@@ -75,14 +75,18 @@ def build(srcdir, prefix, **kwargs):
     configure = bootstrap_autogen_configure(srcdir, prefix, **kwargs)
     run(["make", "maintainer-clean"])
     run(["make", "distclean"])
+    # out of tree build
     with TemporaryDirectory() as builddir:
         with pushd(str(builddir)):
             make(configure, **kwargs)
+    # for varnishsrc builds
+    run(["make", "distclean"])
+    make(configure, **kwargs)
 
 
 def build_vmod(name, prefix):
     env = os.environ
-    # only required by vmod_dispatch
+    # only required by vmod_dispatch & libvdp-pesi
     env["VARNISHSRC"] = varnishsrc
     env["PKG_CONFIG_PATH"] = os.path.join(prefix, "lib", "pkgconfig")
     env["ACLOCAL_PATH"] = os.path.join(prefix, "share", "aclocal")
