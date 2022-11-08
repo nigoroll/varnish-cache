@@ -108,9 +108,10 @@ alias_sym(struct vcc *tl, const struct symbol *psym, const struct vjsn_val *v)
 }
 
 static void
-func_sym(struct vcc *tl, vcc_kind_t kind, const struct symbol *psym,
+func_sym(struct vcc *tl, vcc_kind_t kind, struct symbol *psym,
     const struct vjsn_val *v)
 {
+	const struct vjsn_val *vv;
 	struct symbol *sym;
 	struct vsb *buf;
 
@@ -150,15 +151,22 @@ func_sym(struct vcc *tl, vcc_kind_t kind, const struct symbol *psym,
 	sym->eval_priv = v;
 	v = VTAILQ_FIRST(&v->children);
 	assert(vjsn_is_array(v));
+	vv = v;
 	v = VTAILQ_FIRST(&v->children);
 	assert(vjsn_is_string(v));
 	sym->type = VCC_Type(v->value);
 	AN(sym->type);
 	sym->r_methods = VCL_MET_TASK_ALL;
+	if (kind == SYM_CLI_METHOD) {
+		vv = VTAILQ_NEXT(vv, list);
+		assert(vjsn_is_string(vv));
+		AZ(psym->extra);
+		psym->extra = vv->value;
+	}
 }
 
 void
-vcc_VmodSymbols(struct vcc *tl, const struct symbol *sym)
+vcc_VmodSymbols(struct vcc *tl, struct symbol *sym)
 {
 	const struct vjsn *vj;
 	const struct vjsn_val *vv, *vv1, *vv2;
@@ -223,6 +231,7 @@ vcc_Act_New(struct vcc *tl, struct token *t, struct symbol *sym)
 
 	/* Scratch the generic INSTANCE type */
 	isym->type = osym->type;
+	isym->extra = osym->extra;
 
 	CAST_OBJ_NOTNULL(vv, osym->eval_priv, VJSN_VAL_MAGIC);
 	// vv = object name
