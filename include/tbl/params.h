@@ -1814,7 +1814,6 @@ PARAM_BITS(
 	"-ObjProtocol,"
 	"-ObjReason,"
 	"-ObjStatus,"
-	"-VCL_trace,"
 	"-VdpAcct,"
 	"-VfpAcct,"
 	"-WorkThread",
