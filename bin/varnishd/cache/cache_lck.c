@@ -302,10 +302,18 @@ void
 Lck_Delete(struct lock *lck)
 {
 	struct ilck *ilck;
+	int err;
 
 	AN(lck);
 	TAKE_OBJ_NOTNULL(ilck, &lck->priv, ILCK_MAGIC);
 	ilck->stat->destroy++;
+	err  = pthread_mutex_destroy(&ilck->mtx);
+	if (err != 0) {
+		assert(err == EBUSY);
+		AZ(pthread_mutex_lock(&ilck->mtx));
+		AZ(pthread_mutex_unlock(&ilck->mtx));
+		AZ(pthread_mutex_destroy(&ilck->mtx));
+	}
 	AZ(pthread_mutex_destroy(&ilck->mtx));
 	FREE_OBJ(ilck);
 }
