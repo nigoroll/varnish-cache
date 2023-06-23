@@ -70,7 +70,7 @@ def make(configure, **kwargs):
     r(configure, **kwargs)
     r(["make", "-j", str(cpu_count() + 2)], **kwargs)
     if "check" in sys.argv:
-        r(["make", "-j", str(cpu_count() * 15), "check"], **kwargs)
+        r(["make", "-j", str(cpu_count() * 5), "check"], **kwargs)
     r(["make", "install"], **kwargs)
 
 
