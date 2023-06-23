@@ -51,7 +51,7 @@
   },
   {
     "vmod": "libvmod-dns",
-    "git": "https://github.com/nigoroll/libvmod-dns.git",
+    "git": "https://github.com/knq/libvmod-dns.git",
     "branch": "master"
   },
   {
