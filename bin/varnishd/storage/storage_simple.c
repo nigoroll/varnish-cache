@@ -289,6 +289,9 @@ sml_objfree(struct worker *wrk, struct objcore *oc)
 	FINI_OBJ(o);
 
 	if (oc->boc != NULL)
+		assert(oc->refcnt >= 2);
+
+	if (oc->boc != NULL)
 		sml_bocfini(stv, oc->boc);
 	else if (stv->lru != NULL)
 		LRU_Remove(oc);
