@@ -288,6 +288,10 @@ sml_objfree(struct worker *wrk, struct objcore *oc)
 	CHECK_OBJ_NOTNULL(st, STORAGE_MAGIC);
 	FINI_OBJ(o);
 
+	// NOT FOR PRODUCTION
+	if (oc->boc != NULL && (oc->flags & OC_F_PRIVATE) == 0)
+		assert(oc->refcnt >= 2);
+
 	if (oc->boc != NULL)
 		sml_bocfini(stv, oc->boc);
 	else if (stv->lru != NULL)
