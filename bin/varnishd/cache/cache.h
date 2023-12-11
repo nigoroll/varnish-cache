@@ -393,7 +393,8 @@ struct busyobj {
 	struct worker		*wrk;
 
 	struct vfp_ctx		*vfc;
-	const char		*vfp_filter_list;
+	const char		*vfp_filter_list;	// beresp.body
+	const char		*vdp_filter_list;	// bereq.body
 
 	struct ws		ws[1];
 	uintptr_t		ws_bo;
@@ -533,7 +534,8 @@ struct req {
 
 	/* Deliver pipeline */
 	struct vdp_ctx		*vdc;
-	const char		*vdp_filter_list;
+	const char		*vdp_filter_list;	// resp.body
+	const char		*vfp_filter_list;	// req.body
 
 	/* Transaction VSL buffer */
 	struct vsl_log		vsl[1];
