@@ -188,12 +188,15 @@ void VDI_Init(void);
 
 /* cache_deliver_proc.c */
 void VDP_Fini(const struct vdp_ctx *vdc);
-void VDP_Init(struct vdp_ctx *vdc, struct worker *wrk, struct vsl_log *vsl,
-    struct req *req);
+void VDP_Init(struct vdp_ctx *vdc, struct worker *wrk, struct vsl_log *vsl);
 uint64_t VDP_Close(struct vdp_ctx *, struct objcore *, struct boc *);
 void VDP_Panic(struct vsb *vsb, const struct vdp_ctx *vdc);
-int VDP_Push(VRT_CTX, struct vdp_ctx *, struct ws *, const struct vdp *,
-    void *priv);
+
+int
+VDP_Push(VRT_CTX, struct vdp_ctx *vdc, struct ws *ws,
+     const struct vdp *vdp, void *priv,
+     struct objcore *oc, struct req *req,
+     struct http *hd, intmax_t *cl);
 int VDP_DeliverObj(struct vdp_ctx *vdc, struct objcore *oc);
 extern const struct vdp VDP_gunzip;
 extern const struct vdp VDP_esi;
