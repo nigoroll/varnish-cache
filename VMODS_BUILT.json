@@ -6,7 +6,7 @@
     },
     {
         "git": "https://code.uplex.de/uplex-varnish/libvdp-pesi.git",
-        "rev": "44ff9ff",
+        "rev": "36db5be",
         "vmod": "libvdp-pesi"
     },
     {
@@ -101,7 +101,7 @@
     },
     {
         "git": "https://code.uplex.de/uplex-varnish/libvmod-re2.git",
-        "rev": "v1.6.1-51-g2dc5d5f",
+        "rev": "v1.6.1-52-gee80f8d",
         "vmod": "libvmod-re2"
     },
     {
@@ -131,12 +131,12 @@
     },
     {
         "git": "https://code.uplex.de/uplex-varnish/slash.git",
-        "rev": "a06224b",
+        "rev": "a9700c6",
         "vmod": "slash"
     },
     {
         "git": "https://github.com/nigoroll/varnish-modules.git",
-        "rev": "varnish-modules-0.18.0-89-g4df0a0f",
+        "rev": "varnish-modules-0.18.0-113-g71bd66e",
         "vmod": "varnish-modules"
     },
     {
