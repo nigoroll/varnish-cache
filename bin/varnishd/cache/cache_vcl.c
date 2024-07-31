@@ -641,6 +641,7 @@ VCL_Open(const char *fn, struct vsb *msg)
 	AN(vcl);
 	vcl->dlh = dlh;
 	vcl->conf = cnf;
+	vcl->vdire = vdire_new(&vcl_mtx, &vcl->temp);
 	return (vcl);
 }
 
@@ -652,6 +653,7 @@ VCL_Close(struct vcl **vclp)
 	TAKE_OBJ_NOTNULL(vcl, vclp, VCL_MAGIC);
 	assert(VTAILQ_EMPTY(&vcl->filters));
 	AZ(dlclose(vcl->dlh));
+	FREE_OBJ(vcl->vdire);
 	FREE_OBJ(vcl);
 }
 
@@ -820,7 +822,6 @@ vcl_load(struct cli *cli,
 
 	vcl->loaded_name = strdup(name);
 	XXXAN(vcl->loaded_name);
-	vcl->vdire = vdire_new(&vcl_mtx, &vcl->temp);
 	VTAILQ_INIT(&vcl->ref_list);
 	VTAILQ_INIT(&vcl->filters);
 
@@ -870,7 +871,6 @@ VCL_Poll(void)
 			AZ(nomsg);
 			vcl_KillBackends(vcl);
 			free(vcl->loaded_name);
-			FREE_OBJ(vcl->vdire);
 			VCL_Close(&vcl);
 			VSC_C_main->n_vcl--;
 			VSC_C_main->n_vcl_discard--;
@@ -1032,6 +1032,7 @@ vcl_cli_discard(struct cli *cli, const char * const *av, void *priv)
 	if (!strcmp(vcl->state, VCL_TEMP_LABEL->name)) {
 		VTAILQ_REMOVE(&vcl_head, vcl, list);
 		free(vcl->loaded_name);
+		AZ(vcl->vdire);
 		FREE_OBJ(vcl);
 	} else if (vcl->temp == VCL_TEMP_COLD) {
 		VCL_Poll();
