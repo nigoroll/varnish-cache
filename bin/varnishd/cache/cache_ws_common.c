@@ -88,6 +88,7 @@ WS_Rollback(struct ws *ws, uintptr_t pp)
 
 	if (pp == 0)
 		pp = (uintptr_t)ws->s;
+	ws->h = NULL;
 	ws_ClearOverflow(ws);
 	WS_Reset(ws, pp);
 }

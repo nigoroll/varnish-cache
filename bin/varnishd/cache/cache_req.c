@@ -283,6 +283,12 @@ Req_Cleanup(struct sess *sp, struct worker *wrk, struct req *req)
 
 	/* Charge and log byte counters */
 	if (!IS_NO_VXID(req->vsl->wid)) {
+		VSLb(req->vsl, SLT_Debug, "wshwm client %u",
+		     WS_High(req->ws));
+		VSLb(req->vsl, SLT_Debug, "wshwm session %u",
+		     WS_High(req->sp->ws));
+		VSLb(req->vsl, SLT_Debug, "wshwm thread %u",
+		     WS_High(wrk->aws));
 		Req_AcctLogCharge(wrk->stats, req);
 		if (!IS_SAME_VXID(req->vsl->wid, sp->vxid))
 			VSL_End(req->vsl);
