@@ -152,13 +152,14 @@ static void
 vcc_strands_edit(const struct expr *e1, const struct expr *e2)
 {
 
-	if (e2->nstr == 1) {
+	if (e2->nstr == 0)
+		VSB_printf(e1->vsb, "vrt_null_strands");
+	else if (e2->nstr == 1)
 		VSB_printf(e1->vsb, "TOSTRAND(%s)", VSB_data(e2->vsb));
-		return;
+	else {
+		VSB_printf(e1->vsb, "TOSTRANDS(%d,\v+\n%s\v-)",
+		   e2->nstr, VSB_data(e2->vsb));
 	}
-
-	VSB_printf(e1->vsb, "TOSTRANDS(%d,\v+\n%s\v-)",
-	    e2->nstr, VSB_data(e2->vsb));
 }
 
 static struct expr *
