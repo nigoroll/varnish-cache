@@ -110,13 +110,15 @@ ACC_reopen_sockets(void)
 	return (fail);
 }
 
-/*--------------------------------------------------------------------*/
+/*--------------------------------------------------------------------
+ * [name=][kind,][listen_address[,PROTO|,option=value,...]]
+ */
 
 void
 ACC_Arg(const char *spec)
 {
-	struct acceptor *acc;
-	char **av;
+	struct acceptor *acc = NULL;
+	char **av, **ap;
 	struct listen_arg *la;
 	const char *err;
 	int error;
@@ -126,12 +128,19 @@ ACC_Arg(const char *spec)
 
 	av = MGT_NamedArg(spec, &name, "-a");
 	AN(av);
+	ap = av + 1;
 
 	ALLOC_OBJ(la, LISTEN_ARG_MAGIC);
 	AN(la);
 	VTAILQ_INIT(&la->socks);
 	VTAILQ_INSERT_TAIL(&listen_args, la, list);
-	la->endpoint = av[1];
+
+	if (ap[0] != NULL && ap[1] != NULL)
+		acc = ACC_Find(*ap);
+	if (acc != NULL)
+		ap++;
+
+	la->endpoint = *(ap++);
 
 	if (name == NULL) {
 		bprintf(name_buf, "a%u", seq++);
@@ -141,13 +150,13 @@ ACC_Arg(const char *spec)
 
 	la->name = name;
 
-	if (VUS_is(la->endpoint))
+	if (acc == NULL && VUS_is(la->endpoint))
 		acc = ACC_Find("uds");
-	else
+	else if (acc == NULL)
 		acc = ACC_Find("tcp");
 
 	AN(acc);
-	error = acc->open(av + 2, la, &err);
+	error = acc->open(ap, la, &err);
 
 	if (error) {
 		ARGV_ERR("Got no socket(s) for %s=%s (%s)\n",
