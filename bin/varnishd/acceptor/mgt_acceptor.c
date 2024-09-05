@@ -45,7 +45,7 @@
 #include <grp.h>
 
 #include "mgt/mgt.h"
-#include "acceptor/cache_acceptor.h"
+#include "acceptor/cache_acceptor.h"	// XXX mgt_acceptor should not use
 #include "acceptor/mgt_acceptor.h"
 #include "common/heritage.h"
 
@@ -373,9 +373,11 @@ MAC_Arg(const char *spec)
 	if (VUS_is(la->endpoint))
 		error = VUS_resolver(av[1], mac_uds, la, &err);
 	else
-		error = VSS_resolver(av[1], "80", mac_tcp, la, &err);
+		error = VSS_resolver_range(av[1], "80", mac_tcp, la, &err);
 
-	if (VTAILQ_EMPTY(&la->socks) || error)
+	if (error)
+		ARGV_ERR("Got no socket(s) for %s (%s)\n", av[1], err);
+	else if (VTAILQ_EMPTY(&la->socks))
 		ARGV_ERR("Got no socket(s) for %s\n", av[1]);
 	VAV_Free(av);
 }
