@@ -147,7 +147,7 @@ ACC_Arg(const char *spec)
 		acc = ACC_Find("tcp");
 
 	AN(acc);
-	error = acc->open(av, la, &err);
+	error = acc->open(av + 2, la, &err);
 
 	if (error)
 		ARGV_ERR("Got no socket(s) for %s (%s)\n", av[1], err);
