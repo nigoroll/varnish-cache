@@ -55,6 +55,7 @@ struct listen_sock {
 	unsigned			test_heritage;
 	struct conn_heritage		*conn_heritage;
 	struct acceptor			*acc;
+	void				*acc_priv;
 };
 
 VTAILQ_HEAD(listen_sock_head, listen_sock);
