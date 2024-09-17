@@ -339,9 +339,7 @@ VCC_SymbolGet(struct vcc *tl, vcc_ns_t ns, vcc_kind_t kind,
 		return (sym);
 	AN(st);
 	AN(tn);
-	if ((sym != NULL && kind != SYM_NONE && kind != sym->kind &&
-	     vcc_IdIs(tl->t, "default")) ||
-	    (sym == NULL && e == SYMTAB_CREATE))
+	if (sym == NULL && e == SYMTAB_CREATE)
 		sym = vcc_new_symbol(tl, st, kind, tl->syntax, tl->syntax);
 	tl->t = vcc_PeekTokenFrom(tl, tn);
 	if (tl->err)
@@ -602,7 +600,7 @@ VCC_HandleSymbol(struct vcc *tl, vcc_type_t fmt)
 		AN(sym->def_b);
 		vcc_ErrWhere(tl, sym->def_b);
 		return (sym);
-	} else if (sym != NULL && sym->kind != kind && ! vcc_IdIs(t, "default")) {
+	} else if (sym != NULL && sym->kind != kind) {
 		VSB_printf(tl->sb,
 		    "Name %.*s must have type '%s'.\n",
 		    PF(t), sym->kind->name);
