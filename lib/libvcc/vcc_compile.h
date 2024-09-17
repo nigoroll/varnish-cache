@@ -121,6 +121,7 @@ struct type {
 	int			stringform;
 	int			bodyform;
 	int			noindent;
+	int			can_default;
 };
 
 #define VCC_TYPE(UC, lc)	extern const struct type UC[1];

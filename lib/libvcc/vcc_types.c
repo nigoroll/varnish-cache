@@ -73,6 +73,7 @@ const struct type BACKEND[1] = {{
 	.methods =		backend_methods,
 	.global_pfx =		"vgc_backend",
 	.tostring =		"VRT_BACKEND_string(\v1)",
+	.can_default =		1,
 }};
 
 const struct type BLOB[1] = {{
@@ -148,6 +149,7 @@ const struct type PROBE[1] = {{
 	.magic =		TYPE_MAGIC,
 	.name =			"PROBE",
 	.global_pfx =		"vgc_probe",
+	.can_default =		1,
 }};
 
 const struct type REAL[1] = {{
@@ -242,6 +244,11 @@ vcc_type_init(struct vcc *tl, vcc_type_t type)
 	const struct vcc_method *vm;
 	struct symbol *sym;
 	struct vsb *buf;
+
+	if (type->can_default) {
+		AN(VCC_MkSym(tl, "default", SYM_MAIN, VCC_HandleKind(type),
+		    VCL_LOW, VCL_HIGH));
+	}
 
 	/* NB: Don't bother even creating a type symbol if there are no
 	 * methods attached to it.

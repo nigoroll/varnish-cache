@@ -453,6 +453,8 @@ VCC_MkSym(struct vcc *tl, const char *b, vcc_ns_t ns, vcc_kind_t kind,
 	st = vcc_symtab_str(tl->syms[ns->id], b, NULL, ID);
 	AN(st);
 	sym = vcc_sym_in_tab(tl, st, kind, vlo, vhi);
+	if (sym != NULL && sym->kind != SYM_VAR)
+		return (sym);
 	if (sym != NULL) {
 		assert(sym->kind == SYM_VAR);
 		parent = sym->eval_priv;
