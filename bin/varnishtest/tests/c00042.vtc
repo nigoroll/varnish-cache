@@ -48,13 +48,13 @@ varnish v2 -cliok "param.set debug +syncvsl"
 varnish v1 -vcl {
 	backend v2 { .host = "${v2_addr}"; .port = "${v2_port}"; }
 	backend s1 { .via = v2; .host = "${s1_addr}"; .port = "${s1_port}"; }
-	backend s2 { .via = v2; .host = "${s2_addr}"; .port = "${s2_port}"; }
+	backend default { .via = v2; .host = "${s2_addr}"; .port = "${s2_port}"; }
 
 	sub vcl_recv {
 		if (req.url ~ "^/s1/") {
 			set req.backend_hint = s1;
 		} else if (req.url ~ "^/s2/") {
-			set req.backend_hint = s2;
+			set req.backend_hint = default;
 		} else {
 			return (synth(400));
 		}

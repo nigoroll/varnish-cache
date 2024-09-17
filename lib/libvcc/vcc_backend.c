@@ -720,31 +720,26 @@ vcc_ParseBackend(struct vcc *tl)
 	ERRCHK(tl);
 
 	t_be = tl->t;
-	if (vcc_IdIs(tl->t, "default")) {
+
+	sym = VCC_HandleSymbol(tl, BACKEND);
+	ERRCHK(tl);
+	AN(sym);
+	dn = sym->rname;
+
+	if (vcc_IdIs(t_be, "default")) {
 		if (tl->first_director != NULL) {
 			tl->first_director->noref = 0;
 			tl->first_director = NULL;
 			tl->default_director = NULL;
 		}
-		if (tl->default_director != NULL) {
-			VSB_cat(tl->sb,
-			    "Only one default director possible.\n");
-			vcc_ErrWhere(tl, t_first);
-			return;
-		}
-		vcc_NextToken(tl);
+		// VCC_HandleSymbol() fails for redefined symbol
+		AZ(tl->default_director);
 		dn = "vgc_backend_default";
 		tl->default_director = dn;
-	} else {
-		sym = VCC_HandleSymbol(tl, BACKEND);
-		ERRCHK(tl);
-		AN(sym);
-		dn = sym->rname;
-		if (tl->default_director == NULL) {
-			tl->first_director = sym;
-			tl->default_director = dn;
-			sym->noref = 1;
-		}
+	} else if (tl->default_director == NULL) {
+		tl->first_director = sym;
+		tl->default_director = dn;
+		sym->noref = 1;
 	}
 	Fh(tl, 0, "\nstatic VCL_BACKEND %s;\n", dn);
 	vcc_ParseHostDef(tl, sym, t_be, dn);

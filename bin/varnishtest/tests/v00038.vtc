@@ -99,7 +99,7 @@ varnish v1 -errvcl "No default probe defined" {
 	}
 }
 
-varnish v1 -errvcl "Only one default director possible." {
+varnish v1 -errvcl "Backend 'default' redefined." {
 	backend b1 { .host = "${localhost}"; }
 	backend default { .host = "${localhost}"; }
 	backend default { .host = "${localhost}"; }
