@@ -42,14 +42,14 @@
 
 #include "cache_http1.h"
 
-static int
+static struct v1l *
 v1f_stackv1l(struct vdp_ctx *vdc, struct busyobj *bo)
 {
 	struct vrt_ctx ctx[1];
 
 	INIT_OBJ(ctx, VRT_CTX_MAGIC);
 	VCL_Bo2Ctx(ctx, bo);
-	return (VDP_Push(ctx, vdc, ctx->ws, VDP_v1l, NULL));
+	return (V1L_Push(ctx, vdc, bo->htc->rfd, nan(""), 0));
 }
 
 /*--------------------------------------------------------------------
@@ -67,9 +67,10 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 	struct http *hp;
 	stream_close_t sc;
 	ssize_t i;
-	uint64_t bytes, hdrbytes;
+	uint64_t hdrbytes;
 	struct http_conn *htc;
 	struct vdp_ctx vdc[1];
+	struct v1l *v1l;
 	intmax_t cl;
 
 	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
@@ -103,7 +104,8 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 		htc->doclose = SC_OVERLOAD;
 		return (-1);
 	}
-	if (v1f_stackv1l(vdc, bo)) {
+	v1l = v1f_stackv1l(vdc, bo);
+	if (v1l == NULL) {
 		VSLb(bo->vsl, SLT_FetchError, "Failure to push V1L");
 		VSLb_ts_busyobj(bo, "Bereq", W_TIM_real(wrk));
 		(void) VDP_Close(vdc, NULL, NULL);
@@ -118,8 +120,7 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 	VTCP_blocking(*htc->rfd);	/* XXX: we should timeout instead */
 	/* XXX: need a send_timeout for the backend side */
 	// XXX cache_param->http1_iovs ?
-	V1L_Open(wrk, wrk->aws, htc->rfd, bo->vsl, nan(""), 0);
-	hdrbytes = HTTP1_Write(wrk, hp, HTTP1_Req);
+	hdrbytes = HTTP1_Write(v1l, hp, HTTP1_Req);
 
 	/* Deal with any message-body the request might (still) have */
 	i = 0;
@@ -132,7 +133,7 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 	} else if (bo->req != NULL &&
 	    bo->req->req_body_status != BS_NONE) {
 		if (cl < 0)
-			V1L_Chunked(wrk);
+			V1L_Chunked(v1l);
 		i = VRB_Iterate(wrk, bo->vsl, bo->req, VDP_ObjIterate, vdc);
 
 		if (bo->req->req_body_status != BS_CACHED)
@@ -155,10 +156,10 @@ V1F_SendReq(struct worker *wrk, struct busyobj *bo, uint64_t *ctr_hdrbytes,
 			bo->req->doclose = SC_RX_BODY;
 		}
 		if (cl < 0)
-			V1L_EndChunk(wrk);
+			V1L_EndChunk(v1l);
 	}
 
-	sc = V1L_Close(wrk, &bytes);
+	sc = V1L_Flush(v1l);
 	CHECK_OBJ_NOTNULL(sc, STREAM_CLOSE_MAGIC);
 
 	/* Bytes accounting */

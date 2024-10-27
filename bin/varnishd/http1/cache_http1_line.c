@@ -75,28 +75,57 @@ struct v1l {
  * otherwise, up to niov
  */
 
-void
-V1L_Open(struct worker *wrk, struct ws *ws, int *fd, struct vsl_log *vsl,
-    vtim_real deadline, unsigned niov)
+struct v1l_arg {
+	unsigned		magic;
+#define V1L_ARG_MAGIC		0xe1aedba6
+	unsigned		niov;
+	int			*fd;
+	vtim_real		deadline;
+};
+
+/*
+ * note on priv:
+ *
+ * vdpepriv is &vdpe->priv from VDP_Push()
+ * vdpe->priv &priv from V1L_Push()
+ *
+ * So our arguments are in *vdpepriv
+ * We return the v1l in *vdpepriv and **vdpepriv to have it available
+ * in V1L_Push()
+ */
+
+static int v_matchproto_(vdp_init_f)
+v1l_init(VRT_CTX, struct vdp_ctx *vdc, void **vdpepriv)
 {
+	const struct v1l_arg *arg;
 	struct v1l *v1l;
 	unsigned u;
 	uintptr_t ws_snap;
+	struct ws *ws;
+	void **priv;
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	AZ(wrk->v1l);
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(vdc, VDP_CTX_MAGIC);
+	priv = *vdpepriv;
+	AN(priv);
+	CAST_OBJ_NOTNULL(arg, *priv, V1L_ARG_MAGIC);
+
+	CHECK_OBJ_NOTNULL(vdc->wrk, WORKER_MAGIC);
+	ws = vdc->wrk->aws;
 
 	if (WS_Overflowed(ws))
-		return;
+		return (-1);
 
-	if (niov != 0)
-		assert(niov >= 3);
+	if (arg->niov != 0)
+		assert(arg->niov >= 3);
 
 	ws_snap = WS_Snapshot(ws);
 
 	v1l = WS_Alloc(ws, sizeof *v1l);
-	if (v1l == NULL)
-		return;
+	if (v1l == NULL) {
+		WS_Rollback(ws, ws_snap);
+		return (-1);
+	}
 	INIT_OBJ(v1l, V1L_MAGIC);
 
 	v1l->ws = ws;
@@ -105,46 +134,69 @@ V1L_Open(struct worker *wrk, struct ws *ws, int *fd, struct vsl_log *vsl,
 	u = WS_ReserveLumps(ws, sizeof(struct iovec));
 	if (u < 3) {
 		/* Must have at least 3 in case of chunked encoding */
-		WS_Release(ws, 0);
+		WS_Rollback(ws, ws_snap);
 		WS_MarkOverflow(ws);
-		return;
+		return (-1);
 	}
 	if (u > IOV_MAX)
 		u = IOV_MAX;
-	if (niov != 0 && u > niov)
-		u = niov;
+	if (arg->niov != 0 && u > arg->niov)
+		u = arg->niov;
 	v1l->iov = WS_Reservation(ws);
 	v1l->siov = u;
 	v1l->ciov = u;
-	v1l->wfd = fd;
-	v1l->deadline = deadline;
-	v1l->vsl = vsl;
+	v1l->wfd = arg->fd;
+	v1l->deadline = arg->deadline;
+	v1l->vsl = vdc->vsl;
 	v1l->werr = SC_NULL;
 
-	AZ(wrk->v1l);
-	wrk->v1l = v1l;
-
 	WS_Release(ws, u * sizeof(struct iovec));
+	*priv = v1l;
+	*vdpepriv = v1l;
+	return (0);
 }
 
-stream_close_t
-V1L_Close(struct worker *wrk, uint64_t *cnt)
+/*
+ * wrapper to translate arguments into arg struct for clarity and isolation
+ */
+struct v1l *
+V1L_Push(VRT_CTX, struct vdp_ctx *vdc, int *fd, vtim_real deadline, unsigned niov)
+{
+	struct v1l_arg arg[1];
+	struct v1l *v1l;
+	void *priv;
+	int r;
+
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
+	CHECK_OBJ_NOTNULL(vdc, VDP_CTX_MAGIC);
+
+	INIT_OBJ(arg, V1L_ARG_MAGIC);
+	arg->niov = niov;
+	arg->fd = fd;
+	arg->deadline = deadline;
+
+	priv = arg;
+	r = VDP_Push(ctx, vdc, ctx->ws, VDP_v1l, &priv);
+	if (r != 0)
+		return (NULL);
+	CAST_OBJ_NOTNULL(v1l, priv, V1L_MAGIC);
+	return (v1l);
+}
+
+static int v_matchproto_(vdp_fini_f)
+v1l_fini(struct vdp_ctx *vdc, void **priv)
 {
 	struct v1l *v1l;
 	struct ws *ws;
 	uintptr_t ws_snap;
-	stream_close_t sc;
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	AN(cnt);
-	sc = V1L_Flush(wrk);
-	TAKE_OBJ_NOTNULL(v1l, &wrk->v1l, V1L_MAGIC);
-	*cnt = v1l->cnt;
+	(void)vdc;
+	TAKE_OBJ_NOTNULL(v1l, priv, V1L_MAGIC);
 	ws = v1l->ws;
 	ws_snap = v1l->ws_snap;
 	ZERO_OBJ(v1l, sizeof *v1l);
 	WS_Rollback(ws, ws_snap);
-	return (sc);
+	return (0);
 }
 
 static void
@@ -172,15 +224,12 @@ v1l_prune(struct v1l *v1l, size_t bytes)
 }
 
 stream_close_t
-V1L_Flush(const struct worker *wrk)
+V1L_Flush(struct v1l *v1l)
 {
 	ssize_t i;
 	int err;
-	struct v1l *v1l;
 	char cbuf[32];
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	v1l = wrk->v1l;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
 	CHECK_OBJ_NOTNULL(v1l->werr, STREAM_CLOSE_MAGIC);
 	AN(v1l->wfd);
@@ -266,12 +315,8 @@ V1L_Flush(const struct worker *wrk)
 }
 
 size_t
-V1L_Write(const struct worker *wrk, const void *ptr, ssize_t len)
+V1L_Write(struct v1l *v1l, const void *ptr, ssize_t len)
 {
-	struct v1l *v1l;
-
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	v1l = wrk->v1l;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
 	AN(v1l->wfd);
 	if (len == 0 || *v1l->wfd < 0)
@@ -285,19 +330,16 @@ V1L_Write(const struct worker *wrk, const void *ptr, ssize_t len)
 	v1l->niov++;
 	v1l->cliov += len;
 	if (v1l->niov >= v1l->siov) {
-		(void)V1L_Flush(wrk);
+		(void)V1L_Flush(v1l);
 		VSC_C_main->http1_iovs_flush++;
 	}
 	return (len);
 }
 
 void
-V1L_Chunked(const struct worker *wrk)
+V1L_Chunked(struct v1l *v1l)
 {
-	struct v1l *v1l;
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	v1l = wrk->v1l;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
 
 	assert(v1l->ciov == v1l->siov);
@@ -307,7 +349,7 @@ V1L_Chunked(const struct worker *wrk)
 	 * a chunk tail, we might as well flush right away.
 	 */
 	if (v1l->niov + 3 >= v1l->siov) {
-		(void)V1L_Flush(wrk);
+		(void)V1L_Flush(v1l);
 		VSC_C_main->http1_iovs_flush++;
 	}
 	v1l->siov--;
@@ -325,21 +367,18 @@ V1L_Chunked(const struct worker *wrk)
  */
 
 void
-V1L_EndChunk(const struct worker *wrk)
+V1L_EndChunk(struct v1l *v1l)
 {
-	struct v1l *v1l;
 
-	CHECK_OBJ_NOTNULL(wrk, WORKER_MAGIC);
-	v1l = wrk->v1l;
 	CHECK_OBJ_NOTNULL(v1l, V1L_MAGIC);
 
 	assert(v1l->ciov < v1l->siov);
-	(void)V1L_Flush(wrk);
+	(void)V1L_Flush(v1l);
 	v1l->siov++;
 	v1l->ciov = v1l->siov;
 	v1l->niov = 0;
 	v1l->cliov = 0;
-	(void)V1L_Write(wrk, "0\r\n\r\n", -1);
+	(void)V1L_Write(v1l, "0\r\n\r\n", -1);
 }
 
 /*--------------------------------------------------------------------
@@ -353,13 +392,12 @@ v1l_bytes(struct vdp_ctx *vdc, enum vdp_action act, void **priv,
 	ssize_t wl = 0;
 
 	CHECK_OBJ_NOTNULL(vdc, VDP_CTX_MAGIC);
-	(void)priv;
 
 	AZ(vdc->nxt);		/* always at the bottom of the pile */
 
 	if (len > 0)
-		wl = V1L_Write(vdc->wrk, ptr, len);
-	if (act > VDP_NULL && V1L_Flush(vdc->wrk) != SC_NULL)
+		wl = V1L_Write(*priv, ptr, len);
+	if (act > VDP_NULL && V1L_Flush(*priv) != SC_NULL)
 		return (-1);
 	if (len != wl)
 		return (-1);
@@ -368,5 +406,7 @@ v1l_bytes(struct vdp_ctx *vdc, enum vdp_action act, void **priv,
 
 const struct vdp * const VDP_v1l = &(struct vdp){
 	.name =		"V1B",
+	.init =		v1l_init,
 	.bytes =	v1l_bytes,
+	.fini =		v1l_fini
 };
