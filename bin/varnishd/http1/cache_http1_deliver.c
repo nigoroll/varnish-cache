@@ -62,10 +62,21 @@ v1d_error(struct req *req, struct boc *boc, const char *msg)
 /*--------------------------------------------------------------------
  */
 
+static struct v1l *
+v1d_stackv1l(struct req *req)
+{
+	struct vrt_ctx ctx[1];
+
+	INIT_OBJ(ctx, VRT_CTX_MAGIC);
+	VCL_Req2Ctx(ctx, req);
+	return (V1L_Push(ctx, req->vdc, &req->sp->fd,
+	    req->t_prev + SESS_TMO(req->sp, send_timeout),
+	    cache_param->http1_iovs));
+}
+
 void v_matchproto_(vtr_deliver_f)
 V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 {
-	struct vrt_ctx ctx[1];
 	struct v1l *v1l;
 	int err = 0, chunked = 0;
 	stream_close_t sc;
@@ -86,11 +97,7 @@ V1D_Deliver(struct req *req, struct boc *boc, int sendbody)
 	} else if (!http_GetHdr(req->resp, H_Connection, NULL))
 		http_SetHeader(req->resp, "Connection: keep-alive");
 
-	INIT_OBJ(ctx, VRT_CTX_MAGIC);
-	VCL_Req2Ctx(ctx, req);
-	v1l = V1L_Push(ctx, req->vdc, &req->sp->fd,
-	    req->t_prev + SESS_TMO(req->sp, send_timeout),
-	    cache_param->http1_iovs);
+	v1l = v1d_stackv1l(req);
 	if (v1l == NULL) {
 		v1d_error(req, boc, "Failure to push v1d processor: workspace_thread or "
 		    "workspace_client overflow");
