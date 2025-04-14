@@ -701,15 +701,11 @@ typedef const struct {
 	const char	str[];
 } *hdr_t;
 
-/*lint -save -e740 -e754 */
-
 #define HDR(name)							\
 	((hdr_t)&(const struct {					\
 		unsigned char _l;					\
 		char _s[sizeof(name ":")];				\
 	}){ sizeof(name), name ":" })
-
-/*lint -restore */
 
 #define CHECK_HDR(hdr)							\
 	do {								\
