@@ -73,7 +73,7 @@ struct rush {
 };
 
 static const struct hash_slinger *hash;
-static struct objhead *private_oh;
+static struct objhead *private_ohs[1024];
 
 static void hsh_rush1(const struct worker *, struct objhead *,
     struct rush *, int);
@@ -135,7 +135,13 @@ struct objcore *
 HSH_Private(const struct worker *wrk)
 {
 	struct objcore *oc;
+	static unsigned hack = 0;
+	struct objhead *private_oh;
+	unsigned u;
 
+	// XXX HACK NOT ATOMIC
+	u = hack++ % (sizeof private_ohs / sizeof *private_ohs);
+	private_oh = private_ohs[u];
 	CHECK_OBJ_NOTNULL(private_oh, OBJHEAD_MAGIC);
 
 	oc = ObjNew(wrk);
@@ -1108,7 +1114,7 @@ hsh_deref_objhead_unlock(struct worker *wrk, struct objhead **poh, int max)
 
 	Lck_AssertHeld(&oh->mtx);
 
-	if (oh == private_oh) {
+	if (oh->flags) {
 		assert(VTAILQ_EMPTY(&oh->waitinglist));
 		assert(oh->refcnt > 1);
 		oh->refcnt--;
@@ -1146,11 +1152,16 @@ hsh_deref_objhead(struct worker *wrk, struct objhead **poh)
 void
 HSH_Init(const struct hash_slinger *slinger)
 {
+	unsigned u;
 
 	assert(DIGEST_LEN == VSHA256_LEN);	/* avoid #include pollution */
 	hash = slinger;
 	if (hash->start != NULL)
 		hash->start();
-	private_oh = hsh_newobjhead();
-	private_oh->refcnt = 1;
+
+	for (u = 0; u < sizeof private_ohs / sizeof *private_ohs; u++) {
+		private_ohs[u] = hsh_newobjhead();
+		private_ohs[u]->refcnt = 1;
+		private_ohs[u]->flags = 1;
+	}
 }

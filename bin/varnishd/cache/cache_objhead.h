@@ -35,6 +35,7 @@ struct hash_slinger;
 struct objhead {
 	unsigned		magic;
 #define OBJHEAD_MAGIC		0x1b96615d
+	unsigned		flags;
 
 	int			refcnt;
 	struct lock		mtx;
