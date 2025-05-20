@@ -1015,11 +1015,11 @@ HSH_Unbusy(struct worker *wrk, struct objcore *oc)
 
 	/* NB: It is guaranteed that exactly one request is waiting for
 	 * the objcore for pass objects. The other reference is held by
-	 * the current fetch task.
+	 * the current fetch task. VMODs may take extra references.
 	 */
 	if (oc->flags & OC_F_PRIVATE) {
 		AZ(oc->flags & OC_F_BUSY);
-		assert(oc->refcnt == 2);
+		assert(oc->refcnt > 1);
 		return;
 	}
 
