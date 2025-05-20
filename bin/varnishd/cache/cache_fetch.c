@@ -708,7 +708,8 @@ vbf_stp_fetch(struct worker *wrk, struct busyobj *bo)
 
 	assert(oc->boc->state == BOS_REQ_DONE);
 
-	VBO_SetState(wrk, bo, BOS_STREAM);
+	if (bo->do_stream)
+		VBO_SetState(wrk, bo, BOS_STREAM);
 
 	VSLb(bo->vsl, SLT_Fetch_Body, "%u %s %s",
 	    bo->htc->body_status->nbr, bo->htc->body_status->name,
@@ -873,7 +874,8 @@ vbf_stp_condfetch(struct worker *wrk, struct busyobj *bo)
 		ObjSetFlag(bo->wrk, oc, OF_IMSCAND, 0);
 	AZ(ObjCopyAttr(bo->wrk, oc, stale_oc, OA_GZIPBITS));
 
-	VBO_SetState(wrk, bo, BOS_STREAM);
+	if (bo->do_stream)
+		VBO_SetState(wrk, bo, BOS_STREAM);
 
 	INIT_OBJ(vop, VBF_OBITER_PRIV_MAGIC);
 	vop->bo = bo;

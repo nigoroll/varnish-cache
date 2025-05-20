@@ -185,8 +185,7 @@ VBO_SetState(struct worker *wrk, struct busyobj *bo, enum boc_state_e next)
 		broadcast = bo->is_bgfetch;
 		break;
 	case BOS_STREAM:
-		if (!bo->do_stream)
-			return;		/* keep objcore busy */
+		AN(bo->do_stream);
 		AZ(bo->req);
 		/* fall through */
 	case BOS_FINISHED:
