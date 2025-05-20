@@ -705,6 +705,19 @@ hsh_rush1(const struct worker *wrk, struct objcore *oc, struct rush *r)
 		CHECK_OBJ_ORNULL(req, REQ_MAGIC);
 		if (req == NULL)
 			break;
+
+		/* NB: The waiting list is naturally sorted by generation.
+		 *
+		 * Because of the exponential nature of the rush, it is
+		 * possible that new requests enter the waiting list before
+		 * the rush for this oc completes. Because the OC_F_BUSY flag
+		 * was cleared before the beginning of the rush, requests
+		 * from a newer generation already got a chance to evaluate
+		 * oc during a lookup and it didn't match their criteria.
+		 *
+		 * Therefore there's no point propagating the exponential
+		 * rush of this oc when we see a newer generation.
+		 */
 		if (req->waitinglist_gen > oc->waitinglist_gen)
 			break;
 
