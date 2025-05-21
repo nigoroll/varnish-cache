@@ -53,4 +53,10 @@ client c1 {
 } -run
 
 vinyl v1 -expect backend_retry == 1
+vinyl v1 -expect MAIN.backend_closed == 1
+vinyl v1 -expect MAIN.backend_closed_err == 1
+vinyl v1 -expect MAIN.bc_rx_bad == 1
+vinyl v1 -expect MAIN.bc_rx_timeout == 0
+vinyl v1 -expect MAIN.bc_rem_close == 0
+
 logexpect l1 -wait
