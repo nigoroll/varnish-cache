@@ -40,3 +40,11 @@ vinyl v1 -expect MAIN.bc_tx_proxy == 0
 vinyl v1 -expect VBE.vcl1.default.conn == 0
 vinyl v1 -expect VBE.vcl1.default.req == 0
 vinyl v1 -expect VBE.vcl1.default.fail == 0
+vinyl v1 -expect VBE.vcl1.default.closed == 1
+vinyl v1 -expect VBE.vcl1.default.closed_err == 1
+
+vinyl v1 -expect VBE.vcl1.default.rx_bad == 0
+vinyl v1 -expect VBE.vcl1.default.rem_close == 0
+vinyl v1 -expect VBE.vcl1.default.rx_timeout == 0
+vinyl v1 -expect VBE.vcl1.default.tx_error == 1
+vinyl v1 -expect VBE.vcl1.default.tx_proxy == 0
