@@ -795,10 +795,12 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 			// flush if it is the scarab's last IOV and we will block next
 			// or if we need space in the return leases array
 			uu = u;
-			if ((islast && nn < 0) || scaret->used == scaret->capacity - 1 ||
-			    vio->iov.iov_base == null_iov)
+			if ((islast && nn < 0) || scaret->used == scaret->capacity - 1)
 				uu |= OBJ_ITER_FLUSH;
-			r = func(priv, uu, vio->iov.iov_base, vio->iov.iov_len);
+			if (vio->iov.iov_base == null_iov)
+				r = 0;
+			else
+				r = func(priv, uu, vio->iov.iov_base, vio->iov.iov_len);
 			if (r != 0)
 				break;
 
