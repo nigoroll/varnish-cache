@@ -311,7 +311,7 @@ sml_objfree(struct worker *wrk, struct objcore *oc)
 }
 
 // kept for reviewers - XXX remove later
-#define VAI_DBG
+#undef VAI_DBG
 
 struct sml_hdl {
 	struct vai_hdl_preamble	preamble;
