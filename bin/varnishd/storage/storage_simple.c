@@ -48,6 +48,7 @@
 
 // marker pointer for sml_trimstore
 static void *trim_once = &trim_once;
+static void *null_iov = &null_iov;
 
 /*-------------------------------------------------------------------*/
 
@@ -496,23 +497,16 @@ sml_ai_lease_boc(struct worker *wrk, vai_hdl vhdl, struct vscarab *scarab)
 			assert(state < BOS_FINISHED);
 	}
 	Lck_Lock(&hdl->boc->mtx);
-	if (hdl->st == NULL && hdl->last != NULL) {
-		/* when the "last" st completed, we did not yet have a next, so
-		 * resume from there. Because "last" might have been returned and
-		 * deleted, we can not just use the pointer, but rather need to
-		 * iterate the st list.
-		 * if we can not find "last", it also has been returned and
-		 * deleted, and the current write head (VTAILQ_LAST) is our next
-		 * st, which can also be null if we are done.
-		 */
-		VTAILQ_FOREACH_REVERSE(next, &hdl->obj->list, storagehead, list) {
-			if (next == hdl->last) {
-				hdl->st = VTAILQ_PREV(next, storagehead, list);
-				break;
-			}
-		}
+	if (hdl->st == NULL && hdl->last != NULL)
+		hdl->st = VTAILQ_PREV(hdl->last, storagehead, list);
+	if (hdl->last != NULL && state < BOS_FINISHED) {
+		viov = VSCARAB_GET(scarab);
+		AN(viov);
+		viov->iov.iov_base = null_iov;
+		viov->iov.iov_len = 0;
+		viov->lease = st2lease(hdl->last);
+		hdl->last = NULL;
 	}
-	hdl->last = NULL;
 	if (hdl->st == NULL) {
 		assert(hdl->returned == 0 || hdl->avail == hdl->returned);
 		hdl->st = VTAILQ_LAST(&hdl->obj->list, storagehead);
@@ -612,8 +606,6 @@ sml_ai_return(struct worker *wrk, vai_hdl vhdl, struct vscaret *scaret)
 		if (*p == VAI_LEASE_NORET)
 			continue;
 		CAST_OBJ_NOTNULL(st, lease2st(*p), STORAGE_MAGIC);
-		if (st == hdl->last)
-			continue;
 		VSCARET_ADD(todo, *p);
 	}
 	VSCARET_INIT(scaret, scaret->capacity);
@@ -803,7 +795,8 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 			// flush if it is the scarab's last IOV and we will block next
 			// or if we need space in the return leases array
 			uu = u;
-			if ((islast && nn < 0) || scaret->used == scaret->capacity - 1)
+			if ((islast && nn < 0) || scaret->used == scaret->capacity - 1 ||
+			    vio->iov.iov_base == null_iov)
 				uu |= OBJ_ITER_FLUSH;
 			r = func(priv, uu, vio->iov.iov_base, vio->iov.iov_len);
 			if (r != 0)
