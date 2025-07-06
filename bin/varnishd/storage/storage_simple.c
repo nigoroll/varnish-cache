@@ -541,7 +541,10 @@ sml_ai_lease_boc(struct worker *wrk, vai_hdl vhdl, struct vscarab *scarab)
 			VSLb(wrk->vsl, SLT_Debug, "off %zu + l %zu == space st %p next st %p stvprv %p",
 			    hdl->st_off, l, hdl->st, next, hdl->boc->stevedore_priv);
 #endif
-			viov->lease = st2lease(hdl->st);
+			if (hdl->last != NULL)
+				viov->lease = VAI_LEASE_NORET;
+			else
+				viov->lease = st2lease(hdl->st);
 			hdl->st_off = 0;
 			hdl->st = next;
 		}
