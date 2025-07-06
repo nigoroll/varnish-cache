@@ -48,6 +48,7 @@
 
 // marker pointer for sml_trimstore
 static void *trim_once = &trim_once;
+// for delayed return of hdl->last resume pointer
 static void *null_iov = &null_iov;
 
 /*-------------------------------------------------------------------*/
@@ -527,18 +528,18 @@ sml_ai_lease_boc(struct worker *wrk, vai_hdl vhdl, struct vscarab *scarab)
 		if (hdl->st_off + l == hdl->st->space) {
 			next = VTAILQ_PREV(hdl->st, storagehead, list);
 			AZ(hdl->last);
-			if (next == NULL)
+			if (next == NULL) {
 				hdl->last = hdl->st;
-			else
+				viov->lease = VAI_LEASE_NORET;
+			}
+			else {
 				CHECK_OBJ(next, STORAGE_MAGIC);
+				viov->lease = st2lease(hdl->st);
+			}
 #ifdef VAI_DBG
 			VSLb(wrk->vsl, SLT_Debug, "off %zu + l %zu == space st %p next st %p stvprv %p",
 			    hdl->st_off, l, hdl->st, next, hdl->boc->stevedore_priv);
 #endif
-			if (hdl->last != NULL)
-				viov->lease = VAI_LEASE_NORET;
-			else
-				viov->lease = st2lease(hdl->st);
 			hdl->st_off = 0;
 			hdl->st = next;
 		}
@@ -797,6 +798,8 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 			uu = u;
 			if ((islast && nn < 0) || scaret->used == scaret->capacity - 1)
 				uu |= OBJ_ITER_FLUSH;
+
+			// null iov with the only purpose to return the resume ptr lease
 			if (vio->iov.iov_base == null_iov)
 				r = 0;
 			else
