@@ -808,6 +808,11 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 			// sufficient space ensured by capacity check above
 			VSCARET_ADD(scaret, vio->lease);
 
+#ifdef VAI_DBG
+			VSLb(wrk->vsl, SLT_Debug, "len %zu scaret %u uu %u",
+			    vio->iov.iov_len, scaret->used, uu);
+#endif
+
 			// whenever we have flushed, return leases
 			if ((uu & OBJ_ITER_FLUSH) && scaret->used > 0)
 				ObjVAIreturn(wrk, hdl, scaret);
@@ -822,6 +827,9 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 
 		// we have now completed the scarab
 		VSCARAB_INIT(scarab, scarab->capacity);
+
+		VSLb(wrk->vsl, SLT_Debug, "r %d nn %d uu %u",
+		    r, nn, uu);
 
 		// flush before blocking if we did not already
 		if (r == 0 && (nn == -ENOBUFS || nn == -EAGAIN) &&
