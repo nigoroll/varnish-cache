@@ -624,7 +624,9 @@ sml_ai_return(struct worker *wrk, vai_hdl vhdl, struct vscaret *scaret)
 
 	VSCARET_FOREACH(p, todo) {
 		CAST_OBJ_NOTNULL(st, lease2st(*p), STORAGE_MAGIC);
+#ifdef VAI_DBG
 		VSLb(wrk->vsl, SLT_Debug, "ret %p", st);
+#endif
 		sml_stv_free(hdl->stv, st);
 	}
 }
