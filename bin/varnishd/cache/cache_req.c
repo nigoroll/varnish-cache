@@ -337,7 +337,7 @@ resp_u_storage(struct req *req)
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	HSH_DerefBoc(req->wrk, req->objcore);
-	(void)HSH_DerefObjCore(req->wrk, &req->objcore, 0);
+	(void)HSH_DerefObjCore(req->wrk, &req->objcore);
 }
 
 int
