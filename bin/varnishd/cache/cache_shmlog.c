@@ -218,6 +218,7 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 {
 	uint32_t *p;
 	uintmax_t t;
+	ssize_t off;
 	int err;
 
 	t = tmono();
@@ -248,11 +249,10 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 
 	*vsl_ptr = VSL_ENDMARKER;
 
-	while ((vsl_ptr - vsl_head->log) / vsl_segsize >
-	    vsl_segment_n % VSL_SEGMENTS) {
+	off = vsl_ptr - vsl_head->log;
+	while (off > vsl_head->boundary[vsl_segment_n % VSL_SEGMENTS]) {
 		vsl_segment_n++;
-		vsl_head->offset[vsl_segment_n % VSL_SEGMENTS] =
-		    vsl_ptr - vsl_head->log;
+		vsl_head->offset[vsl_segment_n % VSL_SEGMENTS] = off;
 	}
 
 	PTOK(pthread_mutex_unlock(&vsl_mtx));
@@ -704,8 +704,10 @@ VSM_Init(void)
 	vsl_head->segsize = vsl_segsize;
 	vsl_head->offset[0] = 0;
 	vsl_head->segment_n = vsl_segment_n;
-	for (u = 1; u < VSL_SEGMENTS; u++)
+	for (u = 1; u < VSL_SEGMENTS; u++) {
 		vsl_head->offset[u] = -1;
+		vsl_head->boundary[u - 1] = u * vsl_segsize - 1;
+	}
 	VWMB();
 	memcpy(vsl_head->marker, VSL_HEAD_MARKER, sizeof vsl_head->marker);
 }

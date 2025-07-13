@@ -62,6 +62,10 @@ struct VSL_head {
 	char			marker[8];
 	ssize_t			segsize;
 	unsigned		segment_n;
+	// offset: where the segment actually starts
 	ssize_t			offset[VSL_SEGMENTS];
+	// boundary: where the segment _should_ end. It might actually end a bit
+	// later for records crossing the boundary.
+	ssize_t			boundary[VSL_SEGMENTS - 1];
 	uint32_t		log[] v_counted_by_(segment_n);
 };
