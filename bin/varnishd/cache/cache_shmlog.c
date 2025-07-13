@@ -92,6 +92,7 @@ strands_cat(char *buf, unsigned bufl, const struct strands *s)
 
 /* These cannot be struct lock, which depends on vsm/vsl working */
 static pthread_mutex_t vsl_mtx;
+static pthread_mutex_t vslvsc_mtx;
 static pthread_mutex_t vsc_mtx;
 static pthread_mutex_t vsm_mtx;
 
@@ -232,12 +233,6 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 	assert(vsl_ptr < vsl_end);
 	AZ((uintptr_t)vsl_ptr & 0x3);
 
-	VSC_C_main->shm_writes++;
-	VSC_C_main->shm_flushes += flushes;
-	VSC_C_main->shm_records += records;
-	VSC_C_main->shm_bytes +=
-	    VSL_BYTES(VSL_OVERHEAD + VSL_WORDS((uint64_t)len));
-
 	/* Wrap if necessary */
 	if (VSL_END(vsl_ptr, len) >= vsl_end)
 		vsl_wrap();
@@ -262,10 +257,18 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 
 	t = tmono() - t;
 
+	PTOK(pthread_mutex_lock(&vslvsc_mtx));
+	VSC_C_main->shm_writes++;
+	VSC_C_main->shm_flushes += flushes;
+	VSC_C_main->shm_records += records;
+	VSC_C_main->shm_bytes +=
+	    VSL_BYTES(VSL_OVERHEAD + VSL_WORDS((uint64_t)len));
+
 	if (err)
 		VSC_C_main->shm_cont_ns += t;
 	else
 		VSC_C_main->shm_lucky_ns += t;
+	PTOK(pthread_mutex_unlock(&vslvsc_mtx));
 
 	return (p);
 }
@@ -672,6 +675,7 @@ VSM_Init(void)
 	assert(UINT_MAX % VSL_SEGMENTS == VSL_SEGMENTS - 1);
 
 	PTOK(pthread_mutex_init(&vsl_mtx, &mtxattr_errorcheck));
+	PTOK(pthread_mutex_init(&vslvsc_mtx, &mtxattr_errorcheck));
 	PTOK(pthread_mutex_init(&vsc_mtx, &mtxattr_errorcheck));
 	PTOK(pthread_mutex_init(&vsm_mtx, &mtxattr_errorcheck));
 
