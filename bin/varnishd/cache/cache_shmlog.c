@@ -223,6 +223,10 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 	int err;
 
 	t = tmono();
+
+	assert(vsl_ptr < vsl_end);
+	AZ((uintptr_t)vsl_ptr & 0x3);
+
 	err = pthread_mutex_trylock(&vsl_mtx);
 	if (err == EBUSY) {
 		PTOK(pthread_mutex_lock(&vsl_mtx));
@@ -230,8 +234,6 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 	} else {
 		AZ(err);
 	}
-	assert(vsl_ptr < vsl_end);
-	AZ((uintptr_t)vsl_ptr & 0x3);
 
 	/* Wrap if necessary */
 	if (VSL_END(vsl_ptr, len) >= vsl_end)
@@ -239,8 +241,6 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 
 	p = vsl_ptr;
 	vsl_ptr = VSL_END(vsl_ptr, len);
-	assert(vsl_ptr < vsl_end);
-	AZ((uintptr_t)vsl_ptr & 0x3);
 
 	*vsl_ptr = VSL_ENDMARKER;
 
@@ -251,6 +251,10 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 	}
 
 	PTOK(pthread_mutex_unlock(&vsl_mtx));
+
+	assert(vsl_ptr < vsl_end);
+	AZ((uintptr_t)vsl_ptr & 0x3);
+
 	/* Implicit VWMB() in mutex op ensures ENDMARKER and new table
 	   values are seen before new segment number */
 	vsl_head->segment_n = vsl_segment_n;
