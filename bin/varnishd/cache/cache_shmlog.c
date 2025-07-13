@@ -205,12 +205,22 @@ vsl_wrap(void)
  * Reserve bytes for a record, wrap if necessary
  */
 
+static inline uintmax_t
+tmono(void)
+{
+	struct timespec ts;
+	AZ(clock_gettime(CLOCK_MONOTONIC, &ts));
+	return ((uintmax_t)ts.tv_sec * (uintmax_t)1e9 + ts.tv_nsec);
+}
+
 static uint32_t *
 vsl_get(unsigned len, unsigned records, unsigned flushes)
 {
 	uint32_t *p;
+	uintmax_t t;
 	int err;
 
+	t = tmono();
 	err = pthread_mutex_trylock(&vsl_mtx);
 	if (err == EBUSY) {
 		PTOK(pthread_mutex_lock(&vsl_mtx));
@@ -249,6 +259,13 @@ vsl_get(unsigned len, unsigned records, unsigned flushes)
 	/* Implicit VWMB() in mutex op ensures ENDMARKER and new table
 	   values are seen before new segment number */
 	vsl_head->segment_n = vsl_segment_n;
+
+	t = tmono() - t;
+
+	if (err)
+		VSC_C_main->shm_cont_ns += t;
+	else
+		VSC_C_main->shm_lucky_ns += t;
 
 	return (p);
 }

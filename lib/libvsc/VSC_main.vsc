@@ -743,6 +743,13 @@
 
 	Number of times a write had to wait for the lock.
 
+.. varnish_vsc:: shm_cont_ns
+	:level:	diag
+	:oneliner:	nanoseconds spent in vsl_get() when contended
+
+.. varnish_vsc:: shm_lucky_ns
+	:level:	diag
+	:oneliner:	nanoseconds spent in vsl_get() when lucky (mtx free)
 
 .. varnish_vsc:: shm_cycles
 	:level:	diag
