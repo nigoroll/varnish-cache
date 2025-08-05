@@ -479,6 +479,11 @@ sml_ai_lease_boc(struct worker *wrk, vai_hdl vhdl, struct vscarab *scarab)
 		else
 			assert(state < BOS_FINISHED);
 	}
+#ifdef VAI_DBG
+	if (wrk->vsl)
+		VSLb(wrk->vsl, SLT_Debug, "vai salb st=%p last=%p av-ret=%zd",
+		    hdl->st, hdl->last, hdl->avail - hdl->returned);
+#endif
 	Lck_Lock(&hdl->boc->mtx);
 	if (hdl->st == NULL && hdl->last != NULL)
 		hdl->st = VTAILQ_PREV(hdl->last, storagehead, list);
@@ -801,8 +806,8 @@ sml_iterator(struct worker *wrk, struct objcore *oc,
 
 #ifdef VAI_DBG
 			if (wrk->vsl)
-				VSLb(wrk->vsl, SLT_Debug, "len %zu scaret %u uu %u",
-				    vio->iov.iov_len, scaret->used, uu);
+				VSLb(wrk->vsl, SLT_Debug, "len %zu scaret %u/%u uu %u",
+				    vio->iov.iov_len, scaret->used, scaret->capacity, uu);
 #endif
 
 			// whenever we have flushed, return leases
