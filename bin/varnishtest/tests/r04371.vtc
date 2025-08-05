@@ -1,0 +1,67 @@
+varnishtest "VAI streaming of a transient object"
+
+server s1 {
+	rxreq
+	txresp -nolen -hdr "Transfer-encoding: chunked"
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 4096
+	delay 0.1
+	chunkedlen 1024
+	delay 0.1
+	chunkedlen 1024
+	chunkedlen 0
+} -start
+
+varnish v1 \
+    -arg "-p fetch_chunksize=4k" \
+    -vcl+backend {
+	sub vcl_backend_response {
+		set beresp.uncacheable = true;
+	#	set beresp.transit_buffer = 4K;
+	}
+
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.bodylen == 79872
+} -start
+
+client c1 -wait
+

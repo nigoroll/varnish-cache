@@ -620,6 +620,7 @@ vbf_stp_fetchbody(struct worker *wrk, struct busyobj *bo)
 				est -= l;
 			else
 				est = 0;
+			usleep(90 * 1000);
 		}
 	} while (vfps == VFP_OK);
 

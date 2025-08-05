@@ -543,7 +543,7 @@ sml_ai_lease_boc(struct worker *wrk, vai_hdl vhdl, struct vscarab *scarab)
 	}
 
 	Lck_Unlock(&hdl->boc->mtx);
-	if (state != BOS_FINISHED && hdl->avail == hdl->returned) {
+	while (hdl->st == NULL && state != BOS_FINISHED && hdl->avail == hdl->returned) {
 		hdl->avail = ObjVAIGetExtend(wrk, hdl->oc, hdl->returned,
 		    &state, &hdl->qe);
 	}
