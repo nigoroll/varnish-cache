@@ -1,0 +1,147 @@
+[
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvdfp-pipe.git",
+        "rev": "197a08f",
+        "vmod": "libvdfp-pipe"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvdp-pesi.git",
+        "rev": "569dcd7",
+        "vmod": "libvdp-pesi"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvfp-brotli.git",
+        "rev": "d5b6ad3",
+        "vmod": "libvfp-brotli"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-all_healthy.git",
+        "rev": "e77f9df",
+        "vmod": "libvmod-all_healthy"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-blobdigest.git",
+        "rev": "v1.1-81-ge3e6c23",
+        "vmod": "libvmod-blobdigest"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-blobsynth.git",
+        "rev": "271eae2",
+        "vmod": "libvmod-blobsynth"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-cluster.git",
+        "rev": "be7b6b5",
+        "vmod": "libvmod-cluster"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-crypto.git",
+        "rev": "d815920",
+        "vmod": "libvmod-crypto"
+    },
+    {
+        "git": "https://github.com/nigoroll/libvmod-curl.git",
+        "rev": "libvmod-curl-1.0.3-41-ga31218c",
+        "vmod": "libvmod-curl"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-dispatch.git",
+        "rev": "617680c",
+        "vmod": "libvmod-dispatch"
+    },
+    {
+        "git": "https://github.com/nigoroll/libvmod-dns.git",
+        "rev": "f6259f7",
+        "vmod": "libvmod-dns"
+    },
+    {
+        "git": "https://github.com/nigoroll/libvmod-dynamic.git",
+        "rev": "branch-7.3-122-g738a582",
+        "vmod": "libvmod-dynamic"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-frozen.git",
+        "rev": "0617768",
+        "vmod": "libvmod-frozen"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-gcrypt.git",
+        "rev": "24fdabe",
+        "vmod": "libvmod-gcrypt"
+    },
+    {
+        "git": "https://github.com/nigoroll/libvmod-geoip2.git",
+        "rev": "487b83e",
+        "vmod": "libvmod-geoip2"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-hoailona.git",
+        "rev": "88913c7",
+        "vmod": "libvmod-hoailona"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-iconv.git",
+        "rev": "c258d9f",
+        "vmod": "libvmod-iconv"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-j.git",
+        "rev": "dd8a9a6",
+        "vmod": "libvmod-j"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-re.git",
+        "rev": "v2.6.0-100-g23a5626",
+        "vmod": "libvmod-re"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-re2.git",
+        "rev": "v1.6.1-66-g4f6863d",
+        "vmod": "libvmod-re2"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-selector.git",
+        "rev": "v2.6.0-23-gcd86dd4",
+        "vmod": "libvmod-selector"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-tus.git",
+        "rev": "4baae59",
+        "vmod": "libvmod-tus"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-weightadjust.git",
+        "rev": "e792e00",
+        "vmod": "libvmod-weightadjust"
+    },
+    {
+        "git": "https://github.com/xcir/libvmod-xcounter.git",
+        "rev": "v70.4-38-gfe4f5af",
+        "vmod": "libvmod-xcounter"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/libvmod-zipflow.git",
+        "rev": "593ddb7",
+        "vmod": "libvmod-zipflow"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/slash.git",
+        "rev": "c085c14",
+        "vmod": "slash"
+    },
+    {
+        "git": "https://github.com/nigoroll/varnish-modules.git",
+        "rev": "varnish-modules-0.18.0-126-g737d569",
+        "vmod": "varnish-modules"
+    },
+    {
+        "git": "https://code.uplex.de/uplex-varnish/varnish-objvar.git",
+        "rev": "7b8d384",
+        "vmod": "varnish-objvar"
+    },
+    {
+        "git": "https://git.sr.ht/~dridi/vmod-querystring",
+        "rev": "vmod-querystring-2.0.4-2-ga3dabb8",
+        "vmod": "vmod-querystring"
+    }
+]
