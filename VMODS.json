@@ -144,4 +144,9 @@
     "git": "https://git.sr.ht/~dridi/vmod-querystring",
     "branch": "master"
   }
+  {
+    "vmod": "file",
+    "git": "https://code.uplex.de/uplex-varnish/libvmod-file.git",
+    "branch": "master"
+  },
 ]
