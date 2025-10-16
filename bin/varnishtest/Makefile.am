@@ -8,8 +8,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_builddir)/include \
 	-I$(top_builddir) \
-	-I$(top_srcdir)/lib/libvgz \
-	-I$(srcdir)/vtest2/lib
+	-I$(top_srcdir)/lib/libvgz
 
 EXTRA_DIST = \
 	$(top_srcdir)/bin/varnishtest/tests/*.vtc \
@@ -21,6 +20,9 @@ EXTRA_DIST = \
 ##
 ## not indendet on purpose
 if HAVE_VTEST_SUBMODULE
+
+AM_CPPFLAGS += \
+	-I$(srcdir)/vtest2/lib
 
 EXTRA_DIST += \
 	$(srcdir)/vtest2/src/../tests/*.vtc \
@@ -135,10 +137,11 @@ lib_LTLIBRARIES = libvtc_varnish.la libvtc_builtwith.la libdummy.la
 # - remove feature tests now in builtwith from Vtest2 core
 # - remove pkg_version pkg_branch from Vtest2 core
 # - add libvtc_builtwith to Vtest2 as an example
+# - move docs to VTest2
 libvtc_varnish_la_SOURCES = \
-	vtest2/src/vtc_varnish.c \
-	vtest2/src/vtc_vsm.c \
-	vtest2/src/vtc_logexp.c \
+	vtc_varnish.c \
+	vtc_vsm.c \
+	vtc_logexp.c \
 	vtc_ext_varnish.c
 
 libvtc_varnish_la_CFLAGS = \
