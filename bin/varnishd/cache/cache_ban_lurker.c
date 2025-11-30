@@ -293,7 +293,7 @@ ban_lurker_test_ban(struct worker *wrk, struct ban *bt,
 			else {
 				AZ(bl->flags & BANS_FLAG_REQ);
 				tests = 0;
-				i = ban_evaluate(wrk, bl->spec, oc, NULL,
+				i = ban_evaluate(wrk, bl, oc, NULL,
 				    &tests);
 				tested++;
 				tested_tests += tests;

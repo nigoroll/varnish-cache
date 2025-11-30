@@ -614,7 +614,7 @@ ban_test(struct worker *wrk, const uint8_t **bs, struct objcore *oc, const struc
  */
 
 int
-ban_evaluate(struct worker *wrk, const uint8_t *bsarg, struct objcore *oc,
+ban_evaluate(struct worker *wrk, struct ban *b, struct objcore *oc,
     const struct http *reqhttp, unsigned *tests)
 {
 	const uint8_t *bs, *be;
@@ -629,6 +629,7 @@ ban_evaluate(struct worker *wrk, const uint8_t *bsarg, struct objcore *oc,
 	 * fix a point in time (such as "obj.ttl > 5h && obj.keep > 3h")
 	 */
 
+	const uint8_t *bsarg = b->spec;
 	bs = bsarg;
 	be = bs + ban_len(bs);
 	bs += BANS_HEAD_LEN;
@@ -702,7 +703,7 @@ BAN_CheckObject(struct worker *wrk, struct objcore *oc, struct req *req)
 		CHECK_OBJ_NOTNULL(b, BAN_MAGIC);
 		if (b->flags & BANS_FLAG_COMPLETED)
 			continue;
-		if (ban_evaluate(wrk, b->spec, oc, req->http, &tests))
+		if (ban_evaluate(wrk, b, oc, req->http, &tests))
 			break;
 	}
 
