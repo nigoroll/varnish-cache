@@ -40,6 +40,7 @@ DEBUG_BIT(SYNCVSL,		syncvsl,	"Make VSL synchronous")
 DEBUG_BIT(HASHEDGE,		hashedge,	"Edge cases in Hash")
 DEBUG_BIT(VCLREL,		vclrel,		"Rapid VCL release")
 DEBUG_BIT(LURKER,		lurker,		"VSL Ban lurker")
+DEBUG_BIT(BAN_PERF,		ban_perf,	"ban performance")
 DEBUG_BIT(ESI_CHOP,		esi_chop,	"Chop ESI fetch to bits")
 DEBUG_BIT(FLUSH_HEAD,		flush_head,	"Flush after http1 head") // XXX -> filter
 DEBUG_BIT(VTC_MODE,		vtc_mode,	"Varnishtest Mode")

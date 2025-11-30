@@ -125,6 +125,8 @@ struct ban {
 	unsigned		magic;
 #define BAN_MAGIC		0x700b08ea
 	unsigned		flags;		/* BANS_FLAG_* */
+	uint64_t		calls;
+	vtim_dur		calls_duration;
 	VTAILQ_ENTRY(ban)	list;
 	VTAILQ_ENTRY(ban)	l_list;
 	int64_t			refcount;

@@ -42,6 +42,7 @@
 #include "vcli_serve.h"
 #include "vend.h"
 #include "vmb.h"
+#include "vtim.h"
 
 /* cache_ban_build.c */
 void BAN_Build_Init(void);
@@ -618,7 +619,8 @@ ban_evaluate(struct worker *wrk, struct ban *b, struct objcore *oc,
     const struct http *reqhttp, unsigned *tests)
 {
 	const uint8_t *bs, *be;
-	int rv;
+	vtim_mono t0;
+	int rv = 1;
 
 	/*
 	 * for ttl, age and last_hit, fix the point in time such that banning
@@ -629,6 +631,8 @@ ban_evaluate(struct worker *wrk, struct ban *b, struct objcore *oc,
 	 * fix a point in time (such as "obj.ttl > 5h && obj.keep > 3h")
 	 */
 
+	t0 = VTIM_mono();
+
 	const uint8_t *bsarg = b->spec;
 	bs = bsarg;
 	be = bs + ban_len(bs);
@@ -636,10 +640,15 @@ ban_evaluate(struct worker *wrk, struct ban *b, struct objcore *oc,
 	while (bs < be) {
 		(*tests)++;
 		rv = ban_test(wrk, &bs, oc, reqhttp, bsarg);
+
 		if (rv == 0)
-			return (0);
+			break;
 	}
-	return (1);
+
+	// XXX not thread safe!
+	b->calls++;
+	b->calls_duration += VTIM_mono() - t0;
+	return (rv);
 }
 
 /*--------------------------------------------------------------------
@@ -878,6 +887,10 @@ ban_list(struct cli *cli, struct ban *bl)
 			    b);
 		}
 		VCLI_Out(cli, "  ");
+		if (DO_DEBUG(DBG_BAN_PERF)) {
+			VCLI_Out(cli, "%f ",
+			    b->calls ? b->calls_duration / b->calls : 0.0);
+		}
 		ban_render(cli, b->spec, 0);
 		VCLI_Out(cli, "\n");
 		if (VCLI_Overflow(cli))
