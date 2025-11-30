@@ -487,6 +487,128 @@ BAN_Time(const struct ban *b)
 	return (ban_time(b->spec));
 }
 
+static int
+ban_test(struct worker *wrk, const uint8_t **bs, struct objcore *oc, const struct http *reqhttp,
+    const uint8_t *bsarg)
+{
+	struct ban_test bt;
+	const char *p;
+	const char *arg1;
+	double darg1, darg2;
+	hdr_t hdr;
+	int rv;
+
+	ban_iter(bs, &bt);
+
+	arg1 = NULL;
+	darg1 = darg2 = nan("");
+	switch (bt.arg1) {
+	case BANS_ARG_URL:
+		AN(reqhttp);
+		arg1 = reqhttp->hd[HTTP_HDR_URL].b;
+		break;
+	case BANS_ARG_REQHTTP:
+		AN(reqhttp);
+		CAST_HDR(hdr, bt.arg1_spec);
+		(void)http_GetHdr(reqhttp, hdr, &p);
+		arg1 = p;
+		break;
+	case BANS_ARG_OBJHTTP:
+		CAST_HDR(hdr, bt.arg1_spec);
+		arg1 = HTTP_GetHdrPack(wrk, oc, hdr);
+		break;
+	case BANS_ARG_OBJSTATUS:
+		arg1 = HTTP_GetHdrPack(wrk, oc, H__Status);
+		break;
+	case BANS_ARG_OBJTTL:
+		darg1 = oc->ttl + oc->t_origin;
+		darg2 = bt.arg2_double + ban_time(bsarg);
+		break;
+	case BANS_ARG_OBJAGE:
+		darg1 = 0.0 - oc->t_origin;
+		darg2 = 0.0 - (ban_time(bsarg) - bt.arg2_double);
+		break;
+	case BANS_ARG_OBJGRACE:
+		darg1 = oc->grace;
+		darg2 = bt.arg2_double;
+		break;
+	case BANS_ARG_OBJKEEP:
+		darg1 = oc->keep;
+		darg2 = bt.arg2_double;
+		break;
+	case BANS_ARG_OBJLASTHIT:
+		if (isnan(oc->last_lru))
+			return (0);
+		darg1 = 0.0 - oc->last_lru;
+		darg2 = 0.0 - (ban_time(bsarg) - bt.arg2_double);
+		break;
+	default:
+		WRONG("Wrong BAN_ARG code");
+	}
+
+	switch (bt.oper) {
+	case BANS_OPER_EQ:
+		if (arg1 == NULL) {
+			if (isnan(darg1) || darg1 != darg2)
+				return (0);
+		} else if (strcmp(arg1, bt.arg2)) {
+			return (0);
+		}
+		break;
+	case BANS_OPER_NEQ:
+		if (arg1 == NULL) {
+			if (! isnan(darg1) && darg1 == darg2)
+				return (0);
+		} else if (!strcmp(arg1, bt.arg2)) {
+			return (0);
+		}
+		break;
+	case BANS_OPER_MATCH:
+		if (arg1 == NULL)
+			return (0);
+		rv = VRE_match(bt.arg2_spec, arg1, 0, 0, NULL);
+		xxxassert(rv >= -1);
+		if (rv < 0)
+			return (0);
+		break;
+	case BANS_OPER_NMATCH:
+		if (arg1 == NULL)
+			return (0);
+		rv = VRE_match(bt.arg2_spec, arg1, 0, 0, NULL);
+		xxxassert(rv >= -1);
+		if (rv >= 0)
+			return (0);
+		break;
+	case BANS_OPER_GT:
+		AZ(arg1);
+		assert(! isnan(darg1));
+		if (!(darg1 > darg2))
+			return (0);
+		break;
+	case BANS_OPER_GTE:
+		AZ(arg1);
+		assert(! isnan(darg1));
+		if (!(darg1 >= darg2))
+			return (0);
+		break;
+	case BANS_OPER_LT:
+		AZ(arg1);
+		assert(! isnan(darg1));
+		if (!(darg1 < darg2))
+			return (0);
+		break;
+	case BANS_OPER_LTE:
+		AZ(arg1);
+		assert(! isnan(darg1));
+		if (!(darg1 <= darg2))
+			return (0);
+		break;
+	default:
+		WRONG("Wrong BAN_OPER code");
+	}
+	return (1);
+}
+
 /*--------------------------------------------------------------------
  * Evaluate ban-spec
  */
@@ -495,12 +617,7 @@ int
 ban_evaluate(struct worker *wrk, const uint8_t *bsarg, struct objcore *oc,
     const struct http *reqhttp, unsigned *tests)
 {
-	struct ban_test bt;
 	const uint8_t *bs, *be;
-	const char *p;
-	const char *arg1;
-	double darg1, darg2;
-	hdr_t hdr;
 	int rv;
 
 	/*
@@ -517,113 +634,9 @@ ban_evaluate(struct worker *wrk, const uint8_t *bsarg, struct objcore *oc,
 	bs += BANS_HEAD_LEN;
 	while (bs < be) {
 		(*tests)++;
-		ban_iter(&bs, &bt);
-		arg1 = NULL;
-		darg1 = darg2 = nan("");
-		switch (bt.arg1) {
-		case BANS_ARG_URL:
-			AN(reqhttp);
-			arg1 = reqhttp->hd[HTTP_HDR_URL].b;
-			break;
-		case BANS_ARG_REQHTTP:
-			AN(reqhttp);
-			CAST_HDR(hdr, bt.arg1_spec);
-			(void)http_GetHdr(reqhttp, hdr, &p);
-			arg1 = p;
-			break;
-		case BANS_ARG_OBJHTTP:
-			CAST_HDR(hdr, bt.arg1_spec);
-			arg1 = HTTP_GetHdrPack(wrk, oc, hdr);
-			break;
-		case BANS_ARG_OBJSTATUS:
-			arg1 = HTTP_GetHdrPack(wrk, oc, H__Status);
-			break;
-		case BANS_ARG_OBJTTL:
-			darg1 = oc->ttl + oc->t_origin;
-			darg2 = bt.arg2_double + ban_time(bsarg);
-			break;
-		case BANS_ARG_OBJAGE:
-			darg1 = 0.0 - oc->t_origin;
-			darg2 = 0.0 - (ban_time(bsarg) - bt.arg2_double);
-			break;
-		case BANS_ARG_OBJGRACE:
-			darg1 = oc->grace;
-			darg2 = bt.arg2_double;
-			break;
-		case BANS_ARG_OBJKEEP:
-			darg1 = oc->keep;
-			darg2 = bt.arg2_double;
-			break;
-		case BANS_ARG_OBJLASTHIT:
-			if (isnan(oc->last_lru))
-				return (0);
-			darg1 = 0.0 - oc->last_lru;
-			darg2 = 0.0 - (ban_time(bsarg) - bt.arg2_double);
-			break;
-		default:
-			WRONG("Wrong BAN_ARG code");
-		}
-
-		switch (bt.oper) {
-		case BANS_OPER_EQ:
-			if (arg1 == NULL) {
-				if (isnan(darg1) || darg1 != darg2)
-					return (0);
-			} else if (strcmp(arg1, bt.arg2)) {
-				return (0);
-			}
-			break;
-		case BANS_OPER_NEQ:
-			if (arg1 == NULL) {
-				if (! isnan(darg1) && darg1 == darg2)
-					return (0);
-			} else if (!strcmp(arg1, bt.arg2)) {
-				return (0);
-			}
-			break;
-		case BANS_OPER_MATCH:
-			if (arg1 == NULL)
-				return (0);
-			rv = VRE_match(bt.arg2_spec, arg1, 0, 0, NULL);
-			xxxassert(rv >= -1);
-			if (rv < 0)
-				return (0);
-			break;
-		case BANS_OPER_NMATCH:
-			if (arg1 == NULL)
-				return (0);
-			rv = VRE_match(bt.arg2_spec, arg1, 0, 0, NULL);
-			xxxassert(rv >= -1);
-			if (rv >= 0)
-				return (0);
-			break;
-		case BANS_OPER_GT:
-			AZ(arg1);
-			assert(! isnan(darg1));
-			if (!(darg1 > darg2))
-				return (0);
-			break;
-		case BANS_OPER_GTE:
-			AZ(arg1);
-			assert(! isnan(darg1));
-			if (!(darg1 >= darg2))
-				return (0);
-			break;
-		case BANS_OPER_LT:
-			AZ(arg1);
-			assert(! isnan(darg1));
-			if (!(darg1 < darg2))
-				return (0);
-			break;
-		case BANS_OPER_LTE:
-			AZ(arg1);
-			assert(! isnan(darg1));
-			if (!(darg1 <= darg2))
-				return (0);
-			break;
-		default:
-			WRONG("Wrong BAN_OPER code");
-		}
+		rv = ban_test(wrk, &bs, oc, reqhttp, bsarg);
+		if (rv == 0)
+			return (0);
 	}
 	return (1);
 }
