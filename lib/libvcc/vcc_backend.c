@@ -214,8 +214,7 @@ vcc_ParseProbeSpec(struct vcc *tl, const struct symbol *sym, char **namep)
 		bprintf(buf, "vgc_probe__%d", tl->nprobe++);
 		name = buf;
 	}
-	Fh(tl, 0, "static const struct vrt_backend_probe * const %s =\n", name);
-	Fh(tl, 0, "    &(const struct vrt_backend_probe){\n");
+	Fh(tl, 0, "static const struct vrt_backend_probe %s_def = {\n", name);
 	Fh(tl, 0, "\t.magic = VRT_BACKEND_PROBE_MAGIC,\n");
 	if (sym != NULL) {
 		Fh(tl, 0, "\t.vcl_name = \"%s\",\n", sym->name);
@@ -341,6 +340,8 @@ vcc_ParseProbeSpec(struct vcc *tl, const struct symbol *sym, char **namep)
 		Fh(tl, 0, "\t.exp_status = %u,\n", status);
 	Fh(tl, 0, "\t.exp_close = %u,\n", exp_close);
 	Fh(tl, 0, "};\n");
+	Fh(tl, 0, "static const struct vrt_backend_probe * const %s = &%s_def;\n",
+		name, name);
 	SkipToken(tl, '}');
 }
 
@@ -556,7 +557,7 @@ vcc_ParseHostDef(struct vcc *tl, struct symbol *sym,
 				pb = PROBE->default_sym;
 			}
 			ERRCHK(tl);
-			Fb(tl, 0, "\t.probe = %s,\n", pb->rname);
+			Fb(tl, 0, "\t.probe = &%s_def,\n", pb->rname);
 			SkipToken(tl, ';');
 		} else if (vcc_IdIs(t_field, "probe")) {
 			VSB_cat(tl->sb, "Expected '{' or name of probe, got ");
