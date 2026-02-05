@@ -1,0 +1,32 @@
+vtest "vinyladm -x workdir"
+
+# happy paths
+shell {
+    # -x workdir
+	DEFAULT_WORKDIR=$(vinyladm -x workdir)
+	test -n "$DEFAULT_WORKDIR"
+
+	# -x workdir foo: returns dirname(DEFAULT_WORKDIR)/foo
+	WORKDIR_FOO=$(vinyladm -n foo -x workdir)
+	EXPECTED_FOO=$(dirname "$DEFAULT_WORKDIR")/foo
+	test "$WORKDIR_FOO" = "$EXPECTED_FOO"
+
+	# -x workdir /foo: returns /foo
+	WORKDIR_ABSOLUTE=$(vinyladm -n /foo -x workdir)
+	test "$WORKDIR_ABSOLUTE" = "/foo"
+}
+
+# missing -x argument
+shell -exit 1 -match "option requires an argument -- 'x'" {
+	vinyladm -x
+}
+
+# -x with invalid argument fails
+shell -exit 1 -match "Invalid -x argument" {
+	vinyladm -x invalid
+}
+
+# -x workdir with too many arguments is rejected
+shell -exit 1 -match "-x workdir must be the last argument" {
+	vinyladm -x workdir arg1 arg2
+}

@@ -44,6 +44,9 @@ Vinyl Cache X.Y (unreleased)
 * ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
   allows testing a  command line before running it for real.
 
+* ``vinyladm -x workdir`` will print the default work directory and exit. This
+  is useful for tools that need to discover the VSM location in most setups.
+
 ============================
 Vinyl Cache 9.0 (2026-03-16)
 ============================
