@@ -79,6 +79,7 @@ client c1 {
 
 server s1 -wait
 
+vinyl v1 -cliok "param.set vsl_buffer 4k"
 vinyl v1 -cliok "param.set workspace_client 12000"
 vinyl v1 -cliok "param.set workspace_backend 12000"
 
