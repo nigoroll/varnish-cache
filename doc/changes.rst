@@ -170,6 +170,9 @@ Vinyl Cache 9.0 (2026-03-16)
   times an HTTP/1.1 request with an absolute form request target has been
   handled.
 
+* The ``https_scheme`` parameter is now enabled by default to process
+  ``https://`` absolute form URLs by default.
+
 * The VCL variable ``beresp.storage_hint`` no longer exists.
 
 * The VAI interface gained
