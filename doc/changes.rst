@@ -153,6 +153,9 @@ Vinyl Cache 9.0 (2026-03-16)
 
   (`VSV18`_)
 
+* For requests to an absolute form URI, the host field is now required. Requests
+  without a host field are rejected with a Status 400 error.
+
 * The VCL variable ``beresp.storage_hint`` no longer exists.
 
 * The VAI interface gained
