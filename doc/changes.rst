@@ -151,6 +151,10 @@ Vinyl Cache 9.0 (2026-03-16)
 
   - The ``Host:`` header gets set to ``example.com``.
 
+  For an empty path with query parameters like ``http://example.com?/foo``,
+  ``req.url`` gets normalized by addition of the leading slash. For the example,
+  ``req.url`` would contain ``/?/foo``.
+
   (`VSV18`_)
 
 * For requests to an absolute form URI, the host field is now required. Requests
