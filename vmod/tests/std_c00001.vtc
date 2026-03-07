@@ -1,4 +1,4 @@
-varnishtest "Test std.rollback"
+vtest "Test std.rollback"
 
 # ws_emu triggers #3550
 feature !workspace_emulator
@@ -31,7 +31,7 @@ server s1 {
 	txresp
 } -start
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 
 	sub vcl_recv {
@@ -54,7 +54,7 @@ client c1 {
 	rxresp
 } -run
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 
 	sub vcl_backend_fetch {
@@ -79,11 +79,11 @@ client c1 {
 
 server s1 -wait
 
-varnish v1 -cliok "param.set workspace_client 12000"
-varnish v1 -cliok "param.set workspace_backend 12000"
+vinyl v1 -cliok "param.set workspace_client 12000"
+vinyl v1 -cliok "param.set workspace_backend 12000"
 
 # Dont panic
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import vtc;
 
@@ -118,7 +118,7 @@ client c1 {
 server s1 -wait
 
 # Dont run out of workspace
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import vtc;
 
@@ -150,7 +150,7 @@ client c2 {
 server s1 -wait
 
 # Keep workspace intact (and possibly overflow)
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import vtc;
 
@@ -207,7 +207,7 @@ server s1 -wait
 # CLIENT
 
 # Dont panic
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import debug;
 	import vtc;
@@ -253,7 +253,7 @@ client c4 {
 server s1 -wait
 
 # Dont run out of workspace
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import vtc;
 
@@ -285,7 +285,7 @@ client c5 {
 server s1 -wait
 
 # Keep workspace intact (and possibly overflow)
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import std;
 	import vtc;
 
@@ -343,7 +343,7 @@ server s1 -wait
 
 # this could work, but would need additional coding to save
 # the right snapshot of the bereq on the req ws
-varnish v1 -errvcl {Not available in subroutine 'vcl_pipe'} {
+vinyl v1 -errvcl {Not available in subroutine 'vcl_pipe'} {
 	import std;
 
 	backend proforma None;
@@ -358,7 +358,7 @@ varnish v1 -errvcl {Not available in subroutine 'vcl_pipe'} {
 # We would want to remove req from vcl_pipe, but that could break
 # vmods, so we fail specifically at runtime
 
-varnish v1 -errvcl {Not available in subroutine 'vcl_pipe'} {
+vinyl v1 -errvcl {Not available in subroutine 'vcl_pipe'} {
 	import std;
 
 	backend proforma None;

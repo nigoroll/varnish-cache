@@ -1,11 +1,11 @@
-varnishtest "Empty and invalid headers"
+vtest "Empty and invalid headers"
 
 server s1 {
 	rxreq
 	txresp
 } -start
 
-varnish v1 -arg "-p feature=+http2" -vcl+backend {
+vinyl v1 -arg "-p feature=+http2" -vcl+backend {
 } -start
 
 client c1 {
@@ -78,7 +78,7 @@ client c1 {
 	} -run
 } -run
 
-varnish v1 -vsl_catchup
+vinyl v1 -vsl_catchup
 
 client c1 {
 	stream 1 {
