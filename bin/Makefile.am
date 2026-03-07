@@ -5,7 +5,7 @@ SUBDIRS = \
 	vinyld \
 	vinylhist \
 	vinyllog \
-	varnishncsa \
+	vinylncsa \
 	varnishstat \
 	varnishtop \
 	varnishtest
