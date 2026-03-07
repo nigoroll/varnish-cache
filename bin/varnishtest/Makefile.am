@@ -64,11 +64,11 @@ varnishtest_SOURCES = \
 		vtest2/src/vtc_subr.c \
 		vtest2/src/vtc_syslog.c \
 		vtest2/src/vtc_tunnel.c \
-		vtest2/src/vtc_varnish.c \
 		vtest2/src/vtc_vsm.c \
 		vtest2/src/vtest_api.h \
 		vtest2/lib/vudp.h \
-		vtest2/lib/vudp.c
+		vtest2/lib/vudp.c \
+		vtc_vinyl.c
 
 varnishtest_LDADD = \
 		$(top_builddir)/lib/libvarnishapi/libvarnishapi.la \
@@ -79,6 +79,7 @@ varnishtest_LDADD = \
 varnishtest_CFLAGS = \
 		-DVTEST_WITH_VTC_LOGEXPECT \
 		-DVTEST_WITH_VTC_VARNISH \
+		-DVTEST_WITH_VTC_VINYL \
 		-DVTEST_WITH_VTC_VSM \
 		-DTOP_BUILDDIR='"${top_builddir}"'
 
