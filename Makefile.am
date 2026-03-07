@@ -62,7 +62,7 @@ vtest-clean:
 # solved it better, but we don't, so use this at least for now.
 LICENSE: all
 
-# XXX: This is a similar hack to ensure we have a built varnishtest
+# XXX: This is a similar hack to ensure we have a built vinyltest
 # (and technically any other binary that may be involved in a VTC)
 # before we try to run tests anywhere in the tree.
 check-recursive: all
@@ -81,7 +81,7 @@ gcov_digest:
 
 witness.dot: all
 	$(MAKE) check AM_VTC_LOG_FLAGS=-pdebug=+witness
-	$(AM_V_GEN) $(srcdir)/tools/witness.sh witness.dot bin/varnishtest/ \
+	$(AM_V_GEN) $(srcdir)/tools/witness.sh witness.dot bin/vinyltest/ \
 		vmod/
 
 .dot.svg:
@@ -91,7 +91,7 @@ witness: witness.svg
 
 update:
 	git submodule sync
-	git submodule update --remote bin/varnishtest/vtest2
-	git commit -m 'Update vtest2' bin/varnishtest/vtest2 || true
+	git submodule update --remote bin/vinyltest/vtest2
+	git commit -m 'Update vtest2' bin/vinyltest/vtest2 || true
 
 .PHONY: cscope witness.dot update

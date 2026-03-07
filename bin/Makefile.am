@@ -8,4 +8,4 @@ SUBDIRS = \
 	vinylncsa \
 	vinylstat \
 	vinyltop \
-	varnishtest
+	vinyltest
