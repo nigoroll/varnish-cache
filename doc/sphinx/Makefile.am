@@ -126,14 +126,14 @@ include/vinyllog_synopsis.rst: $(top_builddir)/bin/vinyllog/vinyllog
 BUILT_SOURCES += include/vinyllog_options.rst \
 	include/vinyllog_synopsis.rst
 
-include/varnishtop_options.rst: $(top_builddir)/bin/varnishtop/varnishtop
-	$(top_builddir)/bin/varnishtop/varnishtop --options > ${@}_
+include/vinyltop_options.rst: $(top_builddir)/bin/vinyltop/vinyltop
+	$(top_builddir)/bin/vinyltop/vinyltop --options > ${@}_
 	mv -f ${@}_ ${@}
-include/varnishtop_synopsis.rst: $(top_builddir)/bin/varnishtop/varnishtop
-	$(top_builddir)/bin/varnishtop/varnishtop --synopsis > ${@}_
+include/vinyltop_synopsis.rst: $(top_builddir)/bin/vinyltop/vinyltop
+	$(top_builddir)/bin/vinyltop/vinyltop --synopsis > ${@}_
 	mv -f ${@}_ ${@}
-BUILT_SOURCES += include/varnishtop_options.rst \
-	 include/varnishtop_synopsis.rst
+BUILT_SOURCES += include/vinyltop_options.rst \
+	 include/vinyltop_synopsis.rst
 
 include/vinylhist_options.rst: $(top_builddir)/bin/vinylhist/vinylhist
 	$(top_builddir)/bin/vinylhist/vinylhist --options > ${@}_

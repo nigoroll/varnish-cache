@@ -920,7 +920,7 @@ AC_CONFIG_FILES([
     bin/vinyld/Makefile
     bin/vinyllog/Makefile
     bin/vinylstat/Makefile
-    bin/varnishtop/Makefile
+    bin/vinyltop/Makefile
     bin/vinylhist/Makefile
     bin/varnishtest/Makefile
     bin/vinylncsa/Makefile
