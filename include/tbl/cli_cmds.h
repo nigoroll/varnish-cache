@@ -211,7 +211,7 @@ CLI_CMD(PARAM_SET,
 CLI_CMD(SERVER_STOP,
 	"stop",
 	"stop",
-	"Stop the Varnish cache process.",
+	"Stop the Vinyl Cache process.",
 	"",
 	0, 0
 )
@@ -219,7 +219,7 @@ CLI_CMD(SERVER_STOP,
 CLI_CMD(SERVER_START,
 	"start",
 	"start",
-	"Start the Varnish cache process.",
+	"Start the Vinyl Cache process.",
 	"",
 	0, 0
 )
@@ -251,7 +251,7 @@ CLI_CMD(QUIT,
 CLI_CMD(SERVER_STATUS,
 	"status",
 	"status [-j]",
-	"Check status of Varnish cache process.",
+	"Check status of Vinyl Cache process.",
 	"  ``-j`` specifies JSON output.",
 	0, 0
 )
@@ -285,7 +285,7 @@ CLI_CMD(PANIC_CLEAR,
 	"panic.clear",
 	"panic.clear [-z]",
 	"Clear the last panic, if any,"
-	" -z will clear related varnishstat counter(s)",
+	" -z will clear related vinylstat counter(s)",
 	"",
 	0, 1
 )
