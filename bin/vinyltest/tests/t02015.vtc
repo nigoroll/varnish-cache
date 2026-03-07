@@ -14,8 +14,8 @@ vinyl v1 -vcl+backend {
 } -start
 
 logexpect l1 -v v1 -g raw -q ReqAcct {
-	expect ? 1001	ReqAcct "46 0 46 69 12345 12414"
-	expect ? 1003	ReqAcct "46 0 46 74 1000 1074"
+	expect ? 1001	ReqAcct "46 0 46 67 12345 12412"
+	expect ? 1003	ReqAcct "46 0 46 72 1000 1072"
 } -start
 
 client c1 {
