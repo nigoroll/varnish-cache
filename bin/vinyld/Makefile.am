@@ -180,9 +180,9 @@ vcldir=$(datarootdir)/$(PACKAGE)/vcl
 
 vinyld_CFLAGS = \
 	-DNOT_IN_A_VMOD \
-	-DVARNISH_STATE_DIR='"${VARNISH_STATE_DIR}"' \
-	-DVARNISH_VMOD_DIR='"${vmoddir}"' \
-	-DVARNISH_VCL_DIR='"${pkgsysconfdir}:${vcldir}"'
+	-DVINYL_STATE_DIR='"${VINYL_STATE_DIR}"' \
+	-DVINYL_VMOD_DIR='"${vmoddir}"' \
+	-DVINYL_VCL_DIR='"${pkgsysconfdir}:${vcldir}"'
 
 vinyld_LDFLAGS = -export-dynamic
 

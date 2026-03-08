@@ -1846,7 +1846,7 @@ PARAM_STRING(
 	/* name */	vcl_path,
 	/* tweak */	tweak_string,
 	/* priv */	&mgt_vcl_path,
-	/* def */	VARNISH_VCL_DIR,
+	/* def */	VINYL_VCL_DIR,
 	/* descr */
 	"Directory (or colon separated list of directories) "
 	"from which relative VCL filenames (vcl.load and "
@@ -1866,7 +1866,7 @@ PARAM_STRING(
 	/* name */	vmod_path,
 	/* tweak */	tweak_string,
 	/* priv */	&mgt_vmod_path,
-	/* def */	VARNISH_VMOD_DIR,
+	/* def */	VINYL_VMOD_DIR,
 	/* descr */
 	"Directory (or colon separated list of directories) "
 	"where VMODs are to be found.",
