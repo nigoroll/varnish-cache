@@ -35,7 +35,7 @@ individual releases. These documents are updated as part of the
 release process.
 
 ============================
-Vinyl-Cache 9.0 (2026-03-16)
+Vinyl Cache 9.0 (2026-03-16)
 ============================
 
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
@@ -124,14 +124,14 @@ Vinyl-Cache 9.0 (2026-03-16)
 .. _4416: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4416
 
 * A new ``bereq.retry_connect`` variable was added to VCL to control whether
-  Vinyl will make a second attempt to connect to the backend if a first connection
-  reuse attempt failed. This can be useful to prevent undesired retries of
-  potentially non-idempotent requests. Setting to ``false`` means that no retries
-  will be made. However, setting this to ``true`` does not guarantee that a retry
-  will always be attempted, as there are other factors involved in the decision
-  (ex: a request body not being cached). This parameter only affects automatic
-  retries triggered by connection reuse failures and does not affect VCL
-  retries. (`4416`_)
+  ``vinyld`` will make a second attempt to connect to the backend if a first
+  connection reuse attempt failed. This can be useful to prevent undesired
+  retries of potentially non-idempotent requests. Setting to ``false`` means
+  that no retries will be made. However, setting this to ``true`` does not
+  guarantee that a retry will always be attempted, as there are other factors
+  involved in the decision (ex: a request body not being cached). This parameter
+  only affects automatic retries triggered by connection reuse failures and does
+  not affect VCL retries. (`4416`_)
 
 .. _4354: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4354
 
@@ -161,7 +161,7 @@ Vinyl-Cache 9.0 (2026-03-16)
 
 * ``req.ttl`` has been renamed to ``req.max_age`` for clarity, with ``req.ttl``
   being retained as an alias. ``req.ttl`` is now deprecated, but no warning is
-  emitted yet. It will be removed in a future version of Vinyl-Cache. (`4389`_)
+  emitted yet. It will be removed in a future version of Vinyl Cache. (`4389`_)
 
 * The session close reason descriptions ``REM_CLOSE`` and ``REQ_CLOSE`` have been
   generalized from "Client Closed" / "Client requested close" to "Peer Closed" /
