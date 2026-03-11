@@ -22,7 +22,7 @@ Configuring Backend Health Probes
 Backend health probes
 ---------------------
 
-Varnish can be configured to periodically send a request to test if a
+``Vinyld`` can be configured to periodically send a request to test if a
 backend is answering and thus "healthy".
 
 Probes can be configured per backend::

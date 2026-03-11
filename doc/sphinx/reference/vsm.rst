@@ -9,17 +9,17 @@
 VSM: Shared Memory Logging and Statistics
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Varnish uses shared memory to export parameters, logging and
+Vinyl Cache uses shared memory to export parameters, logging and
 statistics, because it is faster and much more efficient than
 regular files.
 
-"Varnish Shared Memory" or VSM, is the overall mechanism maintaining
+"Vinyl Shared Memory" or VSM, is the overall mechanism maintaining
 sets of shared memory files, each consisting a chunk of memory
 identified by a two-part name (class, ident).
 
 The Class indicates what type of data is stored in the chunk,
 for instance "Arg" for command line arguments useful for
-establishing an CLI connection to the varnishd, "Stat" for
+establishing an CLI connection to the ``vinyld``, "Stat" for
 statistics counters (VSC) and "Log" for log records (VSL).
 
 The ident name part is mostly used with stats counters, where they
@@ -48,13 +48,13 @@ The "CS101" way to deal with that, is to introduce locks, and much
 time is spent examining the relative merits of the many kinds of
 locks available.
 
-Inside the varnishd (worker) process, we use mutexes to guarantee
+Inside the ``vinyld`` (worker) process, we use mutexes to guarantee
 consistency, both with respect to allocations, log entries and stats
 counters.
 
 We do not want a vinylncsa trying to push data through a stalled
 ssh connection to stall the delivery of content, so readers like
-that are purely read-only, they do not get to affect the varnishd
+that are purely read-only, they do not get to affect the ``vinyld``
 process and that means no locks for them.
 
 Instead we use "stable storage" concepts, to make sure the view
@@ -65,14 +65,14 @@ stuff, such as when a backend is taken out of the configuration,
 we need to give the readers a chance to discover this, a "cooling
 off" period.
 
-The Varnish way:
-----------------
+The Vinyl Cache way:
+--------------------
 
 .. XXX: not yet up to date with VSM new world order
 
-When varnishd starts, it opens locked shared memory files, advising to
+When ``vinyld`` starts, it opens locked shared memory files, advising to
 use different -n arguments if an attempt is made to run multiple
-varnishd instances on the same working directory.
+``vinyld`` instances on the same working directory.
 
 Child processes each use their own shared memory files, since a worker
 process restart marks a clean break in operation anyway.
@@ -108,18 +108,18 @@ VSM files.
 VSM and Containers
 ------------------
 
-The Varnish Shared Memory model works well in single-purpose containers.
-By sharing the Varnish working directory read-only, VSM readers can run
-in individual containers separate from those running varnishd instances on
+The Vinyl Shared Memory model works well in single-purpose containers.
+By sharing the ``vinyld`` working directory read-only, VSM readers can run
+in individual containers separate from those running ``vinyld`` instances on
 the same host.
 
-On Linux, if varnishd and VSM readers run in the same process namespace, the
-VSM readers can rely on the PID advertised by varnishd to determine whether
+On Linux, if ``vinyld`` and VSM readers run in the same process namespace, the
+VSM readers can rely on the PID advertised by ``vinyld`` to determine whether
 the manager and cache processes are alive.
 
-However, if they live in different containers, exposing the Varnish working
+However, if they live in different containers, exposing the ``vinyld`` working
 directory as a volume to containers running VSM readers, the PIDs exposed by
-varnishd are no longer relevant across namespaces.
+``vinyld`` are no longer relevant across namespaces.
 
 To disable liveness checks based on PIDs, the variable ``VSM_NOPID`` needs to
 be present in the environment of VSM readers.
@@ -127,8 +127,8 @@ be present in the environment of VSM readers.
 Warning: mlock() of VSM failed
 ------------------------------
 
-It is vital for performance of the Varnish Shared Memory model that all VSM be
-resident in RAM at all times. At startup, varnish tries to lift the respective
+It is vital for performance of the Vinyl Shared Memory model that all VSM be
+resident in RAM at all times. At startup, ``vinyld`` tries to lift the respective
 limits and an attempt is made to lock all VSM in memory, but if
 ``RLIMIT_MEMLOCK`` is configured too low, this fails and a warning similar to
 the following is logged to standard error or syslog::

@@ -48,8 +48,8 @@ VCL Actions
 ===========
 
 Actions are used with the ``return(<action>)`` keyword, which returns
-control from subroutines back to varnish. The action determines how
-processing in varnish continues as shown in :ref:`reference-states`.
+control from subroutines back to ``vinyld``. The action determines how
+processing in ``vinyld`` continues as shown in :ref:`reference-states`.
 
 Common actions are documented here, while additional actions specific
 to only one or some subroutines are documented in the next section

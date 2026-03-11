@@ -9,13 +9,13 @@
 Shell Tricks
 %%%%%%%%%%%%
 
-All the varnish programs can be invoked with the single
+All the Vinyl Cache programs can be invoked with the single
 argument ``--optstring`` to request their `getopt()`
 specification, which simplifies wrapper scripts:
 
 .. code-block:: text
 
-    optstring=$(varnishfoo --optstring)
+    optstring=$(vinylfoo --optstring)
 
     while getopts "$optstring" opt
     do
@@ -30,6 +30,6 @@ specification, which simplifies wrapper scripts:
         esac
     done
 
-    varnishfoo "$@"
+    vinylfoo "$@"
 
     # do something with the options

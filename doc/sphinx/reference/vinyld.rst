@@ -508,7 +508,7 @@ specific options. Available jails are:
   The optional `user` argument specifies which alternative user to
   use. It defaults to ``vinyl``.
 
-  The optional `ccgroup` argument specifies a group to add to varnish
+  The optional `ccgroup` argument specifies a group to add to ``vinyld``
   subprocesses requiring access to a c-compiler. There is no default.
 
   The optional `workuser` argument specifies an alternative user to use

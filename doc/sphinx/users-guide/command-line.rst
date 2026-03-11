@@ -8,23 +8,23 @@
 Required command line arguments
 -------------------------------
 
-There only one command line argument you have to provide when starting Varnish,
-which is '-b' for where the backend server can be contacted.
+There are only two command line argument you have to provide when starting
+``vinyld``: '-b' for where the backend server can be contacted, and
+'-a' for which sockets ``vinyld`` should serve.
 
-'-a' is another argument which is likely to require adjustment.
-
-If you have installed Varnish through using a provided operating system bound package,
+If you have installed Vinyl Cache through using a provided operating system
+bound package,
 you will find the startup options here:
 
-* Debian, Ubuntu: `/etc/default/varnish`
-* Red Hat, Centos: `/etc/sysconfig/varnish`
-* FreeBSD: `/etc/rc.conf` (See also: /usr/local/etc/rc.d/varnishd)
+* Debian, Ubuntu: `/etc/default/vinyl`
+* Red Hat, Centos: `/etc/sysconfig/vinyl`
+* FreeBSD: `/etc/rc.conf` (See also: /usr/local/etc/rc.d/vinyld)
 
 
 '-a' *<[name=][listen_address[,PROTO|,option=value,...]]>*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each '-a' argument defines one endpoint which Varnish should service HTTP
+Each '-a' argument defines one endpoint which ``vinyld`` should service HTTP
 requests on.
 
 The default is ``:80,http`` to listen on the Well Known Port for HTTP. If your
@@ -50,7 +50,7 @@ Here are some examples::
 '-f' *VCL-file* or '-b' *backend*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Varnish needs to know where to find the HTTP server it is caching for.
+``Vinyld`` needs to know where to find the HTTP server it is caching for.
 You can either specify it with the '-b' argument, or you can put it in your own VCL file, specified with the '-f' argument.
 
 Using '-b' is a quick way to get started::

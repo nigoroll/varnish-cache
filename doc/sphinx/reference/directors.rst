@@ -9,11 +9,11 @@
 Writing a Director
 %%%%%%%%%%%%%%%%%%
 
-Varnish already provides a set of general-purpose directors, and since Varnish
-4, it is bundled in the built-in :ref:`vmod_directors(3)`. Writing a director
+``Vinyld`` already provides a set of general-purpose directors, bundled
+in the built-in :ref:`vmod_directors(3)`. Writing a director
 boils down to writing a VMOD, using the proper data structures and APIs. Not
 only can you write your own director if none of the built-ins fit your needs,
-but since Varnish 4.1 you can even write your own backends.
+but you can even write your own backends.
 
 Backends can be categorized as such:
 
@@ -147,9 +147,9 @@ Consider the following snippet::
     }
 
 The VCL compiler turns this declaration into a ``struct
-vrt_backend``. When the VCL is loaded, Varnish calls
+vrt_backend``. When the VCL is loaded, ``vinyld`` calls
 ``VRT_new_backend`` (or rather ``VRT_new_backend_clustered`` for VSM
-efficiency) in order to create the director. Varnish doesn't expose
+efficiency) in order to create the director. ``Vinyld`` doesn't expose
 its data structure for actual backends, only the director abstraction
 and dynamic backends are built just like static backends, one *struct*
 at a time. You can get rid of the ``struct vrt_backend`` as soon as
@@ -164,11 +164,11 @@ to take care of it.
 Reference counting is used to ensure that backends which are no longer
 referenced are destroyed.
 
-Finally, Varnish will take care of event propagation for *all* native backends,
+Finally, ``vinyld`` will take care of event propagation for *all* native backends,
 but dynamic backends can only be created when the VCL is warm. If your backends
 are created by an independent thread (basically outside of VCL scope) you must
 subscribe to VCL events and watch for VCL state (see
-:ref:`ref-vmod-event-functions`). Varnish will panic if you try to create a
+:ref:`ref-vmod-event-functions`). ``Vinyld`` will panic if you try to create a
 backend on a cold VCL, and ``VRT_new_backend`` will return ``NULL`` if the VCL
 is cooling. You are also encouraged to comply with the
 :ref:`ref_vcl_temperature` in general.
@@ -190,7 +190,7 @@ or director.
 
 For dynamic backends, it is just a matter of assigning the ``probe`` field in
 the ``struct vrt_backend``. Once the director is created, the probe definition
-too is no longer needed. It is then Varnish that will take care of the health
+too is no longer needed. It is then ``vinyld`` that will take care of the health
 probe and disable the feature on a cold VCL (see
 :ref:`ref-vmod-event-functions`).
 
@@ -201,13 +201,13 @@ directly built from VCL (see :ref:`ref-vmod-vcl-c-types`).
 Custom Backends
 ===============
 
-If you want to implement a custom backend, have a look at how Varnish
+If you want to implement a custom backend, have a look at how ``vinyld``
 implements native backends. It is the canonical implementation, and
 though it provides other services like connection pooling or
 statistics, it is essentially a director which state is a ``struct
-backend``. Varnish native backends currently speak HTTP/1 over TCP or
+backend``. ``Vinyld`` native backends currently speak HTTP/1 over TCP or
 UDS, and as such, you need to make your own custom backend if you want
-Varnish to do otherwise such as connect over UDP or speak a different
+``vinyld`` to do otherwise such as connect over UDP or speak a different
 protocol.
 
 If you want to leverage probes declarations in VCL, which have the advantage of
@@ -230,9 +230,9 @@ When you are creating a custom backend, you may want to provide the semantics
 of the native backends. In this case, instead of repeating the redundant fields
 between data structures, you can use the macros ``VRT_BACKEND_FIELDS`` and
 ``VRT_BACKEND_PROBE_FIELDS`` to declare them all at once. This is the little
-dance Varnish uses to copy data between the ``struct vrt_backend`` and its
+dance ``vinyld`` uses to copy data between the ``struct vrt_backend`` and its
 internal data structure for example.
 
 The copy can be automated with the macros ``VRT_BACKEND_HANDLE`` and
 ``VRT_BACKEND_PROBE_HANDLE``. You can look at how they can be used in the
-Varnish code base.
+Vinyl Cache code base.

@@ -8,12 +8,12 @@ Peculiarities
 -------------
 
 There are a couple of things that are different with Vinyl Cache, as
-opposed to other programs. One thing you've already seen - VCL. In this section we provide a very quick tour of other peculiarities you need to know about to get the most out of Varnish.
+opposed to other programs. One thing you've already seen - VCL. In this section we provide a very quick tour of other peculiarities you need to know about to get the most out of Vinyl Cache.
 
 Configuration
 ~~~~~~~~~~~~~
 
-The Varnish Configuration is written in VCL. When Varnish is ran this
+The ``vinyld`` Configuration is written in VCL. When ``vinyld`` is run this
 configuration is transformed into C code and then fed into a C
 compiler, loaded and executed.
 
@@ -24,15 +24,15 @@ settings on or off, you write polices on how the incoming traffic should be
 handled.
 
 
-vinyladm
-~~~~~~~~~~
+``vinyladm``
+~~~~~~~~~~~~
 
 Vinyl Cache has an admin console. You can connect it through the
 :ref:`vinyladm(1)` command. In order to connect the user needs to be
-able to read `/etc/varnish/secret` in order to authenticate.
+able to read `/etc/vinyl/secret` in order to authenticate.
 
 Once you've started the console you can do quite a few operations on
-Varnish, like stopping and starting the cache process, load VCL,
+``vinyld``, like stopping and starting the cache process, load VCL,
 adjust the built in load balancer and invalidate cached content.
 
 It has a built in command "help" which will give you some hints on
@@ -40,11 +40,11 @@ what it does.
 
 .. XXX:sample of the command here. benc
 
-vinyllog
-~~~~~~~~~~
+``vinyllog``
+~~~~~~~~~~~~
 
-Varnish does not log to disk. Instead it logs to a chunk of memory. It
+``Vinyld does not log to disk. Instead it logs to a chunk of memory. It
 is actually streaming the logs. At any time you'll be able to connect
-to the stream and see what is going on. Varnish logs quite a bit of
+to the stream and see what is going on. ``Vinyld`` logs quite a bit of
 information. You can have a look at the logstream with the command
 :ref:`vinyllog(1)`.

@@ -8,35 +8,35 @@
 Achieving a high hitrate
 ------------------------
 
-Now that Varnish is up and running you can access your web application
-through Varnish. Unless your application is specifically written to
+Now that ``Vinyld`` is up and running you can access your web application
+through Vinyl Cache. Unless your application is specifically written to
 work behind a web accelerator you'll probably need to do some
 changes to either the configuration or the application in order to
-get a high hitrate in Varnish.
+get a high hitrate in Vinyl Cache.
 
-Varnish will not cache your data unless it's absolutely sure it is
-safe to do so. So, for you to understand how Varnish decides if and
+``Vinyld`` will not cache your data unless it's absolutely sure it is
+safe to do so. So, for you to understand how ``Vinyld`` decides if and
 how to cache a page, we'll guide you through a couple of tools that
 you should find useful to understand what is happening in your
-Varnish setup.
+Vinyl Cache setup.
 
 Note that you need a tool to see the HTTP headers that fly between
-Varnish and the backend. On the Varnish server, the easiest way to do
+``Vinyld`` and the backend. On the Vinyl Cache server, the easiest way to do
 this is to use :ref:`vinyllog(1)` and :ref:`vinyltop(1)` but
 sometimes a client-side tool makes sense. Here are the ones we
 commonly use.
 
-Tool: vinyltop
-~~~~~~~~~~~~~~~~
+Tool: ``vinyltop``
+~~~~~~~~~~~~~~~~~~
 
-You can use vinyltop to identify what URLs are hitting the backend
+You can use ``vinyltop`` to identify what URLs are hitting the backend
 the most. ``vinyltop -i BereqURL`` is an essential command, showing
-you the top requests Varnish is sending to the backend. You can see some
+you the top requests ``vinyld`` is sending to the backend. You can see some
 other examples of :ref:`vinyltop(1)` usage in :ref:`users-guide-statistics`.
 
 
-Tool: vinyllog
-~~~~~~~~~~~~~~~~
+Tool: ``vinyllog``
+~~~~~~~~~~~~~~~~~~
 
 When you have identified an URL which is frequently sent to the
 backend you can use :ref:`vinyllog(1)` to have a look at the
@@ -55,7 +55,7 @@ for Perl. It's a couple of really basic programs that can execute
 an HTTP request and show you the result. We mostly use the two
 programs, ``GET`` and ``HEAD``.
 
-vg.no was the first site to use Varnish and the people running Varnish
+vg.no was the first site to use Vinyl Cache and the people running Vinyl Cache
 there are quite clueful. So it's interesting to look at their HTTP
 Headers. Let's send a GET request for their home page::
 
@@ -83,9 +83,9 @@ prints response headers and '-d' discards the actual content. We don't
 really care about the content, only the headers.
 
 As you can see, VG adds quite a bit of information in their
-headers. Some of the headers, like the 'X-Rick-Would-Never' are specific
+headers. Some of the headers, like the ``X-Rick-Would-Never`` are specific
 to vg.no and their somewhat odd sense of humour. Others, like the
-'X-VG-Webcache' are for debugging purposes.
+``X-VG-Webcache`` are for debugging purposes.
 
 So, to check whether a site sets cookies for a specific URL, just do::
 
@@ -107,16 +107,16 @@ The role of HTTP Headers
 ------------------------
 
 Along with each HTTP request and response comes a bunch of headers
-carrying metadata. Varnish will look at these headers to determine if
-it is appropriate to cache the contents and how long Varnish can keep
+carrying metadata. ``vinyld`` will look at these headers to determine if
+it is appropriate to cache the contents and how long ``vinyld`` can keep
 the content cached.
 
-Please note that when Varnish considers these headers Varnish actually
+Please note that when ``vinyld`` considers these headers ``vinyld`` actually
 considers itself *part of* the actual webserver. The rationale being
 that both are under your control.
 
 The term *surrogate origin cache* is not really well defined by the
-IETF or RFC 2616 so the various ways Varnish works might differ from
+IETF or RFC 2616 so the various ways ``vinyld`` works might differ from
 your expectations.
 
 Let's take a look at the important headers you should be aware of:
@@ -126,9 +126,9 @@ Let's take a look at the important headers you should be aware of:
 Cookies
 ~~~~~~~
 
-Varnish will, in the default configuration, not cache an object coming
+``Vinyld`` will, in the default configuration, not cache an object coming
 from the backend with a 'Set-Cookie' header present. Also, if the client
-sends a Cookie header, Varnish will bypass the cache and go directly to
+sends a Cookie header, ``vinyld`` will bypass the cache and go directly to
 the backend.
 
 This can be overly conservative. A lot of sites use Google Analytics
@@ -150,7 +150,7 @@ accessing `/admin/`::
 
 Quite simple. If, however, you need to do something more complicated,
 like removing one out of several cookies, things get
-difficult. Unfortunately Varnish doesn't have good tools for
+difficult. Unfortunately ``vinyld`` doesn't have good tools for
 manipulating the Cookies. We have to use regular expressions to do the
 work. If you are familiar with regular expressions you'll understand
 whats going on. If you aren't we recommend that you either pick up a book on
@@ -159,11 +159,11 @@ one of many online guides.
 
 Lets use the Varnish Software (VS) web as an example here. Very
 simplified the setup VS uses can be described as a Drupal-based
-backend with a Varnish cache in front. VS uses some cookies for
+backend with a ``vinyld`` cache in front. VS uses some cookies for
 Google Analytics tracking and similar tools. The cookies are all
-set and used by JavaScript. Varnish and Drupal doesn't need to see
-those cookies and since Varnish will cease caching of pages when
-the client sends cookies Varnish will discard these unnecessary
+set and used by JavaScript. ``vinyld`` and Drupal doesn't need to see
+those cookies and since ``vinyld`` will cease caching of pages when
+the client sends cookies ``vinyld`` will discard these unnecessary
 cookies in VCL.
 
 In the following VCL we discard all cookies that start with an
@@ -221,7 +221,7 @@ Cookies coming from the backend
 +++++++++++++++++++++++++++++++
 
 If your backend server sets a cookie using the 'Set-Cookie' header
-Varnish will not cache the page when using the default configuration.
+``vinyld`` will not cache the page when using the default configuration.
 A `hit-for-miss` object (see :ref:`vcl_actions`) is
 created.  So, if the backend server acts silly and sets unwanted
 cookies just unset the 'Set-Cookie' header and all should be fine.
@@ -230,8 +230,8 @@ cookies just unset the 'Set-Cookie' header and all should be fine.
 Cache-Control
 ~~~~~~~~~~~~~
 
-The 'Cache-Control' header instructs caches how to handle the content. Varnish
-cares about the *max-age* parameter and uses it to calculate the TTL
+The 'Cache-Control' header instructs caches how to handle the content.
+``Vinyld`` cares about the *max-age* parameter and uses it to calculate the TTL
 for an object.
 
 So make sure you issue a 'Cache-Control' header with a max-age
@@ -244,14 +244,14 @@ issues::
 Age
 ~~~
 
-Varnish adds an 'Age' header to indicate how long the object has been
-kept inside Varnish. You can grep out 'Age' from :ref:`vinyllog(1)`
+``Vinyld`` adds an 'Age' header to indicate how long the object has been
+kept inside ``vinyld``. You can grep out 'Age' from :ref:`vinyllog(1)`
 with ``vinyllog -I RespHeader:^Age``.
 
 Pragma
 ~~~~~~
 
-An HTTP 1.0 server might send the header ``Pragma: nocache``. Varnish ignores this
+An HTTP 1.0 server might send the header ``Pragma: nocache``. ``vinyld`` ignores this
 header. You could easily add support for this header in VCL.
 
 In `vcl_backend_response`::
@@ -264,14 +264,14 @@ In `vcl_backend_response`::
 Authorization
 ~~~~~~~~~~~~~
 
-If Varnish sees an 'Authorization' header it will pass the request. If
+If ``vinyld`` sees an 'Authorization' header it will pass the request. If
 this is not what you want you can unset the header.
 
 Overriding the time-to-live (TTL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Sometimes your backend will misbehave. It might, depending on your
-setup, be easier to override the TTL in Varnish then to fix your
+setup, be easier to override the TTL in ``vinyld`` then to fix your
 somewhat cumbersome backend.
 
 You need VCL to identify the objects you want and then you set the
@@ -290,9 +290,9 @@ Forcing caching for certain requests and certain responses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Since you still might have this cumbersome backend that isn't very friendly
-to work with you might want to override more stuff in Varnish. We
+to work with you might want to override more stuff in ``vinyld``. We
 recommend that you rely as much as you can on the default caching
-rules. It is perfectly easy to force Varnish to lookup an object in
+rules. It is perfectly easy to force ``vinyld`` to lookup an object in
 the cache but it isn't really recommended.
 
 
@@ -301,8 +301,8 @@ Normalizing your namespace
 
 Some sites are accessed via lots of hostnames.
 http://www.varnish-software.com/, http://varnish-software.com/ and
-http://varnishsoftware.com/ all point at the same site. Since Varnish
-doesn't know they are the same, Varnish will cache different versions of
+http://varnishsoftware.com/ all point at the same site. Since ``vinyld``
+doesn't know they are the same, ``vinyld`` will cache different versions of
 every page for every hostname. You can mitigate this in your web server
 configuration by setting up redirects or by using the following VCL::
 
@@ -328,19 +328,19 @@ need to keep these different variants apart and this is done through
 the HTTP response header 'Vary'.
 
 When a backend server issues a ``Vary: Accept-Language`` it tells
-Varnish that its needs to cache a separate version for every different
+``Vinyld`` that its needs to cache a separate version for every different
 Accept-Language that is coming from the clients.
 
 If two clients say they accept the languages "en-us, en-uk" and
-"da, de" respectively, Varnish will cache and serve two different
-versions of the page if the backend indicated that Varnish needs
+"da, de" respectively, ``vinyld`` will cache and serve two different
+versions of the page if the backend indicated that ``vinyld`` needs
 to vary on the 'Accept-Language' header.
 
 Please note that the headers that 'Vary' refer to need to match
-*exactly* for there to be a match. So Varnish will keep two copies
+*exactly* for there to be a match. So ``vinyld`` will keep two copies
 of a page if one of them was created for "en-us, en-uk" and the
 other for "en-us,en-uk". Just the lack of a whitespace will force
-Varnish to cache another version.
+``vinyld`` to cache another version.
 
 To achieve a high hitrate whilst using Vary is there therefore
 crucial to normalize the headers the backends varies on. Remember,
@@ -366,7 +366,7 @@ either "en", "de" or "fr", in this order of precedence::
 Vary parse errors
 ~~~~~~~~~~~~~~~~~
 
-Varnish will return a "503 internal server error" page when it fails
+``Vinyld`` will return a "503 internal server error" page when it fails
 to parse the 'Vary' header, or if any of the client headers listed
 in the Vary header exceeds the limit of 65k characters. An 'SLT_Error'
 log entry is added in these cases.
@@ -375,7 +375,7 @@ Pitfall - Vary: User-Agent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some applications or application servers send ``Vary: User-Agent``
-along with their content. This instructs Varnish to cache a separate
+along with their content. This instructs ``vinyld`` to cache a separate
 copy for every variation of 'User-Agent' there is and there are
 plenty. Even a single patchlevel of the same browser will generate
 at least 10 different 'User-Agent' headers based just on what
@@ -388,7 +388,7 @@ above code as a template.
 Cache misses
 ------------
 
-When Varnish does not find an object for a request in the cache, then
+When ``vinyld`` does not find an object for a request in the cache, then
 by default it performs a fetch from the backend on the hypothesis that
 the response might be cached. This has two important consequences:
 
@@ -403,7 +403,7 @@ the response might be cached. This has two important consequences:
   pending requests.
 
 * The backend request for the cache miss cannot be conditional if
-  Varnish does not have an object in the cache to validate; that is,
+  ``vinyld`` does not have an object in the cache to validate; that is,
   it cannot contain the headers ``If-Modified-Since`` or
   ``If-None-Match``, which might cause the backend to return status
   "304 Not Modified" with no response body. Otherwise, there might not
@@ -411,21 +411,21 @@ the response might be cached. This has two important consequences:
   request, they are removed from the backend request.
 
 By setting a grace time for cached objects (default 10 seconds), you
-allow Varnish to serve stale content while waiting for coalesced fetches,
+allow ``vinyld`` to serve stale content while waiting for coalesced fetches,
 which are run asynchronously while the stale response is sent to the
 client. For details see :ref:`users-guide-handling_misbehaving_servers`.
 
 Although the headers for a conditional request are removed from the
-backend fetch on a cache miss, Varnish may nevertheless respond to the
+backend fetch on a cache miss, ``vinyld`` may nevertheless respond to the
 client request with "304 Not Modified" if the resulting response
 allows it. At delivery time, if the client request had an
 ``If-None-Match`` header that matches the ``ETag`` header in the
 response, or if the time in an ``If-Modified-Since`` request header is
 equal to or later than the time in the ``Last-Modified`` response
-header, Varnish will send the 304 response to the client. This happens
+header, ``vinyld`` will send the 304 response to the client. This happens
 for both hits and misses.
 
-Varnish can send conditional requests to the backend if it has an
+``Vinyld`` can send conditional requests to the backend if it has an
 object in the cache against which the validation can be performed. You
 can ensure that an object is retained for this purpose by setting
 ``beresp.keep`` in ``vcl_backend_response``::
@@ -459,7 +459,7 @@ conditional, just remove the If-* headers in ``vcl_backend_fetch``::
 That should only be necessary if the conditional fetches are
 problematic for the backend, for example if evaluating whether the
 response is unchanged is too costly for the backend app, or if the
-responses are just buggy. From the perspective of Varnish, 304
+responses are just buggy. From the perspective of ``vinyld``, 304
 responses are clearly preferable; fetches with the empty response body
 save bandwidth, and storage does not have to be allocated in the
 cache, since the existing cache object is re-used.
@@ -484,7 +484,7 @@ Some responses cannot be cached, for various reasons. The content may
 be personalized, depending on the content of the ``Cookie`` header, or
 it might just be the sort of thing that is generated anew on each
 request.  The cache can't help with that, but nevertheless there are
-some decisions you can make that will help Varnish deal with
+some decisions you can make that will help ``vinyld`` deal with
 uncacheable responses in a way that is best for your requirements.
 
 The issues to consider are:
@@ -545,14 +545,14 @@ built-in ``vcl_recv`` gets executed; so take a close look at
 ``vcl_recv`` in ``builtin.vcl``, and duplicate any part of it that you
 require in your own ``vcl_recv``.
 
-As with cache hits and misses, Varnish decides to send a 304 response
+As with cache hits and misses, ``vinyld`` decides to send a 304 response
 to the client after a pass if the client request headers and the
-response headers allow it. This might mean that Varnish will send a
+response headers allow it. This might mean that ``vinyld`` will send a
 304 response to the client even after the backend saw the same request
 headers (``If-Modified-Since`` and/or ``If-None-Match``), but decided
 not to respond with status 304, while nevertheless setting the
 response headers ``ETag`` and/or ``Last-Modified`` so that 304 would
-appear to be warranted. If you would prefer that Varnish doesn't do
+appear to be warranted. If you would prefer that ``vinyld`` doesn't do
 that, then remove the If-* client request headers in ``vcl_pass``::
 
   sub vcl_pass {
@@ -567,7 +567,7 @@ hit-for-miss
 You may not be able to recognize all requests for uncacheable content
 in ``vcl_recv``. You might want to allow backends to determine their
 own cacheability by setting the ``Cache-Control`` header, but that
-cannot be seen until Varnish receives the backend response, so
+cannot be seen until ``vinyld`` receives the backend response, so
 ``vcl_recv`` can't know about it.
 
 By default, if a request is not passed and the backend response turns
@@ -598,7 +598,7 @@ cacheable response is returned before ``beresp.ttl`` elapses, then the
 next request for that object will be an ordinary miss, and hence will
 be subject to request coalescing.
 
-When Varnish sees that it has hit a hit-for-miss object on a new
+When ``Vinyld`` sees that it has hit a hit-for-miss object on a new
 request, it executes ``vcl_miss``, so any custom VCL you have written
 for cache misses will apply in the hit-for-miss case as well.
 
@@ -622,7 +622,7 @@ Note that once ``beresp.uncacheable`` has been set to ``true`` it
 cannot be set back to ``false``; attempts to do so in VCL are ignored.
 
 Although the backend fetches are never conditional for hit-for-miss,
-Varnish may decide (as in all other cases) to send a 304 response to
+``Vinyld`` may decide (as in all other cases) to send a 304 response to
 the client if the client request headers and response headers ``ETag``
 or ``Last-Modified`` allow it. If you want to prevent that, remove
 the If-* client request headers in ``vcl_miss``::
@@ -663,14 +663,14 @@ that ``If-Modified-Since`` and ``If-None-Match`` headers in the client
 request are passed along to the backend, so that the backend response
 may be 304.
 
-Varnish executes ``vcl_pass`` when it hits a hit-for-pass object. So
+``Vinyld`` executes ``vcl_pass`` when it hits a hit-for-pass object. So
 again, you can arrange for your own handling of both pass and
 hit-for-pass with the same code in VCL.
 
-If you want to prevent Varnish from sending conditional requests to
+If you want to prevent ``vinyld`` from sending conditional requests to
 the backend, then remove the If-* headers from the backend request in
 ``vcl_backend_fetch``, as shown above for cache misses. And if you
-want to prevent Varnish from deciding at delivery time to send a 304
+want to prevent ``vinyld`` from deciding at delivery time to send a 304
 response to the client based on the client request and response
 headers, then remove the headers from the client request in
 ``vcl_pass``, as shown above for pass.

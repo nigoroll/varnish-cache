@@ -7,7 +7,7 @@
 Reporting bugs
 %%%%%%%%%%%%%%
 
-Varnish can be a tricky beast to debug, having potentially thousands
+Vinyl Cache can be a tricky beast to debug, having potentially thousands
 of threads crowding into a few data structures makes for *interesting*
 core dumps.
 
@@ -27,25 +27,27 @@ allow us to reproduce.
 To report a bug please follow the suggested procedure described in the "Trouble Tickets"
 section of the documentation (above).
 
-Roughly we categorize bugs into three kinds of bugs (described below) with Varnish. The information
+Roughly we categorize Vinly Cache bugs into three kinds of bugs,
+described below.
+The information
 we need to debug them depends on what kind of bug we are facing.
 
-Varnish crashes
-===============
+``Vinyld`` crashes
+==================
 
 Plain and simple: **boom**
 
-Varnish is split over two processes, the manager and the child.  The child
-does all the work, and the manager hangs around to resurrect it if it
+Vinyld is split over two processes, the manager and the child.  The child
+does all the work, and the manager hangs around to resurrect it, if it
 crashes.
 
-Therefore, the first thing to do if you see a Varnish crash, is to examine
+Therefore, the first thing to do, if you see a ``vinyld`` crash, is to examine
 your syslogs to see if it has happened before. (One site is rumoured
-to have had Varnish restarting every 10 minutes and *still* provide better
+to have had ``vinyld`` restarting every 10 minutes and *still* provide better
 service than their CMS system.)
 
-When it crashes, which is highly unlikely to begin with, Varnish will spew out a crash dump
-that looks something like::
+When it crashes, which is highly unlikely to begin with,
+``vinyld`` will spew out a crash dump that looks something like::
 
 	Child (32619) died signal=6 (core dumped)
 	Child (32619) Panic message: Assert error in ccf_panic(), cache_cli.c line 153:
@@ -70,7 +72,8 @@ If you can get that information to us, we are usually able to
 see exactly where things went haywire, and that speeds up bugfixing
 a lot.
 
-There will be a lot more information in the crash dump besides this, and before sending
+There will be a lot more information in the crash dump besides this,
+and before sending
 it all to us, you should obscure any sensitive/secret
 data/cookies/passwords/ip# etc.  Please make sure to keep context
 when you do so, ie: do not change all the IP# to "X.X.X.X", but
@@ -81,8 +84,8 @@ The most important line is the "Panic Message", which comes in two
 general forms:
 
 "Missing errorhandling code in ..."
-	This is a situation where we can conceive Varnish ending up, which we have not
-	(yet) written the padded-box error handling code for.
+	This is a situation where we can conceive ``vinyld`` ending up,
+	which we have not (yet) written the padded-box error handling code for.
 
 	The most likely cause here, is that you need a larger workspace
 	for HTTP headers and Cookies.
@@ -99,25 +102,25 @@ general forms:
 In your syslog it may all be joined into one single line, but if you
 can reproduce the crash, do so while running :ref:`vinyld(1)` manually:
 
-	``varnishd -d <your other arguments> |& tee /tmp/_catch_bug``
+	``vinyld -d <your other arguments> |& tee /tmp/_catch_bug``
 
 That will get you the entire panic message into a file.
 
 (Remember to type ``start`` to launch the worker process, that is not
 automatic when ``-d`` is used.)
 
-Varnish goes on vacation
-========================
+``Vinyld`` goes on vacation
+===========================
 
 This kind of bug is nasty to debug, because usually people tend to
-kill the process and send us an email saying "Varnish hung, I
+kill the process and send us an email saying "``vinyld`` hung, I
 restarted it" which gives us only about 1.01 bit of usable debug
 information to work with.
 
 What we need here is all the information you can squeeze out of
-your operating system **before** you kill the Varnish process.
+your operating system **before** you kill the ``vinyld`` process.
 
-One of the most valuable bits of information, is if all Varnish'
+One of the most valuable bits of information, is if all ``vinyld``'s
 threads are waiting for something or if one of them is spinning
 furiously on some futile condition.
 
@@ -129,28 +132,28 @@ able to figure that out.
 
 If one or more threads are spinning, use ``strace`` or ``ktrace`` or ``truss``
 (or whatever else your OS provides) to get a trace of which system calls
-the Varnish process issues. Be aware that this may generate a lot
+the ``vinyld`` process issues. Be aware that this may generate a lot
 of very repetitive data, usually one second worth of data is more than enough.
 
 Also, run :ref:`vinyllog(1)` for a second, and collect the output
 for us, and if :ref:`vinylstat(1)` shows any activity, capture that
 also.
 
-When you have done this, kill the Varnish *child* process, and let
+When you have done this, kill the ``vinyld`` *child* process, and let
 the *master* process restart it.  Remember to tell us if that does
-or does not work. If it does not, kill all Varnish processes, and
+or does not work. If it does not, kill all Vinyl Cache processes, and
 start from scratch. If that does not work either, tell us, that
 means that we have wedged your kernel.
 
 
-Varnish does something wrong
-============================
+``Vinyld`` does something wrong
+===============================
 
 These are the easy bugs: usually all we need from you is the relevant
 transactions recorded with :ref:`vinyllog(1)` and your explanation
-of what is wrong about what Varnish does.
+of what is wrong about what ``vinyld`` does.
 
-Be aware, that often Varnish does exactly what you asked it to, rather
+Be aware, that often ``vinyld`` does exactly what you asked it to, rather
 than what you intended it to do. If it sounds like a bug that would
 have tripped up everybody else, take a moment to read through your
 VCL and see if it really does what you think it does.

@@ -109,7 +109,7 @@ The default values comes parameters with the same names, see :ref:`vinyld(1)`.
 Attribute ``.max_connections``
 ------------------------------
 
-Limit how many simultaneous connections varnish can open to the backend::
+Limit how many simultaneous connections ``vinyld`` can open to the backend::
 
     .max_connections = 1000;
 
