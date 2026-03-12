@@ -38,7 +38,7 @@ want to compile Varnish from source for other reasons:
 
 	install_source
 
-Other pre-built Vinyl-Cache packages
+Other pre-built Vinyl Cache packages
 ====================================
 
 We will update this as things appear after the name change.

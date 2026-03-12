@@ -522,9 +522,9 @@ specific options. Available jails are:
 
     groupadd vinyl
     useradd -g vinyl -d /nonexistent -s /bin/false \
-      -c "Vinyl-Cache Daemon User" vinyl
+      -c "Vinyl Cache Daemon User" vinyl
     useradd -g vinyl -d /nonexistent -s /bin/false \
-      -c "Vinyl-Cache Worker User" vcache
+      -c "Vinyl Cache Worker User" vcache
 
 -j none
 
