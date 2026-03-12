@@ -19,7 +19,7 @@ if [ -z "`which cov-build`" ]; then
 fi
 
 if [ -z "$EMAIL" ]; then
-	EMAIL="vinyl-dev@varnish-cache.org"
+	EMAIL="vinyl-dev@vinyl-cache.org"
 fi
 
 
