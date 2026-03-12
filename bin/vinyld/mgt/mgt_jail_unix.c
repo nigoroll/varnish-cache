@@ -57,7 +57,7 @@ static gid_t vju_cc_gid;
 static int vju_cc_gid_set;
 
 #ifndef VINYL_USER
-#define VINYL_USER "varnish"
+#define VINYL_USER "vinyl"
 #endif
 
 #ifndef VCACHE_USER

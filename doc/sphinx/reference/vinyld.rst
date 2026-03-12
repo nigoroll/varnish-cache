@@ -517,6 +517,14 @@ specific options. Available jails are:
   The users given for the `user` and `workuser` arguments need to have
   the same primary ("login") group.
 
+  For users migrating from Varnish Cache, shell commands similar to the
+  following may be used to remove the previous default user and group::
+
+    userdel varnish || true
+    userdel vcache || true
+    userdel varnishlog || true # to remove reference to varnish group
+    groupdel varnish || true
+
   To set up a system for the default users with a group name
   ``vinyl``, shell commands similar to these may be used::
 
@@ -525,6 +533,12 @@ specific options. Available jails are:
       -c "Vinyl Cache Daemon User" vinyl
     useradd -g vinyl -d /nonexistent -s /bin/false \
       -c "Vinyl Cache Worker User" vcache
+    useradd -g vinyl -d /nonexistent -s /bin/false \
+      -c "Vinyl Log User" vinyllog
+
+  Note that the ``vinyllog`` user is not required and only added because, by
+  convention, it may be used to run ``vinyllog``, ``vinylncsa`` and other
+  VSM/VSL based tools.
 
 -j none
 

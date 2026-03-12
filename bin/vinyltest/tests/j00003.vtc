@@ -7,6 +7,6 @@ shell -err -expect "user not found" "vinyld -junix,user=/// -f ''"
 shell -err -expect "user not found" "vinyld -junix,workuser=/// -f ''"
 shell -err -expect "group not found" "vinyld -junix,ccgroup=/// -f ''"
 
-feature user_varnish
+feature user_vinyl
 
 shell -err -expect "have different login groups" "vinyld -junix,workuser=root -f ''"

@@ -1,7 +1,7 @@
 vtest "Listen at a Unix domain socket while in jail"
 
-feature user_varnish
-feature group_varnish
+feature user_vinyl
+feature group_vinyl
 feature root
 
 server s1 {
@@ -10,7 +10,7 @@ server s1 {
 } -start
 
 vinyl v1 -arg "-a ${tmpdir}/v1.sock" \
-	-jail "-junix,user=varnish,ccgroup=varnish" \
+	-jail "-junix,user=vinyl,ccgroup=vinyl" \
 	-vcl+backend {
 } -start
 
@@ -28,12 +28,12 @@ server s1 {
 	txresp
 } -start
 
-vinyl v2 -arg "-a ${tmpdir}/v2.sock,user=varnish,group=varnish,mode=666" \
-	-jail "-junix,user=varnish,ccgroup=varnish" \
+vinyl v2 -arg "-a ${tmpdir}/v2.sock,user=vinyl,group=vinyl,mode=666" \
+	-jail "-junix,user=vinyl,ccgroup=vinyl" \
 	-vcl+backend {
 } -start
 
-shell -match "rw-rw-rw-.+varnish.+varnish" { ls -l ${tmpdir}/v2.sock }
+shell -match "rw-rw-rw-.+vinyl.+vinyl" { ls -l ${tmpdir}/v2.sock }
 
 client c1 -connect "${tmpdir}/v2.sock" {
 	txreq
