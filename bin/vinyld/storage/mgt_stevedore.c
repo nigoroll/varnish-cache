@@ -142,7 +142,7 @@ smp_fake_init(struct stevedore *parent, int ac, char * const *av)
 	(void)av;
 	ARGV_ERR(
 	    "-spersistent has been deprecated, please see:\n"
-	    "  https://www.varnish-cache.org/docs/trunk/phk/persistent.html\n"
+	    "  https://www.vinyl-cache.org/docs/trunk/phk/persistent.html\n"
 	    "for details.\n"
 	);
 }

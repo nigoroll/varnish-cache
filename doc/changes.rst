@@ -30,7 +30,7 @@ development and past versions:
 Official information about changes in releases and advise on the
 upgrade process can be found in the ``doc/sphinx/whats-new/``
 directory, also available in HTML format at
-http://varnish-cache.org/docs/trunk/whats-new/index.html and via
+http://vinyl-cache.org/docs/trunk/whats-new/index.html and via
 individual releases. These documents are updated as part of the
 release process.
 

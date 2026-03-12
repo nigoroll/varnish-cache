@@ -19,7 +19,7 @@ vinyl v1 -proto PROXY -vcl+backend {
 		    vtc.proxy_header(v1, client.ip, server.ip), 36B));
 		set beresp.http.proxy2 = blob.encode(encoding=HEX,
 		    blob=vtc.proxy_header(v2, client.ip, server.ip,
-			"vtc.varnish-cache.org"));
+			"vtc.vinyl-cache.org"));
 	}
 } -start
 
@@ -30,5 +30,5 @@ client c1 -proxy1 "1.2.3.4:1111 5.6.7.8:5678" {
 	expect resp.http.ci == 1.2.3.4
 	expect resp.http.si == 5.6.7.8
 	expect resp.http.proxy1 == "PROXY TCP4 1.2.3.4 5.6.7.8 1111 5678"
-	expect resp.http.proxy2 == "0d0a0d0a000d0a515549540a2111002401020304050607080457162e0200157674632e7661726e6973682d63616368652e6f7267"
+	expect resp.http.proxy2 == "0d0a0d0a000d0a515549540a2111002201020304050607080457162e0200137674632e76696e796c2d63616368652e6f7267"
 } -run

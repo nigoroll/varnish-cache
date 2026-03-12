@@ -34,5 +34,5 @@ jobs:
       - uses: vapier/coverity-scan-action@v1.8.0
         with:
           project: varnish
-          email: varnish-dev@varnish-cache.org
+          email: vinyl-dev@vinyl-cache.org
           token: ${{ secrets.COVERITY_SCAN_TOKEN }}
