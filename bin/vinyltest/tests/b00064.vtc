@@ -18,7 +18,7 @@ server s1 {
 	delay .1
 	txresp -body "2"
 
-	# Last request, to a different URL to catch it if varnish asks for "/" too many times
+	# Last request, to a different URL to catch it if vinyl asks for "/" too many times
 	rxreq
 	expect req.url == "/2"
 	txresp -body "x"

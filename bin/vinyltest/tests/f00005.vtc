@@ -47,7 +47,7 @@ d6 00 00 08 00 00 00 00  00 07 7a 20 b1 3f 43 20
 	expect_close
 } -run
 
-# Reduced size proxy payload to verify Varnish is still running
+# Reduced size proxy payload to verify Vinyl is still running
 client c1 {
 	sendhex {
 0d 0a 0d 0a 00 0d 0a 51

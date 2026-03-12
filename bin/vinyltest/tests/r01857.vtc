@@ -19,7 +19,7 @@ client c1 {
 	expect resp.http.X-Vinyl == "1003 1002"
 } -run
 
-# Give varnish a chance to update stats
+# Give vinyl a chance to update stats
 delay .1
 
 vinyl v1 -expect sess_herd >= 1

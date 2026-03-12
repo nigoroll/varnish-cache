@@ -1,6 +1,6 @@
 vtest "test startup_timeout vs. stevedore init / open"
 
-# we test with vtc_varnish and vtc_process because of different code
+# we test with vtc_vinyl and vtc_process because of different code
 # paths in mgr for implicit start vs. cli start
 
 ####

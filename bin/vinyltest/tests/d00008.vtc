@@ -49,4 +49,4 @@ client c1 {
 delay 1
 
 vinyl v1 -cli backend.list
-# varnish v1 -expect MAIN.n_backend == 2
+# vinyl v1 -expect MAIN.n_backend == 2

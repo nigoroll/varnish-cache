@@ -1,6 +1,6 @@
 vtest "haproxy tcp-mode, tcp, send-proxy-v2, client ip and acl"
 
-# same as h00006.vtc, but using tcp for haproxy->varnish
+# same as h00006.vtc, but using tcp for haproxy->vinyl
 
 feature ignore_unknown_macro
 

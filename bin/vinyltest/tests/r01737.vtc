@@ -42,7 +42,7 @@ client c1 {
 
 delay 3
 
-# Check that Varnish is alive
+# Check that Vinyl is alive
 client c1 {
 	txreq
 	rxresp

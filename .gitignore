@@ -97,7 +97,7 @@ cscope.*out
 /bin/vinylstat/vinylstat
 /bin/vinylstat/vinylstat_help_gen
 /bin/vinylstat/vinylstat_curses_help.c
-/bin/varnishstat/vsc2rst
+/bin/vinylstat/vsc2rst
 /bin/vinyltest/teken_state.h
 /bin/vinyltest/vinyltest
 /bin/vinyltest/vtest
@@ -119,7 +119,7 @@ cscope.*out
 
 # Test droppings
 /bin/vinyld/*_test
-/bin/varnishtest/tests/*.log-t
+/bin/vinyltest/tests/*.log-t
 /include/vrt_test*
 /include/vbm_test
 /lib/libvinyl/*_test
@@ -135,7 +135,7 @@ cscope.*out
 # vtest.sh droppings
 /tools/tmp/
 /tools/_vtest_tmp/
-/tools/varnish-cache/
+/tools/vinyl-cache/
 /tools/vt_key
 /tools/vt_key.pub
 

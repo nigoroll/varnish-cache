@@ -1203,7 +1203,7 @@ class vcc():
         fo.write('\t\"\\n\\x03\"\n};\n')
         fo.write('#undef STRINGIFY\n')
 
-    # parts from varnish-cache include/generate.py
+    # parts from vinyl-cache include/generate.py
     def version(self):
         srcdir = os.path.dirname(self.inputfile)
 
@@ -1223,7 +1223,7 @@ class vcc():
                 break
         return pkgstr
 
-    # parts from varnish-cache include/generate.py
+    # parts from vinyl-cache include/generate.py
     def vcs(self):
         srcdir = os.path.normpath(os.path.dirname(self.inputfile))
 

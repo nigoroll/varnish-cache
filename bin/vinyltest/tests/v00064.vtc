@@ -59,7 +59,7 @@ vinyl v1 -expect SM?.s0.g_bytes > 1048000
 vinyl v1 -expect SM?.s0.g_space < 50
 
 client c1 {
-    # Check that Varnish is still alive
+    # Check that Vinyl is still alive
     txreq -url "/malloc" -hdr "If-Modified-Since: Fri, 03 Apr 2020 12:00:01 GMT"
     rxresp
     expect resp.status == 200

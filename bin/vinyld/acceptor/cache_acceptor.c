@@ -203,9 +203,9 @@ ccf_listen_address(struct cli *cli, const char * const *av, void *priv)
 	(void)priv;
 
 	/*
-	 * This CLI command is primarily used by varnishtest.  Don't
+	 * This CLI command is primarily used by vinyltest.  Don't
 	 * respond until listen(2) has been called, in order to avoid
-	 * a race where varnishtest::client would attempt to connect(2)
+	 * a race where vinyltest::client would attempt to connect(2)
 	 * before listen(2) has been called.
 	 */
 	while (!pool_accepting)
@@ -214,7 +214,7 @@ ccf_listen_address(struct cli *cli, const char * const *av, void *priv)
 	Lck_Lock(&shut_mtx);
 
 	/*
-	 * Varnishtest expects the list of listen sockets to come out in the
+	 * Vinyltest expects the list of listen sockets to come out in the
 	 * same order as it is specified on the command line.
 	 */
 	VTAILQ_FOREACH(ls, &heritage.socks, list) {

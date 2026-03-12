@@ -23,14 +23,14 @@ fi
 #    semop(1): encountered an error: Function not implemented
 update-alternatives --set fakeroot /usr/bin/fakeroot-tcp
 
-cd /varnish-cache
+cd /vinyl-cache
 ls -la
 
 echo "Untar debian..."
 tar xavf debian.tar.gz
 
 echo "Untar orig..."
-tar xavf varnish-*.tar.gz --strip 1
+tar xavf vinyl-*.tar.gz --strip 1
 
 echo "Update changelog version..."
 if [ -e .is_weekly ]; then

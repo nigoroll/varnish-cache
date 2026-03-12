@@ -1859,7 +1859,7 @@ PARAM_STRING(
 	/* flags */	BUILD_OPTIONS,
 	/* dyn_min_reason */	NULL,
 	/* dyn_max_reason */	NULL,
-	/* dyn_def_reason */	"${sysconfdir}/varnish:${datadir}/varnish/vcl"
+	/* dyn_def_reason */	"${sysconfdir}/vinyl-cache:${datadir}/vinyl-cache/vcl"
 )
 
 PARAM_STRING(
@@ -1873,7 +1873,7 @@ PARAM_STRING(
 	/* flags */	BUILD_OPTIONS,
 	/* dyn_min_reason */	NULL,
 	/* dyn_max_reason */	NULL,
-	/* dyn_def_reason */	"${libdir}/varnish/vmods"
+	/* dyn_def_reason */	"${libdir}/vinyl-cache/vmods"
 )
 
 /*--------------------------------------------------------------------

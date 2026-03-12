@@ -5,5 +5,5 @@
 
 // +libh mgt_event.h
 
--efile(451, varnishstat_options.h)	// No include guard
--efile(451, varnishstat_bindings.h)	// No include guard
+-efile(451, vinylstat_options.h)	// No include guard
+-efile(451, vinylstat_bindings.h)	// No include guard

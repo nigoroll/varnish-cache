@@ -145,7 +145,7 @@ vinyl v1 -cliexpect "(?s)Cannot stat:.+That was just a warning" \
 
 # VCC also warns but doesn't fail for EACCES. Tested in c00086.vtc.
 
-# The following test verifies that Varnish continues connecting to a
+# The following test verifies that Vinyl continues connecting to a
 # socket file, even if the listener at that location changes.
 
 server s1 -listen "${tmpdir}/server.sock" {

@@ -5,7 +5,7 @@
  *
  * Retained for reference and use by VMODs only
  */
-using "varnish.iso"
+using "vinyl.iso"
 
 @@
 expression vsl;

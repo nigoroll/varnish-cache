@@ -77,9 +77,9 @@ client c1 {
 } -run
 
 vinyl v1 -cli "vcl.list"
-#varnish v1 -expect MAIN.n_backend == 2
+#vinyl v1 -expect MAIN.n_backend == 2
 # expected: vcl2.dummy, vcl2.s2
 vinyl v1 -expect n_vcl_avail == 1
 
 # XXX This test fails on FreeBSD
-# XXX varnish v1 -expect n_vcl_discard == 0
+# XXX vinyl v1 -expect n_vcl_discard == 0

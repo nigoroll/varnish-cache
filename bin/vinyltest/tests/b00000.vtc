@@ -33,7 +33,7 @@ vinyl v1 -vcl+backend {
 vinyl v1 -cliok "param.set debug +workspace"
 vinyl v1 -cliok "param.set debug +witness"
 
-#varnish v1 -vsc *
+#vinyl v1 -vsc *
 
 vinyl v1 -expect MAIN.n_object == 0
 vinyl v1 -expect MAIN.sess_conn == 0
@@ -59,7 +59,7 @@ client c1 {
 	expect resp.status == 200
 } -run
 
-# varnish v1 -vsc *
+# vinyl v1 -vsc *
 vinyl v1 -expect n_object == 2
 vinyl v1 -expect sess_conn == 2
 vinyl v1 -expect client_req == 2

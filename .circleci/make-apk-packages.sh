@@ -15,7 +15,7 @@ elif [ -z "$PARAM_DIST" ]; then
     exit 1
 fi
 
-cd /varnish-cache
+cd /vinyl-cache
 tar xazf alpine.tar.gz --strip 1
 
 adduser -D builder
@@ -28,11 +28,11 @@ echo "Generate key"
 su builder -c "abuild-keygen -nai"
 
 echo "Fix APKBUILD's variables"
-tar xavf varnish-*.tar.gz
-VERSION=$(varnish-*/configure --version | awk 'NR == 1 {print $NF}')
+tar xavf vinyl-*.tar.gz
+VERSION=$(vinyl-*/configure --version | awk 'NR == 1 {print $NF}')
 echo "Version: $VERSION"
 sed -i "s/@VERSION@/$VERSION/" APKBUILD
-rm -rf varnish-*/
+rm -rf vinyl-*/
 
 echo "Change the ownership so that abuild is able to write its logs"
 chown builder -R .

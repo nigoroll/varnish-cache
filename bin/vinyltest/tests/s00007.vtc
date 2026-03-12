@@ -6,7 +6,7 @@ server s1 {
 	txresp -body "foo"
 
 	# The second request is never used, but is here to give a
-	# better error if varnish decides to fetch the object the
+	# better error if vinyl decides to fetch the object the
 	# second time
 
 	rxreq

@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 // See LICENSE file for full text of license
 
--efile(451, "varnishhist_profiles.h")
--efile(451, "varnishhist_options.h")
+-efile(451, "vinylhist_profiles.h")
+-efile(451, "vinylhist_options.h")
 -sem(profile_error, r_no)

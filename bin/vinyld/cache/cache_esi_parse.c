@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * VEP Varnish Esi Parsing
+ * VEP Vinyl Esi Parsing
  */
 
 #include "config.h"

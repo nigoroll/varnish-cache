@@ -33,7 +33,7 @@
  * ====================================================================
  *
  * *1) The name is motivated by the availability of the -j command line
- *     option. Jailing Varnish is not to be confused with BSD Jails or
+ *     option. Jailing Vinyl is not to be confused with BSD Jails or
  *     Solaris Zones.
  *
  *     In Solaris parlour, jail == least privileges
@@ -50,7 +50,7 @@
  * that priv_addset must succeed.
  *
  * For privileges which have been added later, we need to use priv strings in
- * order not to break builds of varnish on older platforms. To remain binary
+ * order not to break builds of vinyl on older platforms. To remain binary
  * compatible, we can't assert that priv_addset succeeds, but we may assert that
  * it either succeeds or fails with EINVAL.
  *
@@ -68,8 +68,8 @@
  * set.
  *
  * But we have a preference for making an informed decision about which
- * privileges varnish subprocesses should have, so we prefer to risk breaking
- * varnish temporarily on newer kernels and be notified of missing privileges
+ * privileges vinyl subprocesses should have, so we prefer to risk breaking
+ * vinyl temporarily on newer kernels and be notified of missing privileges
  * through bug reports.
  *
  * Notes on the SNOCD flag
@@ -89,10 +89,10 @@
  *
  *
  * We should, however, avoid to accidentally set the SNOCD flag when setting
- * privileges (see https://www.varnish-cache.org/trac/ticket/671 )
+ * privileges (see https://www.vinyl-cache.org/trac/ticket/671 )
  *
  * When changing the logic herein, always check with mdb -k. Replace _PID_ with
- * the pid of your varnish child, the result should be 0, otherwise a regression
+ * the pid of your vinyl child, the result should be 0, otherwise a regression
  * has been introduced.
  *
  * > 0t_PID_::pid2proc | ::print proc_t p_flag | >a
@@ -108,7 +108,7 @@
  *
  * Two options:
  *
- * - start the varnish master process under the same user/group given for the -u
+ * - start the vinyl master process under the same user/group given for the -u
  *   / -g command line option and elevated privileges but without proc_setid,
  *   e.g.:
  *

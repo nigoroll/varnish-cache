@@ -1,7 +1,7 @@
-varnishtest "Test cooled dynamic backend clean up"
+vinyltest "Test cooled dynamic backend clean up"
 
 # This test is disabled because it needs a timeout of 80 seconds (-t80 to
-# varnishtest). This is because the cooled backend timeout in varnish core
+# vinyltest). This is because the cooled backend timeout in vinyl core
 # is hard coded to 60 seconds.
 
 server s1 {
@@ -10,7 +10,7 @@ server s1 {
 	txresp
 } -start
 
-varnish v1 -arg "-p cli_timeout=2 -p first_byte_timeout=80" -vcl {
+vinyl v1 -arg "-p cli_timeout=2 -p first_byte_timeout=80" -vcl {
 	import debug;
 
 	backend dummy { .host = "${bad_backend}"; }
@@ -48,6 +48,6 @@ client c2 {
 
 delay 61
 
-varnish v1 -cliok "ping"
+vinyl v1 -cliok "ping"
 
 client c1 -wait

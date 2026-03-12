@@ -1,11 +1,11 @@
 /*
- * This file contains isomorphisms specific to the Varnish code base and
- * out of tree Varnish projects such as VUTs for VMODs.
+ * This file contains isomorphisms specific to the Vinyl code base and
+ * out of tree Vinyl projects such as VUTs for VMODs.
  *
  * It can be used directly by semantic patches from the same directory
  * with the following syntax:
  *
- *     @using "varnish.iso"@
+ *     @using "vinyl.iso"@
  *     <decl>
  *     @@
  *

@@ -28,7 +28,7 @@ parameters:
 
 jobs:
   dist:
-    description: Build or download varnish-x.y.z.tar.gz that is used later for the packaging jobs
+    description: Build or download vinyl-x.y.z.tar.gz that is used later for the packaging jobs
     docker:
       - image: fedora:latest
     steps:
@@ -54,23 +54,23 @@ jobs:
             - run:
                 name: Download the dist tarball
                 command: |
-                  curl -Ls '<< pipeline.parameters.dist-url >>' -o varnish-dist.tar.gz
+                  curl -Ls '<< pipeline.parameters.dist-url >>' -o vinyl-dist.tar.gz
             - when:
                 condition: << pipeline.parameters.dist-url-sha256 >>
                 steps:
                   - run:
                       name: Verify downloaded tarball
                       command: |
-                        echo "<< pipeline.parameters.dist-url-sha256 >> varnish-dist.tar.gz" | sha256sum -c
+                        echo "<< pipeline.parameters.dist-url-sha256 >> vinyl-dist.tar.gz" | sha256sum -c
             - run:
                 name: Rename the dist tarball by parsed version
                 command: |
                   mkdir parse-version-tmp
                   cd parse-version-tmp
-                  tar xzf ../varnish-dist.tar.gz
-                  VERSION=$(varnish-*/configure --version | awk 'NR == 1 {print $NF}')
+                  tar xzf ../vinyl-dist.tar.gz
+                  VERSION=$(vinyl-*/configure --version | awk 'NR == 1 {print $NF}')
                   cd ..
-                  mv -v varnish-dist.tar.gz varnish-${VERSION}.tar.gz
+                  mv -v vinyl-dist.tar.gz vinyl-${VERSION}.tar.gz
       - unless:
           condition: << pipeline.parameters.dist-url >>
           steps:
@@ -93,7 +93,7 @@ jobs:
           root: .
           paths:
             - .is_weekly
-            - varnish*.tar.gz
+            - vinyl*.tar.gz
             - tools/*.suppr
             - .circleci
   tar_pkg_tools:
@@ -184,10 +184,10 @@ jobs:
               --security-opt seccomp=unconfined \
               -e PARAM_DIST=$(echo "<< parameters.platform >>" | cut -d: -f1) \
               -e PARAM_RELEASE=$(echo "<< parameters.platform >>" | cut -d: -f2) \
-              -v$(pwd):/varnish-cache \
+              -v$(pwd):/vinyl-cache \
               --platform linux/$ARCH \
               << parameters.platform >> \
-              /varnish-cache/.circleci/make-$EXT-packages.sh
+              /vinyl-cache/.circleci/make-$EXT-packages.sh
       - run:
           name: List created packages
           command: find ./packages -type f

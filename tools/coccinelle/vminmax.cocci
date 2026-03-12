@@ -3,7 +3,7 @@
  *
  * Note: Has false positives on pointer types, tolerated for clarity
  */
-using "varnish.iso"
+using "vinyl.iso"
 
 @@ type T; T e1, e2; @@
 

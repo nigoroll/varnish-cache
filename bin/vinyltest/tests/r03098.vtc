@@ -5,7 +5,7 @@ vtest "Explain how param.(re)?set may fail"
 vinyl v1 -cliok "param.set thread_pool_max 10000"
 vinyl v1 -cliok "param.set thread_pool_min  8000"
 
-# NB: "varnish v1 -cliexpect" wouldn't work with a non-200 status
+# NB: "vinyl v1 -cliexpect" wouldn't work with a non-200 status
 shell -err -expect "Must be at least 8000 (thread_pool_min)" {
 	exec vinyladm -n ${v1_name} param.reset thread_pool_max
 }

@@ -4,7 +4,7 @@ server s1 {
 	rxreq
 	txresp -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" -nodate -body "1"
 
-	# When origin does not send a Date, varnish inserts one, prompting IMS
+	# When origin does not send a Date, vinyl inserts one, prompting IMS
 	rxreq
 	expect req.http.if-modified-since == "Wed, 11 Sep 2013 13:36:55 GMT"
 	txresp -status 304 -hdr "Last-Modified: Wed, 11 Sep 2013 13:36:55 GMT" \

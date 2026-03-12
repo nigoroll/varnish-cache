@@ -30,7 +30,7 @@ dnf -y install rpm-build dnf-utils
 
 export DIST_DIR=build
 
-cd /varnish-cache
+cd /vinyl-cache
 rm -rf $DIST_DIR
 mkdir $DIST_DIR
 
@@ -39,7 +39,7 @@ echo "Untar redhat..."
 tar xavf redhat.tar.gz -C $DIST_DIR
 
 echo "Untar orig..."
-tar xavf varnish-*.tar.gz -C $DIST_DIR --strip 1
+tar xavf vinyl-*.tar.gz -C $DIST_DIR --strip 1
 
 echo "Build Packages..."
 if [ -e .is_weekly ]; then
@@ -70,9 +70,9 @@ rpmbuild() {
         "$@"
 }
 
-dnf builddep -y "$DIST_DIR"/redhat/varnish.spec
-rpmbuild -bs "$DIST_DIR"/redhat/varnish.spec
-rpmbuild --rebuild "$RESULT_DIR"/varnish-*.src.rpm
+dnf builddep -y "$DIST_DIR"/redhat/vinyl.spec
+rpmbuild -bs "$DIST_DIR"/redhat/vinyl.spec
+rpmbuild --rebuild "$RESULT_DIR"/vinyl-*.src.rpm
 
 echo "Prepare the packages for storage..."
 mkdir -p packages/$PARAM_DIST/$PARAM_RELEASE/

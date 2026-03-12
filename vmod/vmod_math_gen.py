@@ -257,7 +257,7 @@ return values.
 
 vcc_top = """
 #-
-# This document is licensed under the same conditions as Varnish-Cache itself.
+# This document is licensed under the same conditions as Vinyl Cache itself.
 # See LICENSE for details.
 #
 # SPDX-License-Identifier: BSD-2-Clause

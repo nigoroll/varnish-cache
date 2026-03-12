@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * definition of privileges to use for the different Varnish Jail (VJ)
+ * definition of privileges to use for the different Vinyl Jail (VJ)
  * levels
  */
 #define E VJS_MASK(VJS_EFFECTIVE)	// as-is

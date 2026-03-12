@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * VEF Varnish Esi Fetching
+ * VEF Vinyl Esi Fetching
  */
 
 #include "config.h"

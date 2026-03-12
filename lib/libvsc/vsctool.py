@@ -359,7 +359,7 @@ class OurDirective(object):
         Note that these docs end with the first '\n.. ' sequence
         in the .vsc file, so that we can put a longer and more
         complex description into the .RST docs than the "long"
-        explanation varnishstat(1) and similar programs provide.
+        explanation vinylstat(1) and similar programs provide.
         '''
         while self.ldoc and self.ldoc[0].strip() == "":
             self.ldoc.pop(0)

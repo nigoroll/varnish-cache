@@ -266,7 +266,7 @@ smu_umem_loaded_warn(void)
 	e = getenv(env_umem_options);
 	if (e == NULL || ! strstr(e, def_umem_options))
 		fprintf(stderr, "\tit is recommended to set %s=%s "
-			"before starting varnish\n",
+			"before starting vinyld\n",
 			env_umem_options, def_umem_options);
 }
 

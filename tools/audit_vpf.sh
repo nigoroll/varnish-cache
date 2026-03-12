@@ -13,6 +13,6 @@ s/pidfile_Close/pidfile_close/g
 s/pidfile_Remove/pidfile_remove/g
 s/pidfile_Open/pidfile_open/g
 s/	(void)/	/g
-' lib/libvarnish/vpf.c |
+' lib/libvinyl/vpf.c |
     diff -ub /usr/src/lib/libutil/pidfile.c -
 

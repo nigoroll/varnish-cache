@@ -321,7 +321,7 @@ vcc_IdIs(const struct token *t, const char *p)
 }
 
 /*--------------------------------------------------------------------
- * Check that we have a Varnish identifier
+ * Check that we have a Vinyl identifier
  */
 
 void

@@ -189,9 +189,9 @@ SF_Parse_Decimal(const char **ipp, int strict, const char **errtxt)
 }
 
 /**********************************************************************
- * Parse a "Varnish number".
+ * Parse a "Vinyl number".
  *
- * Varnish numbers are the union of RFC8941 sf-integer and sf-decimal.
+ * Vinyl numbers are the union of RFC8941 sf-integer and sf-decimal.
  * If `errno` is non-zero the conversion failed and NAN is returned.
  */
 

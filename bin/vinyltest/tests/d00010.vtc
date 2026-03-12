@@ -59,4 +59,4 @@ client c2 {
 client c1 -wait
 
 vinyl v1 -cli backend.list
-#varnish v1 -expect MAIN.n_backend == 2
+#vinyl v1 -expect MAIN.n_backend == 2

@@ -20,7 +20,7 @@
 
 -esym(850, av)
 
--esym(534, snprintf)		// Only for varnishtest, and not really nice
+-esym(534, snprintf)		// Only for vinyltest, and not really nice
 
 -esym(765, http_cmds)		// No, cannot be made static
 

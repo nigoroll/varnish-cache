@@ -28,7 +28,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * Public definition of the CLI protocol, part of the published Varnish-API.
+ * Public definition of the CLI protocol, part of the published Vinyl-API.
  *
  * The overall structure of the protocol is a command-line like
  * "command+arguments" request and a IETF style "number + string" response.

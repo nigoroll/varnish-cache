@@ -399,7 +399,7 @@ VCP_Recycle(const struct worker *wrk, struct pfd **pfdp)
 
 	if (i && DO_DEBUG(DBG_VTC_MODE)) {
 		/*
-		 * In varnishtest we do not have the luxury of using
+		 * In vinyltest we do not have the luxury of using
 		 * multiple backend connections, so whenever we end up
 		 * in the "pending" case, take a short nap to let the
 		 * waiter catch up and put the pfd back into circulations.

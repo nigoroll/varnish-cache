@@ -6,6 +6,6 @@
 
 sed '
 s/vbe32/be32/g
-' lib/libvarnish/vsha256.c |
+' lib/libvinyl/vsha256.c |
     diff -ub /usr/src/sys/crypto/sha2/sha256c.c -
 

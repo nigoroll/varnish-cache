@@ -39,11 +39,11 @@
 #include "vct.h"
 
 /*--------------------------------------------------------------------
- * TTL and Age calculation in Varnish
+ * TTL and Age calculation in Vinyl
  *
  * RFC2616 has a lot to say about how caches should calculate the TTL
  * and expiry times of objects, but it sort of misses the case that
- * applies to Varnish:  the server-side cache.
+ * applies to Vinyl:  the server-side cache.
  *
  * A normal cache, shared or single-client, has no symbiotic relationship
  * with the server, and therefore must take a very defensive attitude
@@ -51,12 +51,12 @@
  * the policy described in section 13 of RFC 2616 results in no caching
  * happening on the first little sign of trouble.
  *
- * Varnish on the other hand tries to offload as many transactions from
+ * Vinyl on the other hand tries to offload as many transactions from
  * the backend as possible, and therefore just passing through everything
- * if there is a clock-skew between backend and Varnish is not a workable
+ * if there is a clock-skew between backend and Vinyl is not a workable
  * choice.
  *
- * Varnish implements a policy which is RFC2616 compliant when there
+ * Vinyl implements a policy which is RFC2616 compliant when there
  * is no clockskew, and falls as gracefully as possible otherwise.
  * Our "clockless cache" model is synthesized from the bits of RFC2616
  * that talks about how a cache should react to a clockless origin server,
@@ -247,7 +247,7 @@ RFC2616_Req_Gzip(const struct http *hp)
 	/*
 	 * "gzip" is the real thing, but the 'q' value must be nonzero.
 	 * We do not care a hoot if the client prefers some other
-	 * compression more than gzip: Varnish only does gzip.
+	 * compression more than gzip: Vinyl only does gzip.
 	 */
 	if (http_GetHdrQ(hp, H_Accept_Encoding, "gzip") > 0.)
 		return (1);

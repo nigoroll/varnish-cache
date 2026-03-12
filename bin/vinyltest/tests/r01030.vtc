@@ -40,7 +40,7 @@ client c1 {
 } -run
 
 #delay 0.1
-#varnish v1 -expect bans_lurker_tests_tested == 0
+#vinyl v1 -expect bans_lurker_tests_tested == 0
 
 #delay 1.5
 vinyl v1 -expect bans_lurker_tests_tested >= 1
@@ -58,7 +58,7 @@ client c2 {
 } -run
 
 #delay 0.1
-#varnish v1 -expect bans_lurker_tests_tested == 1
+#vinyl v1 -expect bans_lurker_tests_tested == 1
 
 #delay 1.1
 vinyl v1 -expect bans_lurker_tests_tested == 2

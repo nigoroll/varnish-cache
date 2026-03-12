@@ -15,7 +15,7 @@ server s1 {
 	delay 1
 	txresp -status 304
 
-	# Last request, to a different URL to catch it if varnish asks for "/" too many times
+	# Last request, to a different URL to catch it if vinyl asks for "/" too many times
 	rxreq
 	expect req.url == "/2"
 	txresp -body "x"
@@ -66,7 +66,7 @@ client c2 -wait
 client c3 -wait
 
 # Finally the request to "/2". The expect in the server block makes sure that
-# there were no extra requests to "/" from varnish.
+# there were no extra requests to "/" from vinyl.
 
 client c4 {
 	txreq -url "/2"

@@ -89,9 +89,9 @@ run() {
 
 	if [ -n "$INVERSE" ]
 	then
-		! bin/varnishtest/varnishtest -i "$VTC_FILE"
+		! bin/vinyltest/vinyltest -i "$VTC_FILE"
 	else
-		bin/varnishtest/varnishtest -i "$VTC_FILE"
+		bin/vinyltest/vinyltest -i "$VTC_FILE"
 	fi
 	exit $?
 }

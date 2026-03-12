@@ -14,7 +14,7 @@ server s2 {
 
 # the use case for via-proxy is to have a(n ha)proxy make a (TLS)
 # connection on our behalf. For the purpose of testing, we use another
-# varnish in place - but we are behaving realistically in that we do
+# vinyl in place - but we are behaving realistically in that we do
 # not use any prior information for the actual backend connection -
 # just the information from the proxy protocol
 

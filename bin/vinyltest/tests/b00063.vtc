@@ -14,11 +14,11 @@ server s1 {
 	expect req.url == "/1"
 	txresp -status 503 -body "2"
 
-	# varnish will disconnect on a 503
+	# vinyl will disconnect on a 503
 	accept
 	rxreq
 	expect req.url == "/1"
-	# wait until varnish has delivered 200 before replying
+	# wait until vinyl has delivered 200 before replying
 	# with the 404
 	barrier b2 sync
 	delay .1

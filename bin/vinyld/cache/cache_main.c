@@ -232,7 +232,7 @@ VXID_Get(const struct worker *wrk, uint64_t mask)
 
 /*
  * Dumb down the VXID allocation to make it predictable for
- * varnishtest cases
+ * vinyltest cases
  */
 static void v_matchproto_(cli_func_t)
 cli_debug_xid(struct cli *cli, const char * const *av, void *priv)

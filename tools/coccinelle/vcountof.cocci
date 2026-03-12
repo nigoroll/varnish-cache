@@ -7,7 +7,7 @@
 //
 // copied and modified from https://coccinelle.gitlabpages.inria.fr/website/rules/array.cocci
 
-using "varnish.iso"
+using "vinyl.iso"
 
 @@
 type T;

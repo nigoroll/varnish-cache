@@ -50,7 +50,7 @@ client c1 {
 vinyl v1 -expect SM?.Transient.c_fail == 1
 
 client c1 {
-	# Check that Varnish is still alive
+	# Check that Vinyl is still alive
 	txreq -url "/obj1"
 	rxresp
 	expect resp.status == 200

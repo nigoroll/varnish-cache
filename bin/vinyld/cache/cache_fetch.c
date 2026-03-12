@@ -793,7 +793,7 @@ vbf_stp_fetchend(struct worker *wrk, struct busyobj *bo)
 	AZ(bo->vfc->failed);
 
 	/* Recycle the backend connection before setting BOS_FINISHED to
-	   give predictable backend reuse behavior for varnishtest */
+	   give predictable backend reuse behavior for vinyltest */
 	vbf_cleanup(bo);
 
 	AZ(ObjSetU64(wrk, oc, OA_LEN, oc->boc->fetched_so_far));

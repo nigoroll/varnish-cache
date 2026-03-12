@@ -62,7 +62,7 @@ vfil_null_fd(int target)
 }
 
 int
-varnish_daemon(int nochdir, int noclose)
+vinyl_daemon(int nochdir, int noclose)
 {
 	struct sigaction osa, sa;
 	pid_t newgrp;

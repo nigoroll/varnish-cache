@@ -1,4 +1,4 @@
-varnishtest "fun esi includes and ranges"
+vinyltest "fun esi includes and ranges"
 
 # this does not work yet because the ESI VDP pushes data directly
 # to the next level up, which in turn is required to get the
@@ -23,7 +23,7 @@ server s1 {
 
 } -start
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	sub vcl_recv {
 		if (req.url == "/bar") {
 			set req.http.Range = "bytes=7-8";

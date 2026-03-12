@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Build Varnish under Coverity, and upload the output to Coverity Scan.
+# Build Vinyl under Coverity, and upload the output to Coverity Scan.
 #
 # Requires the Coverity scanner in $PATH and the upload token set in $COVTOKEN.
 #
@@ -49,6 +49,6 @@ curl --form token=$COVTOKEN \
   --form "file=@myproject.tgz" \
   --form version="$GITREF" \
   --form description="description=${GITBRANCH}_branch" \
-  'https://scan.coverity.com/builds?project=varnish'
+  'https://scan.coverity.com/builds?project=vinyl'
 
 rm myproject.tgz

@@ -1,4 +1,4 @@
-vtest "Torture Varnish with start/stop commands"
+vtest "Torture Vinyl with start/stop commands"
 
 server s1 {
 	rxreq

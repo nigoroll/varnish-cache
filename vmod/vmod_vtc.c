@@ -454,7 +454,7 @@ vsl_line(VRT_CTX, char *str)
 	char *e, *save;
 
 	if (*str == '*') {
-		// varnishtest
+		// vinyltest
 		str = strstr(str, "vsl|");
 		if (str == NULL)
 			return;

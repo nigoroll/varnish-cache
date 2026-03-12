@@ -1,4 +1,4 @@
-vtest "retrying a short client body read should not panic varnish"
+vtest "retrying a short client body read should not panic vinyl"
 
 server s1 {
 	non_fatal

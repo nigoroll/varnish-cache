@@ -83,7 +83,7 @@ hcb_build_bittbl(void)
 /*---------------------------------------------------------------------
  * For space reasons we overload the two pointers with two different
  * kinds of of pointers.  We cast them to uintptr_t's and abuse the
- * low two bits to tell them apart, assuming that Varnish will never
+ * low two bits to tell them apart, assuming that Vinyl will never
  * run on machines with less than 32bit alignment.
  *
  * Asserts will explode if these assumptions are not met.

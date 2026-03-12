@@ -5,9 +5,9 @@
 # See LICENSE file for full text of license
 
 FLOPS='
-	varnishstat.c
-	varnishstat_curses.c
-	varnishstat_curses_help.c
+	vinylstat.c
+	vinylstat_curses.c
+	vinylstat_curses_help.c
 
 	../../lib/libvinylapi/flint.lnt
 	../../lib/libvinylapi/*.c

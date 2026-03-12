@@ -9,10 +9,10 @@ vinyl v1 -cliok "param.set http_req_size 32k"
 # Better yet:  Rewrite your regexps to avoid this madness.
 
 # Tweaks you may add to this test:
-# varnish v1 -cliok "param.set thread_pool_stack 48k"
-# varnish v1 -cliok "param.set pcre2_match_limit 100"
-# varnish v1 -cliok "param.set pcre2_depth_limit 10000"
-# varnish v1 -cliok "param.set pcre2_jit_compilation off"
+# vinyl v1 -cliok "param.set thread_pool_stack 48k"
+# vinyl v1 -cliok "param.set pcre2_match_limit 100"
+# vinyl v1 -cliok "param.set pcre2_depth_limit 10000"
+# vinyl v1 -cliok "param.set pcre2_jit_compilation off"
 
 # Approximate formula for FreeBSD/amd64:
 #	pcre2_depth_limit = thread_pool_stack * 2 - 9

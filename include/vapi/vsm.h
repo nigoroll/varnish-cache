@@ -86,7 +86,7 @@ void VSM_ResetError(struct vsm *vd);
 	 * Reset recorded error message.
 	 */
 
-#define VSM_n_USAGE	"[-n varnish_name]"
+#define VSM_n_USAGE	"[-n vinyl_name]"
 #define VSM_t_USAGE	"[-t <seconds|off>]"
 
 int VSM_Arg(struct vsm *, char flag, const char *arg);

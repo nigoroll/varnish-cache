@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-/* VHT - Varnish HPACK Table */
+/* VHT - Vinyl HPACK Table */
 
 #define VHT_ENTRY_SIZE 32U
 
@@ -65,7 +65,7 @@ const char *VHT_LookupValue(const struct vht_table *, unsigned, size_t *);
 int VHT_Init(struct vht_table *, size_t);
 void VHT_Fini(struct vht_table *);
 
-/* VHD - Varnish HPACK Decoder */
+/* VHD - Vinyl HPACK Decoder */
 
 enum vhd_ret_e {
 #define VHD_RET(NAME, VAL, DESC)		\

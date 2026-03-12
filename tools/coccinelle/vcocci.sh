@@ -50,10 +50,10 @@ usage() {
 
 	    apply <file>    Apply a patch to the source tree
 	    parse <file>    Parse and expand a patch
-	    mkiso           Generate a varnish.iso file
+	    mkiso           Generate a vinyl.iso file
 	    help            Show this help and exit
 
-	This script operates directly on the Varnish Cache git repository.
+	This script operates directly on the Vinyl Cache git repository.
 	EOF
 	exit $ERR
 }

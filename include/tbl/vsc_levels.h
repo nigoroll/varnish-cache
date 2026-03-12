@@ -46,7 +46,7 @@ VSC_LEVEL_F(diag,	"DIAG",		"Diagnostic counters",
 )
 
 VSC_LEVEL_F(debug,	"DEBUG",	"Debug counters",
-    "Counters giving Varnish internals debug information"
+    "Counters giving Vinyl internals debug information"
 )
 
 #undef VSC_LEVEL_F

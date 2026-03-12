@@ -40,7 +40,7 @@ vinyl v1 -expect SM?.Transient.g_space < 200
 
 client c1 {
 	# No space for this object (more than 256 bytes in headers). Don't wait
-	# for reply as Varnish will not send one due to Transient full.
+	# for reply as Vinyl will not send one due to Transient full.
 	txreq -url "/obj2"
 	delay 1
 } -run
@@ -49,7 +49,7 @@ client c1 {
 vinyl v1 -expect SM?.Transient.c_fail == 3
 
 client c1 {
-	# Check that Varnish is still alive
+	# Check that Vinyl is still alive
 	txreq -url "/obj1"
 	rxresp
 	expect resp.status == 200

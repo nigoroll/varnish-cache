@@ -1,4 +1,4 @@
-# varnish-legacy.m4 - Macros to locate Varnish header files. -*- Autoconf -*-
+# vinyl-legacy.m4 - Macros to locate Vinyl header files. -*- Autoconf -*-
 # serial 4 (varnish-4.0)
 
 # Copyright (c) 2013-2016 Varnish Software AS

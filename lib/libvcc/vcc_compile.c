@@ -40,7 +40,7 @@
  *	>         sub request_policy {
  *	>         ----##############--
  *	>Read more about this type of error:
- *	>http://varnish/doc/error.html#Unreferenced%20function
+ *	>http://vinyl/doc/error.html#Unreferenced%20function
  *	>
  *	>
  *	>         Unknown variable 'obj.bandwidth'
@@ -48,7 +48,7 @@
  *	>                 if (obj.bandwidth < 1 kb/h) {
  *	>         ------------#############------------
  *	>Read more about this type of error:
- *	>http://varnish/doc/error.html#Unknown%20variable
+ *	>http://vinyl/doc/error.html#Unknown%20variable
  *
  */
 

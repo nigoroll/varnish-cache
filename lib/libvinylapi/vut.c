@@ -75,7 +75,7 @@ vut_daemon(struct VUT *vut)
 	if (daemonized)
 		VUT_Error(vut, 1, "Already running as a daemon");
 	daemonized = 1;
-	return (varnish_daemon(0, 0));
+	return (vinyl_daemon(0, 0));
 }
 
 static void
@@ -187,7 +187,7 @@ VUT_Arg(struct VUT *vut, int opt, const char *arg)
 			VUT_Error(vut, 1, "-k: Invalid number '%s'", arg);
 		return (1);
 	case 'n':
-		/* Varnish instance name */
+		/* Vinyl instance name */
 		AN(arg);
 		REPLACE(vut->n_arg, arg);
 		return (1);

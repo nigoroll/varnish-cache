@@ -31,7 +31,7 @@ server s1 {
 # The included object gets served from a different backend.
 # This is to avoid a race between when a backend connection
 # gets put up for reuse because of background fetches in
-# Varnish 4
+# Vinyl 4
 server s2 {
 	rxreq
 	expect req.url == "bar/foo"

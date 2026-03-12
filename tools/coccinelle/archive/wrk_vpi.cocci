@@ -3,7 +3,7 @@
  *
  * Retained for reference only
  */
-using "varnish.iso"
+using "vinyl.iso"
 
 @@
 idexpression struct worker *wrk;

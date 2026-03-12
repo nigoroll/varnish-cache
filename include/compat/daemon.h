@@ -34,9 +34,9 @@
 #define COMPAT_DAEMON_H_INCLUDED
 
 #ifndef HAVE_DAEMON
-int varnish_daemon(int nochdir, int noclose);
+int vinyl_daemon(int nochdir, int noclose);
 #else
-#define varnish_daemon(a,b)  daemon(a,b)
+#define vinyl_daemon(a,b)  daemon(a,b)
 #endif
 
 #endif

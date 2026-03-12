@@ -27,7 +27,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * VED - Varnish Esi Delivery
+ * VED - Vinyl Esi Delivery
  */
 
 #include "config.h"

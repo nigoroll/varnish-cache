@@ -25,7 +25,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# detectdevice.vcl - regex based device detection for Varnish
+# detectdevice.vcl - regex based device detection for Vinyl Cache
 # https://code.vinyl-cache.org/vinyl-cache/vinyl-devicedetect/
 #
 # Original author: Lasse Karstensen <lkarsten@varnish-software.com>

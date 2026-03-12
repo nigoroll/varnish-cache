@@ -43,8 +43,8 @@ usage() {
 	Usage: $SCRIPT <file1> <file2>
 	       $SCRIPT -h
 
-	Show the differences between two sets of varnish metrics extracted
-	with 'varnishstat -1'.
+	Show the differences between two sets of vinyl metrics extracted
+	with 'vinylstat -1'.
 
 	Available options:
 	-h : show this help and exit
@@ -83,7 +83,7 @@ join_prepare() {
 	# NB: the metrics need to be sorted to later be joined, and since
 	# the metrics descriptions contain spaces, using a delimiter other
 	# than space solves the problem. Hopefully @ never shows up in the
-	# varnishstat -1 output.
+	# vinylstat -1 output.
 	sort -k 1b,1 "$1" |
 	sed 's:  *:@: ; s::@: ; s::@:'
 }

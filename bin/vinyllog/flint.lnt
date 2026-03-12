@@ -7,7 +7,7 @@
 
 -e763	// Redundant declaration for symbol '...' previously declared
 
--efile(451, "varnishlog_options.h")
+-efile(451, "vinyllog_options.h")
 
 -e732   // Loss of sign (arg. no. 2) (int to unsigned
 -e713	// Loss of precision (assignment) (unsigned long long to long long)

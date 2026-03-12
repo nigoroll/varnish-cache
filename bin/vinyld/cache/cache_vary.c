@@ -206,7 +206,7 @@ vry_cmp(const uint8_t *v1, const uint8_t *v2)
 		/*
 		 * If we do gzip processing, we do not vary on Accept-Encoding,
 		 * because we want everybody to get the gzipped object, and
-		 * varnish will gunzip as necessary.  We implement the skip at
+		 * vinyl will gunzip as necessary.  We implement the skip at
 		 * check time, rather than create time, so that object in
 		 * persistent storage can be used with either setting of
 		 * http_gzip_support.

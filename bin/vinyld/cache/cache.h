@@ -791,7 +791,7 @@ typedef void vai_notify_cb(vai_hdl, void *priv);
 
 
 /*
- * VSCARAB: Varnish SCatter ARAy of Buffers:
+ * VSCARAB: Vinyl SCatter ARAy of Buffers:
  *
  * an array of viovs, elsewhere also called an siov or sarray
  */
@@ -903,7 +903,7 @@ struct vscarab {
 } while(0)
 
 /*
- * VSCARET: Varnish SCatter Array Return
+ * VSCARET: Vinyl SCatter Array Return
  *
  * an array of leases obtained from a vscarab
  */

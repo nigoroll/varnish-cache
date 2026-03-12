@@ -6,6 +6,6 @@
 
 sed '
 s/VFL_Open/flopen/
-' lib/libvarnish/vfl.c |
+' lib/libvinyl/vfl.c |
     diff -u /usr/src/lib/libutil/flopen.c -
 

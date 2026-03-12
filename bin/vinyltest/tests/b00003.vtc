@@ -21,7 +21,7 @@ client c2 {
 	expect resp.http.X-Vinyl == "1004 1002"
 } -run
 
-# Give varnish a chance to update stats
+# Give vinyl a chance to update stats
 delay .1
 
 vinyl v1 -expect sess_conn == 2

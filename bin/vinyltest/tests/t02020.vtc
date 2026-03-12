@@ -39,7 +39,7 @@ client c1 {
 } -run
 
 client c2 {
-	# This makes use of the fact that Varnish will always send a
+	# This makes use of the fact that Vinyl will always send a
 	# session window update immediately when receiving a data
 	# frame. The four rxwinup before barrier sync on stream 0 matches
 	# up with the four txdata frames sent early on the stream, and

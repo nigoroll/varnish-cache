@@ -44,14 +44,14 @@ client c1 {
 vinyl v1 -expect SM?.s0.c_req > 2
 
 client c1 {
-	# See varnish can gunzip it.
+	# See vinyl can gunzip it.
 	txreq -url /foo -hdr "Accept-Encoding: null"
 	rxresp
 	expect resp.http.content-encoding == <undef>
 	expect resp.bodylen == 4100
 	delay .1
 
-	# See varnish can gunzip it, inside ESI
+	# See vinyl can gunzip it, inside ESI
 	txreq -url /bar -hdr "Accept-Encoding: null"
 	rxresp
 	expect resp.http.content-encoding == <undef>

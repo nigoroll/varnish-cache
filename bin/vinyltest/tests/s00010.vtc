@@ -11,7 +11,7 @@ server s0 {
 	rxreq
 	txresp -nolen -hdr "Transfer-encoding: chunked"
 	chunkedlen 100000
-	# make sure varnish is stuck in delivery
+	# make sure vinyl is stuck in delivery
 	barrier b1 sync
 	non_fatal
 	chunkedlen 0
@@ -52,7 +52,7 @@ logexpect l1 -v v1 -g raw {
 client c1 -rcvbuf 256 {
 	txreq
 	rxresphdrs
-	# varnish is stuck sending the chunk
+	# vinyl is stuck sending the chunk
 	barrier b1 sync
 	# wait for the timeout to kick in
 	barrier b2 sync
@@ -77,7 +77,7 @@ logexpect l2 -v v1 -g raw {
 client c2 -rcvbuf 256 {
 	txreq -hdr "send_timeout: 100ms"
 	rxresphdrs
-	# varnish is stuck sending the chunk
+	# vinyl is stuck sending the chunk
 	barrier b1 sync
 	# wait for the timeout to kick in
 	barrier b2 sync
@@ -100,7 +100,7 @@ logexpect l3 -v v1 -g raw {
 client c3 -rcvbuf 256 {
 	txreq
 	rxresphdrs
-	# varnish is stuck sending the chunk
+	# vinyl is stuck sending the chunk
 	barrier b1 sync
 	# wait for the timeout to kick in
 	barrier b2 sync
@@ -122,7 +122,7 @@ logexpect l4 -v v1 -g raw {
 client c4 -rcvbuf 256 {
 	txreq -hdr "idle_send_timeout: 100ms"
 	rxresphdrs
-	# varnish is stuck sending the chunk
+	# vinyl is stuck sending the chunk
 	barrier b1 sync
 	# wait for the timeout to kick in
 	barrier b2 sync

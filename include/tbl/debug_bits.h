@@ -42,7 +42,7 @@ DEBUG_BIT(VCLREL,		vclrel,		"Rapid VCL release")
 DEBUG_BIT(LURKER,		lurker,		"VSL Ban lurker")
 DEBUG_BIT(ESI_CHOP,		esi_chop,	"Chop ESI fetch to bits")
 DEBUG_BIT(FLUSH_HEAD,		flush_head,	"Flush after http1 head") // XXX -> filter
-DEBUG_BIT(VTC_MODE,		vtc_mode,	"Varnishtest Mode")
+DEBUG_BIT(VTC_MODE,		vtc_mode,	"Vinyltest Mode")
 DEBUG_BIT(WITNESS,		witness,	"Emit WITNESS lock records")
 DEBUG_BIT(VSM_KEEP,		vsm_keep,	"Keep the VSM file on restart")
 DEBUG_BIT(SLOW_ACCEPTOR,	slow_acceptor,	"Slow down Acceptor")

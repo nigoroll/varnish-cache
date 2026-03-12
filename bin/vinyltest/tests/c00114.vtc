@@ -6,9 +6,9 @@ vtest "TLV authority over via backends used as SNI for haproxy backend/1"
 
 # In this version of the test, we set port 0 in the server config of
 # the "ssl-onloading" haproxy, and set the destination port in the
-# backend config for Varnish. The onloader sets its destination port
+# backend config for Vinyl. The onloader sets its destination port
 # from the address forwarded via PROXY, which in turn is set from the
-# Varnish backend config. See c00101.vtc for another config method.
+# Vinyl backend config. See c00101.vtc for another config method.
 
 feature ignore_unknown_macro
 

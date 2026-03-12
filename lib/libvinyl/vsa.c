@@ -155,7 +155,7 @@
  * false negatives which confuse people ?
  *
  * I have decided to try to contain this crap in this single
- * source-file, with only minimum leakage into the rest of Varnish,
+ * source-file, with only minimum leakage into the rest of Vinyl,
  * which will only know of pointers to "struct suckaddr", the naming
  * of which is my of the historical narrative above.
  *

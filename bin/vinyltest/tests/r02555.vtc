@@ -31,7 +31,7 @@ vinyl v1 -vcl+backend {
 			vtc.barrier_sync("${b1_sock}");
 			vtc.barrier_sync("${b2_sock}");
 		}
-		# Update the last timestamp inside varnish
+		# Update the last timestamp inside vinyl
 		std.timestamp("T");
 	}
 	sub vcl_hit {

@@ -1,8 +1,8 @@
-varnishtest "#1252 - Drop remote closed connections returning from waitinglists"
+vinyltest "#1252 - Drop remote closed connections returning from waitinglists"
 
 # This test case is disabled because it will only pass on platforms
 # where the tcp_keepalive_* runtime arguments are available, and also
-# because it requires "-t 80" argument to varnishtest (remote closed
+# because it requires "-t 80" argument to vinyltest (remote closed
 # state will only be detected after FIN timeout has passed (60s))
 
 barrier b1 cond 2
@@ -21,7 +21,7 @@ server s2 {
 	txresp
 } -start
 
-varnish v1 -arg "-p debug=+waitinglist" -vcl+backend {
+vinyl v1 -arg "-p debug=+waitinglist" -vcl+backend {
 	sub vcl_recv {
 		if (req.http.x-client == "2") {
 			set req.backend_hint = s2;
@@ -29,17 +29,17 @@ varnish v1 -arg "-p debug=+waitinglist" -vcl+backend {
 	}
 } -start
 
-varnish v1 -cliok "param.show tcp_keepalive_time"
-varnish v1 -cliok "param.set tcp_keepalive_time 1"
+vinyl v1 -cliok "param.show tcp_keepalive_time"
+vinyl v1 -cliok "param.set tcp_keepalive_time 1"
 
-varnish v1 -cliok "param.show tcp_keepalive_probes"
-varnish v1 -cliok "param.set tcp_keepalive_probes 1"
+vinyl v1 -cliok "param.show tcp_keepalive_probes"
+vinyl v1 -cliok "param.set tcp_keepalive_probes 1"
 
-varnish v1 -cliok "param.show tcp_keepalive_intvl"
-varnish v1 -cliok "param.set tcp_keepalive_intvl 1"
+vinyl v1 -cliok "param.show tcp_keepalive_intvl"
+vinyl v1 -cliok "param.set tcp_keepalive_intvl 1"
 
-varnish v1 -cliok "param.show first_byte_timeout"
-varnish v1 -cliok "param.set first_byte_timeout 70"
+vinyl v1 -cliok "param.show first_byte_timeout"
+vinyl v1 -cliok "param.set first_byte_timeout 70"
 
 delay 2
 

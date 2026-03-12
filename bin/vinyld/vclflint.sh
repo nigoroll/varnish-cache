@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Run flexelint on the VCL output
-LIBS="-p vmod_path=/home/phk/Varnish/trunk/varnish-cache/vmod/.libs"
+LIBS="-p vmod_path=/home/phk/Vinyl/trunk/vinyl-cache/vmod/.libs"
 
 if [ "x$1" = "x" ] ; then
 	./vinyld $LIBS -C -b localhost > /tmp/_.c

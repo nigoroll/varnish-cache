@@ -26,7 +26,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * Varnish Turbo Encabulator
+ * Vinyl Turbo Encabulator
  *
  * Align and print fields in a line-based output. Fields are delimited
  * with a horizontal tab HT and lines starting with a space SP are kept

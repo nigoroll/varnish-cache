@@ -3,7 +3,7 @@ vtest "connect: blackhole with queueing"
 # XXX: This test case relies on a way for us to never successed in connecting
 # to a backend. We need the connect syscall to hang forever. For TCP this means
 # that the backend must not respond to the three-way handshake initiated by
-# Varnish.
+# Vinyl.
 #
 # One way to achieve this is to use an IP address non-routeable over the
 # Internet, but this is not always a bullet-proof solution across all the

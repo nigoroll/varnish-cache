@@ -1,4 +1,4 @@
-vtest "varnish-cli pid command"
+vtest "vinyl-cli pid command"
 
 vinyl v1 -cliexpect "^Master: +[0-9]+\n$" pid
 vinyl v1 -cliok "pid -j"

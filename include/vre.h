@@ -30,7 +30,7 @@
  * Regular expression support
  *
  * We wrap PCRE2 in VRE to make to make it feasible to use something else
- * without hunting down stuff through out the Varnish source code.
+ * without hunting down stuff through out the Vinyl source code.
  *
  */
 
