@@ -112,7 +112,7 @@
  *   / -g command line option and elevated privileges but without proc_setid,
  *   e.g.:
  *
- *	pfexec ppriv -e -s A=basic,net_privaddr,sys_resource varnishd ...
+ *	pfexec ppriv -e -s A=basic,net_privaddr,sys_resource vinyld ...
  *
  * - allow coredumps of setid processes (ignoring SNOCD)
  *

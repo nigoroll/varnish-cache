@@ -44,7 +44,7 @@
 #include "cache_vcl.h"
 
 /*--------------------------------------------------------------------
- * Private & exclusive interfaces between VCC and varnishd
+ * Private & exclusive interfaces between VCC and vinyld
  */
 
 const size_t vpi_wrk_len = sizeof(struct wrk_vpi);

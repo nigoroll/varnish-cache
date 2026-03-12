@@ -42,7 +42,7 @@
 #include "vin.h"
 #include "vsb.h"
 
-#define VINYL_DEFAULT_REL_NAME "varnishd"
+#define VINYL_DEFAULT_REL_NAME "vinyld"
 
 char *
 VIN_n_Arg(const char *n_arg)

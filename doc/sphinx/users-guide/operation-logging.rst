@@ -38,7 +38,7 @@ to see that everything is OK.
 
 Now go to the browser and reload the page displaying your web app.
 
-.. XXX:Doesn't this require a setup of a running varnishd and a web application being cached? benc
+.. XXX:Doesn't this require a setup of a running vinyld and a web application being cached? benc
 
 You'll see lines like these.::
 

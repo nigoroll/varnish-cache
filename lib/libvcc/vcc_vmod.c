@@ -213,7 +213,7 @@ vcc_ParseJSON(const struct vcc *tl, const char *jsn, struct vmod_import *vim)
 		VSB_printf(tl->sb, "\tFile name: %s\n", vim->path);
 		VSB_printf(tl->sb, "\tVMOD wants ABI version %u.%u\n",
 		    vim->major, vim->minor);
-		VSB_printf(tl->sb, "\tvarnishd provides ABI version %u.%u\n",
+		VSB_printf(tl->sb, "\tvinyld provides ABI version %u.%u\n",
 		    VRT_MAJOR_VERSION, VRT_MINOR_VERSION);
 		return ("");
 	}

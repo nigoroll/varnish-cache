@@ -77,7 +77,7 @@ WS_Overflowed(const struct ws *ws)
 /*
  * Reset the WS to a cookie or its start and clears any overflow
  *
- * for varnishd internal use only
+ * for vinyld internal use only
  */
 
 void

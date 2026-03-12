@@ -68,7 +68,7 @@ exec_spatch() {
 	exec spatch \
 		--macro-file "$SRCDIR/tools/coccinelle/vdef.h" \
 		-I "$SRCDIR/include/" \
-		-I "$SRCDIR/bin/varnishd/" \
+		-I "$SRCDIR/bin/vinyld/" \
 		"$@"
 }
 

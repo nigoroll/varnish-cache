@@ -69,7 +69,7 @@
  * directly on the shmlog data.
  *
  * Notice that the constants in these macros cannot be changed without
- * changing corresponding magic numbers in varnishd/cache/cache_shmlog.c
+ * changing corresponding magic numbers in vinyld/cache/cache_shmlog.c
  */
 
 #define VSL_CLIENTMARKER	(1ULL<<62)

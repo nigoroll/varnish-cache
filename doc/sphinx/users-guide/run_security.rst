@@ -93,7 +93,7 @@ initiate a CLI connection to your central Varnish management facility.
 The connection in this case is also without encryption, but
 the remote end must still authenticate using ``-S``\ /`PSK`_.
 
-Finally, if you run varnishd with the ``-d`` option, you get a CLI
+Finally, if you run vinyld with the ``-d`` option, you get a CLI
 command on stdin/stdout, but since you started the process, it would
 be hard to prevent you getting CLI access, wouldn't it ?
 
@@ -138,9 +138,9 @@ from shared memory, but on remote systems, you need to give
 :ref:`vinyladm(1)` a copy of the secret file, with the -S argument.
 
 If you want to disable ``-S``\ /PSK authentication, use an ``-S none``
-argument to varnishd::
+argument to vinyld::
 
-	varnishd [...] -S none [...]
+	vinyld [...] -S none [...]
 
 Parameters
 ^^^^^^^^^^

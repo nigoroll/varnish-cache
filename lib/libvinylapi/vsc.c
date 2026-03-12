@@ -399,7 +399,7 @@ vsc_map_seg(const struct vsc *vsc, struct vsm *vsm, struct vsc_seg *sp)
 
 	/* It isn't ready yet. Sleep and try again. If it still
 	 * isn't ready, fail the mapping. The transitions inside
-	 * varnishd that we are waiting for are just some memcpy()
+	 * vinyld that we are waiting for are just some memcpy()
 	 * operations, so there is no reason to allow a long retry
 	 * time. */
 	for (retry = 10; retry > 0 && head->ready == 0; retry--)

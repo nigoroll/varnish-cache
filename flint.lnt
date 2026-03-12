@@ -326,7 +326,7 @@
 -esym(534, wrefresh)
 
 ///////////////////////////////////////////////////////////////////////
-// vmod_debug, put here because it is used twice (varnishd2 and separate)
+// vmod_debug, put here because it is used twice (vinyld2 and separate)
 -esym(768, arg_xyzzy_debug_argtest::*)
 
 ///////////////////////////////////////////////////////////////////////

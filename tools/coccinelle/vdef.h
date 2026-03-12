@@ -36,10 +36,10 @@
 /* lib/libvcc/vcc_vmod.c */
 #define STANZA_TBL
 
-/* bin/varnishd/common/heritage.h */
+/* bin/vinyld/common/heritage.h */
 #define ASSERT_MGT() (void)0
 
-/* bin/varnishd/cache/cache_transport.h */
+/* bin/vinyld/cache/cache_transport.h */
 #define TRANSPORTS
 
 /* vmod/vcc_*_if.h */

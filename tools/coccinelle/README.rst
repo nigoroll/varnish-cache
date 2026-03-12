@@ -20,14 +20,14 @@ For in-tree usage, see the ``vcocci.sh`` script for convenience.
 Unless noted otherwise, all patches should work when invoked as::
 
 	spatch --macro-file tools/coccinelle/vdef.h \
-	       -I include/ -I bin/varnishd/ --dir . --in-place \
+	       -I include/ -I bin/vinyld/ --dir . --in-place \
 	       --sp-file $COCCI
 
 To expand a patch and see the implicit rules that will be taken into account,
 it is possible to parse the file::
 
 	spatch --macro-file tools/coccinelle/vdef.h \
-	       -I include/ -I bin/varnishd/ --parse-cocci
+	       -I include/ -I bin/vinyld/ --parse-cocci
 	       --sp-file $COCCI
 
 The ``archive/`` directory contains patches which we used once and
@@ -87,7 +87,7 @@ In such cases, *do* check for parse errors in the affected file using
 
   for file in $(find . -name \*.c) ; do
     if spatch --macro-file tools/coccinelle/vdef.h \
-       -I include/ -I bin/varnishd/  --parse-c $file 2>&1 |
+       -I include/ -I bin/vinyld/  --parse-c $file 2>&1 |
        grep -C 5 -E '^BAD' ; then
          echo ; echo $file
     fi

@@ -24,7 +24,7 @@ To ensure ``tmpfs`` is used, check the following:
 
 Determine the *workdir*. If you use a specific ``-n`` option to ``vinyld`` or
 set the ``VINYL_DEFAULT_N`` variable, it is that value. Otherwise run
-``varnishd -x options``, which outputs the *workdir* default.
+``vinyld -x options``, which outputs the *workdir* default.
 
 Run ``df *workdir*``. If it reports ``tmpfs`` as the file system in the first
 column, no additional action is necessary.

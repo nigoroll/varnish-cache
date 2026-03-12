@@ -175,7 +175,7 @@ Built-in VCL reference
 ----------------------
 
 A copy of the ``builtin.vcl`` file can be obtained by running
-``varnishd -x builtin``.
+``vinyld -x builtin``.
 
 The VCL compilation happens in two passes:
 

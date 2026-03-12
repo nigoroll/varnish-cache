@@ -127,7 +127,7 @@ The VMOD PACKAGE API/ABI
 ------------------------
 
 This API space provides access to everything in the ``VRT`` API
-space plus the other exposed and supported APIs in varnishd.
+space plus the other exposed and supported APIs in vinyld.
 
 | Include files allowed:
 |
@@ -152,7 +152,7 @@ their VRT cousins be checked for compatibility on VMOD import.
 The VMOD SOURCE API/ABI
 -----------------------
 
-This API space provides access to private parts of varnishd and its
+This API space provides access to private parts of vinyld and its
 use is highly discouraged, unless you absolutely have to,
 
 You can #include any file from the varnish source tree and use

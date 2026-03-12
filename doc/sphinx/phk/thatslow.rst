@@ -119,7 +119,7 @@ source code, from the panic/backtrace code over the "miniobj"
 type-safety to obscure hints to Gimpel Softwares FlexeLint product.
 
 Needless to say, it is also not by accident that the 20K lines of
-testcases exercise over 90% of the varnishd source code lines.
+testcases exercise over 90% of the vinyld source code lines.
 
 And insisting on doing things right, rather than *"we can fix it
 properly later"* which is so widespread in FOSS source code [#f7]_,

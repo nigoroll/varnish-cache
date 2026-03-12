@@ -985,7 +985,7 @@ VRT_r_server_identity(VRT_CTX)
 	if (heritage.identity != NULL)
 		return (heritage.identity);
 	else
-		return ("varnishd");
+		return ("vinyld");
 }
 
 VCL_STRING

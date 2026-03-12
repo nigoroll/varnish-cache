@@ -54,7 +54,7 @@ the ``-T`` argument, this will also be written to shared memory, so
 ``vinyladm`` keeps working::
 
 	# Bind to internal network
-	varnishd -T 192.168.10.21:3245
+	vinyld -T 192.168.10.21:3245
 
 You can also configure ``vinyld`` to actively open a TCP connection
 to another "controller" program, with the ``-M`` argument.

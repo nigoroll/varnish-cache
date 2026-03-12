@@ -5,13 +5,13 @@ body:
   attributes:
     value: |+
       Did you check that there are no similar bug reports or pull requests?
-      
+
       If your panic happens in the child_sigsegv_handler function, look at the backtrace to determine whether it is similar to another issue. When in doubt, open a new one and it will be closed as a duplicate if needed.
-      
+
       If it's a packaging bug (including sysv or systemd services bugs) please open an issue on [varnishcache/pkg-varnish-cache](https://code.vinyl-cache.org/vinyl-cache/pkg-vinyl-cache) instead.
-      
+
       If it's a feature request, please start a thread on the [varnish-misc](https://vinyl-cache.org/support/index.html#mailing-lists) list instead.
-      
+
 - type: textarea
   attributes:
     label: Expected Behavior
@@ -55,8 +55,8 @@ body:
   attributes:
     label: Varnish Cache version
     description: |+
-      The version can be obtained by "varnishd -V".
-    placeholder: "varnishd (varnish-7.3.0 revision 84d79120b6d17b11819a663a93160743f293e63f)"
+      The version can be obtained by "vinyld -V".
+    placeholder: "vinyld (vinyl-cache-trunk revision 82fff61ce98a282c721d2026c7649403bc1d18eb)"
 - type: input
   attributes:
     placeholder: Ubuntu22.04
@@ -64,4 +64,4 @@ body:
 - type: input
   attributes:
     label: Source of binary packages used (if any)
-    placeholder: https://packagecloud.io/varnishcache/
+    placeholder: https://code.vinyl-cache.org/

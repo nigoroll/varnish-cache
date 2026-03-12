@@ -204,7 +204,7 @@ vslc_vsm_reset(const struct VSL_cursor *cursor)
 	VRMB();
 
 	if (c->options & VSL_COPT_TAIL) {
-		/* Start in the same segment varnishd currently is in and
+		/* Start in the same segment vinyld currently is in and
 		   run forward until we see the end */
 		u = c->next.priv = segment_n;
 		assert(c->head->offset[c->next.priv % VSL_SEGMENTS] >= 0);
@@ -212,7 +212,7 @@ vslc_vsm_reset(const struct VSL_cursor *cursor)
 		    c->head->offset[c->next.priv % VSL_SEGMENTS];
 		do {
 			if (c->head->segment_n - u > 1) {
-				/* Give up if varnishd is moving faster
+				/* Give up if vinyld is moving faster
 				   than us */
 				return (vsl_e_overrun);
 			}
@@ -221,8 +221,8 @@ vslc_vsm_reset(const struct VSL_cursor *cursor)
 		if (r != vsl_end)
 			return (r);
 	} else {
-		/* Starting (VSL_SEGMENTS - 3) behind varnishd. This way
-		 * even if varnishd advances segment_n immediately, we'll
+		/* Starting (VSL_SEGMENTS - 3) behind vinyld. This way
+		 * even if vinyld advances segment_n immediately, we'll
 		 * still have a full segment worth of log before the
 		 * general constraint of at least 2 segments apart will be
 		 * broken.

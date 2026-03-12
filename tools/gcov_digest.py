@@ -158,7 +158,7 @@ def run_gcov(prog, subdir):
             # if we find the .o file in a .../.libs the sources
             # must be found relative to the parent directory
 
-            if "varnishd" in root:
+            if "vinyld" in root:
                 subdir = root.split("/")[-1]
                 cmd = ["cd " + root + "/.. && " + "exec " + prog + " " + subdir + "/" + fn]
                 rpath = "/../"
