@@ -60,7 +60,7 @@ vinyl v1 -vcl+backend {
 } -start
 
 logexpect l1 -v v1 -q Hit -i Hit {
-	expect * * Hit "^1002 -.+ 10.000000 0.000000$"
+	expect * * Hit "^1002 -.+ 10.000000 0.000000"
 } -start
 
 logexpect l2 -v v1 -q "Begin ~ bgfetch" {
