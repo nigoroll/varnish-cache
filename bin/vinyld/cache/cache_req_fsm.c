@@ -193,7 +193,7 @@ Resp_Setup_Synth(struct req *req)
 	http_PutResponse(h, "HTTP/1.1", req->err_code, req->err_reason);
 
 	http_TimeHeader(h, "Date: ", W_TIM_real(req->wrk));
-	http_SetHeader(h, "Server: Varnish");
+	http_SetHeader(h, "Server: Vinyl-Cache");
 	http_PrintfHeader(h, "X-Vinyl: %ju", VXID(req->vsl->wid));
 
 	/*
