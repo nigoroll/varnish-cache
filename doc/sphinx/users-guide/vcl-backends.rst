@@ -8,10 +8,10 @@
 Backend servers
 ---------------
 
-Varnish has a concept of "backend" or "origin" servers. A backend
-server is the server providing the content Varnish will accelerate.
+Vinyl Cache has a concept of "backend" or "origin" servers. A backend
+server is the server providing the content Vinyl Cache will accelerate.
 
-Our first task is to tell Varnish where it can find its backends. Start
+Our first task is to tell Vinyl Cache where it can find its backends. Start
 your favorite text editor and open the relevant VCL file.
 
 Somewhere in the top there will be a section that looks a bit like this.::
@@ -28,11 +28,11 @@ We remove the comment markings in this code block making it look like.::
         .port = "8080";
     }
 
-Now, this piece of configuration defines a backend in Varnish called
-*default*. When Varnish needs to get content from this backend it will
+Now, this piece of configuration defines a backend in Vinyl Cache called
+*default*. When Vinyl Cache needs to get content from this backend it will
 connect to port 8080 on localhost (127.0.0.1).
 
-Varnish can have several backends defined you can even join
+Vinyl Cache can have several backends defined you can even join
 several backends together into clusters of backends for load balancing
 purposes.
 
@@ -75,8 +75,8 @@ Backends can also be declared as ``none`` with the following syntax:::
 Multiple backends
 -----------------
 
-At some point you might need Varnish to cache content from several
-servers. You might want Varnish to map all the URL into one single
+At some point you might need Vinyl Cache to cache content from several
+servers. You might want Vinyl Cache to map all the URL into one single
 host or not. There are lot of options.
 
 Lets say we need to introduce a Java application into out PHP web
@@ -98,7 +98,7 @@ We add a new backend.::
         .port = "8000";
     }
 
-Now we need tell Varnish where to send the difference URL. Lets look at `vcl_recv`.::
+Now we need tell Vinyl Cache where to send the difference URL. Lets look at `vcl_recv`.::
 
     sub vcl_recv {
         if (req.url ~ "^/java/") {
@@ -114,15 +114,15 @@ really arbitrary data. You want to send mobile devices to a different
 backend? No problem. ``if (req.http.User-agent ~ /mobile/) ..`` should do the
 trick.
 
-Without an explicit backend selection, Varnish will continue using
+Without an explicit backend selection, Vinyl Cache will continue using
 the `default` backend. If there is no backend named `default`, the
 first backend found in the vcl will be used as the default backend.
 
 
-Backends and virtual hosts in Varnish
--------------------------------------
+Backends and virtual hosts in Vinyl Cache
+-----------------------------------------
 
-Varnish fully supports virtual hosts. They might however work in a somewhat
+Vinyl Cache fully supports virtual hosts. They might however work in a somewhat
 counter-intuitive fashion since they are never declared
 explicitly. You set up the routing of incoming HTTP requests in
 `vcl_recv`. If you want this routing to be done on the basis of virtual
@@ -157,7 +157,7 @@ Connecting Through a Proxy
 .. _haproxy: http://www.haproxy.org/
 .. _SNI: https://en.wikipedia.org/wiki/Server_Name_Indication
 
-As of this release, Varnish can connect to an actual *destination*
+As of this release, Vinyl Cache can connect to an actual *destination*
 through a *proxy* using the `PROXY2`_ protocol. Other protocols may be
 added.
 
@@ -185,7 +185,7 @@ higher, this snippet can be used as a basis for configuring an
             # ...
             # A higher number of servers improves TLS session caching
 
-Varnish running on the same server/namespace can then use the
+Vinyl Cache running on the same server/namespace can then use the
 *onloader* with the ``.via`` feature (see :ref:`backend_definition_via`)::
 
   backend sslon {
@@ -213,7 +213,7 @@ groups are called directors. This will give you increased performance
 and resilience.
 
 You can define several backends and group them together in a
-director. This requires you to load a VMOD, a Varnish module, and then to
+director. This requires you to load a VMOD, a Vinyl Cache module, and then to
 call certain actions in `vcl_init`.::
 
 
@@ -243,7 +243,7 @@ also a *random* director which distributes requests in a, you guessed it,
 random fashion. If that is not enough, you can also write your own director
 (see :ref:`ref-writing-a-director`).
 
-But what if one of your servers goes down? Can Varnish direct all the
+But what if one of your servers goes down? Can Vinyl Cache direct all the
 requests to the healthy server? Sure it can. This is where the Health
 Checks come into play.
 
@@ -277,7 +277,7 @@ us define the backends::
         }
     }
 
-What is new here is the ``probe``.  In this example Varnish will check the
+What is new here is the ``probe``.  In this example Vinyl Cache will check the
 health of each backend every 5 seconds, timing out after 1 second. Each
 poll will send a GET request to /. If 3 out of the last 5 polls succeeded
 the backend is considered healthy, otherwise it will be marked as sick.
@@ -296,15 +296,15 @@ Now we define the 'director'::
     }
 
 You use this `vdir` director as a backend_hint for requests, just like
-you would with a simple backend. Varnish will not send traffic to hosts
+you would with a simple backend. Vinyl Cache will not send traffic to hosts
 that are marked as unhealthy.
 
-Varnish can also serve stale content if all the backends are down. See
+Vinyl Cache can also serve stale content if all the backends are down. See
 :ref:`users-guide-handling_misbehaving_servers` for more information on
 how to enable this.
 
-Please note that Varnish will keep health probes running for all loaded
-VCLs. Varnish will coalesce probes that seem identical - so be careful
+Please note that Vinyl Cache will keep health probes running for all loaded
+VCLs. Vinyl Cache will coalesce probes that seem identical - so be careful
 not to change the probe config if you do a lot of VCL loading. Unloading
 the VCL will discard the probes. For more information on how to do this
 please see ref:`reference-vcl-director`.
@@ -370,7 +370,7 @@ connections over possibly multiple hops and long network
 paths. However relevant the overhead, it certainly always exists.
 
 So because re-using existing connections can generally be considered
-to reduce overhead and latencies, Varnish pools backend connections by
+to reduce overhead and latencies, Vinyl Cache pools backend connections by
 default: Whenever a backend task is finished, the used connection is
 not closed but rather added to a pool for later reuse. To avoid a
 connection from being reused, the ``Connection: close`` http header
@@ -385,5 +385,5 @@ address information, irrespective of which VCLs they are defined in,
 their connections are taken from a common pool.
 
 If not actively closed by the backend, pooled connections are kept
-open by Varnish until the :ref:`ref_param_backend_idle_timeout`
+open by Vinyl Cache until the :ref:`ref_param_backend_idle_timeout`
 expires.

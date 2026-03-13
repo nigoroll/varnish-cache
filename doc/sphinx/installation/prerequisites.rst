@@ -6,7 +6,7 @@
 Prerequisites
 =============
 
-In order for you to install Varnish you must have the following:
+In order for you to install Vinyl Cache you must have the following:
 
   * A recent, preferably server grade, computer.
   * A fairly modern and 64 bit version of either
@@ -16,7 +16,7 @@ In order for you to install Varnish you must have the following:
   * Root access.
 
 
-Varnish can be installed on other UNIX systems as well, but it is not extensively or systematically tested by us on other systems than the above. Varnish is, from time to
+Vinyl Cache can be installed on other UNIX systems as well, but it is not extensively or systematically tested by us on other systems than the above. Vinyl Cache is, from time to
 time, said to work on:
 
   * 32 bit versions of the before-mentioned systems,

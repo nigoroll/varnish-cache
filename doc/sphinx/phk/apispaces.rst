@@ -26,7 +26,7 @@ One of the big attractions of Object Oriented programming is that
 it solves exactly that problem:
 Nobody is confused about ``car->push()`` and ``stack->push()``.
 
-But Varnish is written in C which has a flat namespace and we must
+But Vinyl Cache is written in C which has a flat namespace and we must
 live with it.
 
 From the very start, we defined cadastral boundaries in the flat
@@ -86,14 +86,14 @@ detail below.
 
 A VMOD which restricts itself to the ``VRT`` API/ABI gets maximum
 stability and will, we hope, work without recompilation across
-many major and minor releases of Varnish.
+many major and minor releases of Vinyl Cache.
 
 A VMOD which uses the ``PACKAGE`` API, will likely keep working
-across minor releases of varnish releases, but will usually
-need to be recompiled for new major releases of varnish.
+across minor releases of vinyl Cache releases, but will usually
+need to be recompiled for new major releases of vinyl Cache.
 
 A VMOD which uses the ``SOURCE`` API is compiled against one
-specific version of Varnish, and will not work with another
+specific version of Vinyl Cache, and will not work with another
 version until recompiled.
 
 The VMOD VRT API/ABI
@@ -155,7 +155,7 @@ The VMOD SOURCE API/ABI
 This API space provides access to private parts of vinyld and its
 use is highly discouraged, unless you absolutely have to,
 
-You can #include any file from the varnish source tree and use
+You can #include any file from the vinyl Cache source tree and use
 anything you find in them - but don't come crying to us if it
 all ends in tears:  No refunds at this window.
 

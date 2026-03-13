@@ -10,11 +10,15 @@ What's new / Upgrading
 %%%%%%%%%%%%%%%%%%%%%%
 
 This section describes the changes and improvements between different
-versions of Varnish, and what upgrading between the different versions
+versions of Vinyl Cache, and what upgrading between the different versions
 entail.
 
-Vinyl 9.0
----------
+Releases up to and including 8.0 were called Varnish. From 9.0 on, this project
+is called Vinyl Cache and releases called Varnish are continued by Varnish
+Software as a fork.
+
+Vinyl Cache 9.0
+---------------
 
 **Note: These are working documents for a future release, with running
 updates for changes in the development branch. For changes in the

@@ -5,8 +5,8 @@
 
 .. _run_cli:
 
-CLI - bossing Varnish around
-============================
+CLI - bossing Vinyl Cache around
+================================
 
 Once ``vinyld`` is started, you can control it using the ``vinyladm``
 program and the command line interface::
@@ -112,14 +112,14 @@ it loaded, so it can be activated with ::
 Ban cache content
 ^^^^^^^^^^^^^^^^^
 
-Varnish offers "purges" to remove things from cache, but that
+Vinyl Cache offers "purges" to remove things from cache, but that
 requires you to know exactly what they are.
 
 Sometimes it is useful to be able to throw things out of cache
 without having an exact list of what to throw out.
 
 Imagine for instance that the company logo changed and now you need
-Varnish to stop serving the old logo out of the cache:
+Vinyl Cache to stop serving the old logo out of the cache:
 
 .. code-block:: text
 

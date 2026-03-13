@@ -6,7 +6,7 @@
 Hashing
 -------
 
-Internally, when Varnish stores content in the cache indexed by a hash
+Internally, when Vinyl Cache stores content in the cache indexed by a hash
 key used to find the object again. In the default setup
 this key is calculated based on `URL`, the `Host:` header, or
 if there is none, the IP address of the server::
@@ -22,12 +22,14 @@ if there is none, the IP address of the server::
     }
 
 As you can see it first hashes `req.url` and then `req.http.host` if
-it exists. It is worth pointing out that Varnish doesn't lowercase the
-hostname or the URL before hashing it so in theory having "Varnish.org/"
-and "varnish.org/" would result in different cache entries. Browsers
-however, tend to lowercase hostnames.
+it exists. It is worth pointing out that Vinyl Cache core code doesn't lowercase the
+hostname or the URL before hashing it so in theory https://vinyl-cache.org/ and
+https://Vinyl-Cache.org/ would use different cache entries. However, ``sub
+vcl_req_host`` from ``builtin.vcl`` takes care of converting the host name to
+lowercase if the built-in VCL is in effect. The path component of the URL should
+not be lowercased unless when the application does not use mixed case.
 
-You can change what goes into the hash. This way you can make Varnish
+You can change what goes into the hash. This way you can make Vinyl Cache
 serve up different content to different clients based on arbitrary
 criteria.
 
@@ -55,6 +57,6 @@ If `vcl_hash` did return, ie::
         return(lookup);
     }
 
-then *only* the country-code would matter, and Varnish would return
+then *only* the country-code would matter, and Vinyl Cache would return
 seemingly random objects, ignoring the URL, (but they would always
 have the correct `X-Country-Code`).

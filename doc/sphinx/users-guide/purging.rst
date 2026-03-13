@@ -14,7 +14,7 @@ increase the time-to-live (ttl) of your objects. But, as you're aware
 of, in this twitterific day of age, serving content that is outdated is
 bad for business.
 
-The solution is to notify Varnish when there is fresh content
+The solution is to notify Vinyl Cache when there is fresh content
 available. This can be done through three mechanisms. HTTP purging,
 banning and forced cache misses. First, lets look at HTTP purging.
 
@@ -29,7 +29,7 @@ through HTTP with the method `PURGE`.
 An HTTP purge is similar to an HTTP GET request, except that the
 *method* is `PURGE`. Actually you can call the method whatever you'd
 like, but most people refer to this as purging. Squid, for example,
-supports the same mechanism. In order to support purging in Varnish
+supports the same mechanism. In order to support purging in Vinyl Cache
 you need the following VCL in place::
 
   acl purge {
@@ -50,18 +50,18 @@ you need the following VCL in place::
 
 As you can see we have used a new action - return(purge). This ends
 execution of vcl_recv and jumps to vcl_hash. This is just like we
-handle a regular request. When vcl_hash calls return(lookup) Varnish
+handle a regular request. When vcl_hash calls return(lookup) Vinyl Cache
 will purge the object and then call vcl_purge. Here you have the
-option of adding any particular actions you want Varnish to take once
+option of adding any particular actions you want Vinyl Cache to take once
 it has purge the object.
 
 So for example.com to invalidate their front page they would call out
-to Varnish like this::
+to Vinyl Cache like this::
 
   PURGE / HTTP/1.0
   Host: example.com
 
-And Varnish would then discard the front page. This will remove all
+And Vinyl Cache would then discard the front page. This will remove all
 variants as defined by Vary.
 
 Bans
@@ -74,7 +74,7 @@ content based on any metadata we have.
 A ban will only work on objects already in the cache, it does not
 prevent new content from entering the cache or being served.
 
-Support for bans is built into Varnish and available in the CLI
+Support for bans is built into Vinyl Cache and available in the CLI
 interface. To ban every png object belonging on example.com, issue
 the following command from the shell::
 
@@ -83,7 +83,7 @@ the following command from the shell::
 See :ref:`std.ban()` for details on the syntax of ban expressions. In
 particular, note that in the example given above, the quotes are
 required for execution from the shell and escaping the backslash in
-the regular expression is required by the Varnish cli interface.
+the regular expression is required by the Vinyl Cache cli interface.
 
 Bans are checked when we hit an object in the cache, but before we
 deliver it. *An object is only checked against newer bans*.
@@ -92,18 +92,14 @@ During lookup, object variants that may not satisfy the current request
 are also tested against the ban list, which means that a ban may also
 hit a non matching variant.
 
-However, the parameter `ban_any_variant` can be used to limit the number
-of possibly non matching variants that are checked against the ban list during
+However, the parameter `ban_any_variant` can be used to limit the number of
+possibly non matching variants that are checked against the ban list during
 lookup for a particular request. This means that at most `ban_any_variant`
 variants will be evaluated, and possibly evicted, before looking for matching
-variants. A value of 0 means that every request would only evaluate bans
-against matching variants. In contrast, a value that is too high may cause a
-request to evaluate all variants against all active bans, which can add
-significant delays for configurations having a large number of variants
-and/or bans.
-
-In the next major release of varnish (8.0), the default value of
-`ban_any_variant` will be set to 0.
+variants. The default value of 0 means that every request would only evaluate
+bans against matching variants. Any other value may cause a request to evaluate
+all variants against all active bans. Very high values can add significant
+delays for configurations having a large number of variants and/or bans.
 
 Bans that only match against `obj.*` are also processed by a background
 worker threads called the `ban lurker`. The `ban lurker` will walk the
@@ -119,7 +115,7 @@ without evaluation. If you have a lot of objects with long TTL, that
 are seldom accessed, you might accumulate a lot of bans. This might
 impact CPU usage and thereby performance.
 
-You can also add bans to Varnish via HTTP. Doing so requires a bit of VCL::
+You can also add bans to Vinyl Cache via HTTP. Doing so requires a bit of VCL::
 
   import std;
 
@@ -139,7 +135,7 @@ You can also add bans to Varnish via HTTP. Doing so requires a bit of VCL::
 	  }
   }
 
-This VCL stanza enables Varnish to handle a `HTTP BAN` method, adding a
+This VCL stanza enables Vinyl Cache to handle a `HTTP BAN` method, adding a
 ban on the URL, including the host part.
 
 The `ban lurker` can help you keep the ban list at a manageable size, so
@@ -195,7 +191,7 @@ Forcing a cache miss
 
 The final way to invalidate an object is a method that allows you to
 refresh an object by forcing a `hash miss` for a single request. If you set
-'req.hash_always_miss' to true, Varnish will miss the current object in the
+'req.hash_always_miss' to true, Vinyl Cache will miss the current object in the
 cache, thus forcing a fetch from the backend. This can in turn add the
 freshly fetched object to the cache, thus overriding the current one. The
 old object will stay in the cache until ttl expires or it is evicted by

@@ -6,7 +6,7 @@
 Ignoring the Vary header for bots
 =================================
 
-Varnish supports HTTP variants out of the box, but the *Vary* header is
+Vinyl Cache supports HTTP variants out of the box, but the *Vary* header is
 somewhat limited since it operates on complete header values. If you want for
 example to conduct an A/B testing campaign or perform blue/green deployment
 you can make clients "remember" their path with a first-party cookie.

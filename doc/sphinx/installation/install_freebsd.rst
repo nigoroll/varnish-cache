@@ -8,10 +8,12 @@
 Installing on FreeBSD
 =====================
 
+.. XXX needs to be updated for Vinyl
+
 From package
 ------------
 
-FreeBSD offers two versions of Varnish pre-packaged::
+FreeBSD offers two versions of Varnish Cache pre-packaged::
 
 	pkg install varnish6
 
@@ -23,8 +25,8 @@ From ports
 ----------
 
 The FreeBSD packages are built out of the "ports" tree, and you can
-install varnish directly from ports if you prefer, for instance to
-get a newer version of Varnish than the current set of prebuilt
+install Varnish Cache directly from ports if you prefer, for instance to
+get a newer version of Varnish Cache than the current set of prebuilt
 packages provide::
 
 	cd /usr/ports/www/varnish6

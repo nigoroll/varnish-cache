@@ -73,7 +73,7 @@ or:
 
 Careless standardization costs code, have I mentioned this before ?
 
-Varnish reports socket addresses as two fields: IP space PORT,
+Vinyl Cache reports socket addresses as two fields: IP space PORT,
 now you know why.
 
 Until next time,

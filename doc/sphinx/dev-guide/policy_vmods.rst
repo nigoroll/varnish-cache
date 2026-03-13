@@ -5,11 +5,11 @@
 
 .. _policy-vmods:
 
-Bundling VMODs with the Varnish distribution
---------------------------------------------
+Bundling VMODs with the Vinyl Cache distribution
+------------------------------------------------
 
-Decisions about whether to add a new Varnish module (VMOD) to those
-bundled with Varnish are guided by these criteria.
+Decisions about whether to add a new Vinyl Cache module (VMOD) to those
+bundled with Vinyl Cache are guided by these criteria.
 
 * The VMOD is known to be in widespread use and in high demand for
   common use cases.
@@ -25,7 +25,7 @@ bundled with Varnish are guided by these criteria.
   * We don't want to add new burdens of dependency and compatibility
     to the project.
 
-  * We don't want to force Varnish deployments to install more than
+  * We don't want to force Vinyl Cache deployments to install more than
     admins explicitly choose to install.
 
 * The VMOD code follows project conventions (passes make distcheck,

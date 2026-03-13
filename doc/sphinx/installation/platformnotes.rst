@@ -8,15 +8,15 @@ Platform specific notes
 ------------------------
 
 On some platforms it is necessary to adjust the operating system before running
-Varnish on it. The systems and steps known to us are described in this section.
+Vinyl Cache on it. The systems and steps known to us are described in this section.
 
 On Linux, use tmpfs for the workdir
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish uses mapped files for shared memory, for which performance depends on
+Vinyl Cache uses mapped files for shared memory, for which performance depends on
 writes not blocking. On Linux, however, write throttling implemented by some
 file systems (which is generally useful in other scenarios) can interact badly
-with the way Varnish works and cause lockups or performance impacts. To avoid
+with the way Vinyl Cache works and cause lockups or performance impacts. To avoid
 such problems, it is recommended to use a ``tmpfs`` "virtual memory file system"
 as the *workdir*.
 
@@ -42,18 +42,18 @@ know what you are doing.
 workdir can not be mounted ``noexec``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish compiles VCL to a shared object and needs to load it at runtime. So the
+Vinyl Cache compiles VCL to a shared object and needs to load it at runtime. So the
 *workdir* can not reside on a file system mounted with ``noexec``.
 
 Lift locked memory limits
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For the same reason as explained above, varnish tries to lock shared memory in
+For the same reason as explained above, Vinyl Cache tries to lock shared memory in
 RAM. Therefore, the locked memory limit should ideally be set to unlimited or
 sufficiently high to accommodate all mapped files. The specific minimum required
 value is dynamic, depending among other factors on the number of VCLs loaded and
 backends configured. As a rule of thumb, it should be a generous multiple of the
-size of *workdir* when varnish is running.
+size of *workdir* when Vinyl Cache is running.
 
 See :ref:`ref-vsm` for details.
 
@@ -63,13 +63,13 @@ Transparent Hugepage on Linux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 On certain Linux distributions Transparent Hugepage (THP) kernel support is
-enabled by default. This is known to cause instabilities of Varnish.
+enabled by default. This is known to cause instabilities of Vinyl Cache.
 
-By default, Varnish tries to disable the THP feature, but does not fail if it
+By default, Vinyl Cache tries to disable the THP feature, but does not fail if it
 can't. The ``linux`` :ref:`ref-vinyld-opt_j` offers to optionally enable,
 disable or ignore THP.
 
-Alternatively, THP can be disabled system-wide. If Varnish is the only
+Alternatively, THP can be disabled system-wide. If Vinyl Cache is the only
 significant service running on this system, this can be done during runtime
 with::
 
@@ -82,24 +82,24 @@ OpenVZ
 ~~~~~~
 
 It is possible, but not recommended for high performance, to run
-Varnish on virtualised hardware. Reduced disk and network -performance
+Vinyl Cache on virtualised hardware. Reduced disk and network -performance
 will reduce the performance a bit so make sure your system has good IO
 performance.
 
 If you are running on 64bit OpenVZ (or Parallels VPS), you must reduce
-the maximum stack size before starting Varnish.
+the maximum stack size before starting Vinyl Cache.
 
-The default allocates too much memory per thread, which will make Varnish fail
+The default allocates too much memory per thread, which will make Vinyl Cache fail
 as soon as the number of threads (traffic) increases.
 
 Reduce the maximum stack size by adding ``ulimit -s 256`` before starting
-Varnish in the init script.
+Vinyl Cache in the init script.
 
 TCP keep-alive configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-On some Solaris, FreeBSD and OS X systems, Varnish is not able to set the TCP
-keep-alive values per socket, and therefore the *tcp_keepalive_* Varnish runtime
+On some Solaris, FreeBSD and OS X systems, Vinyl Cache is not able to set the TCP
+keep-alive values per socket, and therefore the *tcp_keepalive_* Vinyl Cache runtime
 parameters are not available. On these platforms it can be beneficial to tune
 the system wide values for these in order to more reliably detect remote close
 for sessions spending long time on waitinglists. This will help free up
@@ -118,7 +118,7 @@ to:
 - `tcp_keepalive_probes` = 5
 - `tcp_keepalive_intvl` = 5 seconds
 
-Note that Varnish will only apply these run-time parameters so long as
+Note that Vinyl Cache will only apply these run-time parameters so long as
 they are less than the system default value.
 
 .. XXX:Maybe a sample-command of using/setting/changing these values? benc

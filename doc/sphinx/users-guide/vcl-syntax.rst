@@ -47,7 +47,7 @@ which can later be used to match client addresses::
          ! "192.0.2.23";      // except for the dialin router
        }
 
-If an ACL entry specifies a host name which Varnish is unable to
+If an ACL entry specifies a host name which Vinyl Cache is unable to
 resolve, it will match any address it is compared to. Consequently,
 if it is preceded by a negation mark, it will reject any address it is
 compared to, which may not be what you intended. If the entry is
@@ -59,7 +59,7 @@ To match an IP address against an ACL, simply use the match operator::
          return (pipe);
        }
 
-In Varnish versions before 7.0, ACLs would always emit a `VCL_acl`
+In Varnish Cache versions before 7.0, ACLs would always emit a `VCL_acl`
 record in the VSL log, from 7.0 and forward, this must be explicitly
 enabled by specifying the `+log` flag::
 
@@ -97,8 +97,8 @@ down for, uhm, examples.
 Built in subroutines
 ~~~~~~~~~~~~~~~~~~~~
 
-Varnish has quite a few built-in subroutines that are called for each
-transaction as it flows through Varnish. These built-in subroutines are
+Vinyl Cache has quite a few built-in subroutines that are called for each
+transaction as it flows through Vinyl Cache. These built-in subroutines are
 all named ``vcl_*`` and are explained in :ref:`vcl_steps`.
 
 Processing in built-in subroutines ends with ``return (<action>)``

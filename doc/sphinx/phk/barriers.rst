@@ -5,15 +5,15 @@
 
 .. _phk_barriers:
 
-============================
-Security barriers in Varnish
-============================
+================================
+Security barriers in Vinyl Cache
+================================
 
-Security is a very important design driver in Varnish, more likely than not,
+Security is a very important design driver in Vinyl Cache, more likely than not,
 if you find yourself thinking "Why did he do _that_ ? the answer has to
 do with security.
 
-The Varnish security model is based on some very crude but easy to understand
+The Vinyl Cache security model is based on some very crude but easy to understand
 barriers between the various components:
 
 .. code-block:: text
@@ -55,7 +55,7 @@ barriers between the various components:
 The really Important Barrier
 ============================
 
-The central actor in Varnish is the Manager process, "MGT", which is the
+The central actor in Vinyl Cache is the Manager process, "MGT", which is the
 process the administrator "(ADMIN)" starts to get web-cache service.
 
 Having been there myself, I do not subscribe to the "I feel cool and important
@@ -67,7 +67,7 @@ The task of the Manager process is therefore not cache web content,
 but to make sure there always is a process which does that, the
 Child "CLD" process.
 
-That is the major barrier in Varnish:  All management happens in
+That is the major barrier in Vinyl Cache:  All management happens in
 one process all actual movement of traffic happens in another, and
 the Manager process does not trust the Child process at all.
 
@@ -75,7 +75,7 @@ The Child process is in a totally unprotected domain:  Any
 computer on the InterNet "(ANON)" can connect to the Child process
 and ask for some web-object.
 
-If John D. Criminal manages to exploit a security hole in Varnish, it is
+If John D. Criminal manages to exploit a security hole in Vinyl Cache, it is
 the Child process he subverts.  If he carries out a DoS attack, it is
 the Child process he tries to fell.
 
@@ -91,14 +91,14 @@ these are well defended by the Manager process.
 The Admin/Oper Barrier
 ======================
 
-If you look at the top left corner of the diagram, you will see that Varnish
+If you look at the top left corner of the diagram, you will see that Vinyl Cache
 operates with separate Administrator "(ADMIN)" and Operator "(OPER)" roles.
 
 The Administrator does things, changes stuff etc.  The Operator keeps an
 eye on things to make sure they are as they should be.
 
 These days Operators are often scripts and data collection tools, and
-there is no reason to assume they are bugfree, so Varnish does not
+there is no reason to assume they are bugfree, so Vinyl Cache does not
 trust the Operator role, that is a pure one-way relationship.
 
 (Trick:  If the Child process us run under user "nobody", you can
@@ -110,7 +110,7 @@ restart it again with the same parameters and settings.)
 The Administrator has the final say, and of course, the administrator
 can decide under which circumstances that authority will be shared.
 
-Needless to say, if the system on which Varnish runs is not properly
+Needless to say, if the system on which Vinyl Cache runs is not properly
 secured, the Administrator's monopoly of control will be compromised.
 
 All the other barriers
@@ -125,7 +125,7 @@ For instance the VCC compiler runs in a separate child process, to make
 sure that a memory leak or other flaw in the compiler does not accumulate
 trouble for the Manager process.
 
-Hope this explanation helps understand why Varnish is not just a single
+Hope this explanation helps understand why Vinyl Cache is not just a single
 process like all other server programs.
 
 Poul-Henning, 2010-06-28

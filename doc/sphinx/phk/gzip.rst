@@ -5,16 +5,16 @@
 
 .. _phk_gzip:
 
-=======================================
-How GZIP, and GZIP+ESI works in Varnish
-=======================================
+===========================================
+How GZIP, and GZIP+ESI works in Vinyl Cache
+===========================================
 
 First of all, everything you read about GZIP here, is controlled by the
 parameter:
 
 	http_gzip_support
 
-Which defaults to "on" if you do not want Varnish to try to be smart
+Which defaults to "on" if you do not want Vinyl Cache to try to be smart
 about compression, set it to "off" instead.
 
 What does http_gzip_support do
@@ -39,12 +39,12 @@ header removed.  This ensures conformity with respect to creating
 Vary: strings during object creation.
 
 During lookup, we ignore any "Accept-encoding" in objects Vary: strings,
-to avoid having a gzip and gunzip'ed version of the object, varnish
+to avoid having a gzip and gunzip'ed version of the object, vinyl Cache
 can gunzip on demand.  (We implement this bit of magic at lookup time,
 so that any objects stored in persistent storage can be used with
 or without gzip support enabled.)
 
-Varnish will not do any other types of compressions than gzip, in particular
+Vinyl Cache will not do any other types of compressions than gzip, in particular
 we will not do deflate, as there are browser bugs in that case.
 
 Before vcl_miss{} is called, the backend requests Accept-Encoding is
@@ -56,7 +56,7 @@ Even if this particular client does not support
 
 To always entice the backend into sending us gzipped content.
 
-Varnish will not gzip any content on its own (but see below), we trust
+Vinyl Cache will not gzip any content on its own (but see below), we trust
 the backend to know what content can be sensibly gzipped (html) and what
 cannot (jpeg)
 
@@ -74,7 +74,7 @@ In vcl_pass{} the client's Accept-Encoding header is copied to the
 backend request unchanged.
 Even if the client does not support gzip, you can force the A-E header
 to "gzip" on bereq.http in vcl_backend_fetch{} to save bandwidth between
-the backend and varnish. Varnish will gunzip the object before delivering
+the backend and vinyl Cache. Vinyl Cache will gunzip the object before delivering
 to the client.
 
 In vcl_miss{} you can remove the "Accept-Encoding: gzip" header, if you
@@ -85,12 +85,12 @@ gzip-ness of objects during fetch:
 
 	set beresp.do_gunzip = true;
 
-Will make varnish gunzip an already gzipped object from the backend during
+Will make vinyl Cache gunzip an already gzipped object from the backend during
 fetch.  (I have no idea why/when you would use this...)
 
 	set beresp.do_gzip = true;
 
-Will make varnish gzip the object during fetch from the backend, provided
+Will make vinyl Cache gzip the object during fetch from the backend, provided
 the backend didn't send us a gzipped object.
 
 Remember that a lot of content types cannot sensibly be gzipped, most
@@ -125,7 +125,7 @@ Things can get really hairy here, so let me explain it in stages.
 Assume we have a ungzipped object we want to ESI process.
 
 The ESI parser will run through the object looking for the various
-magic strings and produce a byte-stream we call the "VEC" for Varnish
+magic strings and produce a byte-stream we call the "VEC" for Vinyl Cache
 ESI Codes.
 
 The VEC contains instructions like "skip 234 bytes", "deliver 12919 bytes",
@@ -168,8 +168,8 @@ compression efficiency, you should::
 		}
 	}
 
-So that the backend sends these objects uncompressed to varnish.
+So that the backend sends these objects uncompressed to vinyl Cache.
 
 You should also attempt to make sure that all objects which are
 esi:included are gzipped, either by making the backend do it or
-by making varnish do it.
+by making vinyl Cache do it.

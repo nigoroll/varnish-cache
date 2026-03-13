@@ -47,7 +47,7 @@ it).
 includes for example setting a header, changing a header or even changing the
 backend request URL.
 3. Modify any response from the backend to add missing 'Vary' headers, so
-Varnish' internal handling of this kicks in.
+Vinyl Cache' internal handling of this kicks in.
 4. Modify output sent to the client so any caches outside our control don't
 serve the wrong content.
 
@@ -58,11 +58,11 @@ device class.
 Example 1: Send HTTP header to backend
 ''''''''''''''''''''''''''''''''''''''
 
-The basic case is that Varnish adds the 'X-UA-Device' HTTP header on the backend
+The basic case is that Vinyl Cache adds the 'X-UA-Device' HTTP header on the backend
 requests, and the backend mentions in the response 'Vary' header that the content
 is dependent on this header.
 
-Everything works out of the box from Varnish' perspective.
+Everything works out of the box from Vinyl Cache' perspective.
 
 .. 071-example1-start
 
@@ -71,10 +71,10 @@ VCL::
     sub vcl_recv {
         # call some detection engine that set req.http.X-UA-Device
     }
-    # req.http.X-UA-Device is copied by Varnish into bereq.http.X-UA-Device
+    # req.http.X-UA-Device is copied by Vinyl Cache into bereq.http.X-UA-Device
 
     # so, this is a bit counterintuitive. The backend creates content based on
-    # the normalized User-Agent, but we use Vary on X-UA-Device so Varnish will
+    # the normalized User-Agent, but we use Vary on X-UA-Device so Vinyl Cache will
     # use the same cached object for all U-As that map to the same X-UA-Device.
     #
     # If the backend does not mention in Vary that it has crafted special

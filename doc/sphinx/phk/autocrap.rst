@@ -61,13 +61,13 @@ and the autocrap tools have become part of the portability problem,
 rather than part of the solution.
 
 Amongst the silly activities of the autocrap generated configure script
-in Varnish are:
+in Vinyl Cache are:
 
 * Looks for ANSI-C header files (show me a system later
   than 1995 without them ?)
 
 * Existence and support for POSIX mandated symlinks, (which
-  are not used by Varnish btw.)
+  are not used by Vinyl Cache btw.)
 
 * Tests, 19 different ways, that the compiler is not a relic from
   SYS III days.  (Find me just one SYS III running computer with

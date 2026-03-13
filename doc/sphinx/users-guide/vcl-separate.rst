@@ -8,26 +8,26 @@
 Separate VCL files
 ==================
 
-Having multiple different vhosts in the same Varnish is a very
-typical use-case, and from Varnish 5.0 it is possible to have
+Having multiple different vhosts in the same Vinyl Cache is a very
+typical use-case, and from Varnish Cache 5.0 it is possible to have
 a separate VCL files for separate vhosts or any other distinct
 subset of requests.
 
-Assume that we want to handle ``varnish.org`` with one VCL file
+Assume that we want to handle ``code.vinyl-cache.org`` with one VCL file
 and ``vinyl-cache.org`` with another VCL file.
 
 First load the two VCL files::
 
-    vcl.load vo_1 /somewhere/vo.vcl
-    vcl.load vc_1 /somewhere/vc.vcl
+    vcl.load code_1 /somewhere/code.vcl
+    vcl.load vinyl_1 /somewhere/vinyl.vcl
 
 These are 100% normal VCL files, as they would look if you ran
-only that single domain on your Varnish instance.
+only that single domain on your Vinyl Cache instance.
 
 Next we need to point VCL labels to them::
 
-    vcl.label l_vo vo_1
-    vcl.label l_vc vc_1
+    vcl.label l_code code_1
+    vcl.label l_vinyl vinyl_1
 
 Next we write the top-level VCL program, which branches out
 to the other two, depending on the Host: header in the
@@ -40,13 +40,13 @@ request::
 
     sub vcl_recv {
 	# Normalize host header
-	set req.http.host = std.tolower(req.http.host);
+        call vcl_req_host;
 
-	if (req.http.host ~ "\.?varnish\.org$") {
-	    return (vcl(l_vo));
+	if (req.http.host == "code.vinyl-cache.org") {
+	    return (vcl(l_code));
 	}
 	if (req.http.host ~ "\.?vinyl-cache\.org$") {
-	    return (vcl(l_vc));
+	    return (vcl(l_vinyl));
 	}
 	return (synth(302, "http://vinyl-cache.org"));
     }
@@ -68,8 +68,8 @@ active VCL::
 If you want to update one of the separated VCLs, you load the new
 one and change the label to point to it::
 
-    vcl.load vo_2 /somewhere/vo.vcl
-    vcl.label l_vo vo_2
+    vcl.load code_2 /somewhere/code.vcl
+    vcl.label l_code code_2
 
 If you want to change the top level VCL, do as you always did::
 

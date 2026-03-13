@@ -6,7 +6,7 @@
 Using extra digits in resp.status
 =================================
 
-In Varnish the ``.status`` variables can hold more than three
+In Vinyl Cache the ``.status`` variables can hold more than three
 digits, which is useful to send information to ``vcl_synth{}``
 about which error message to produce::
 

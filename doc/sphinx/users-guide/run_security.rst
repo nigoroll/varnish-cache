@@ -8,17 +8,17 @@
 Security first
 ==============
 
-If you are the only person involved in running Varnish, or if all
+If you are the only person involved in running Vinyl Cache, or if all
 the people involved are trusted to the same degree, you can skip
-this chapter. We have protected Varnish as well as we can from
+this chapter. We have protected Vinyl Cache as well as we can from
 anything which can come in through an HTTP socket.
 
 If parts of your web infrastructure are outsourced or otherwise
 partitioned along administrative lines, you need to think about
 security.
 
-Varnish provides four levels of authority, roughly related to
-how and where control comes into Varnish:
+Vinyl Cache provides four levels of authority, roughly related to
+how and where control comes into Vinyl Cache:
 
   * The command line arguments,
 
@@ -32,7 +32,7 @@ Command line arguments
 ----------------------
 
 The top level security decisions is decided and defined when starting
-Varnish in the form of command line arguments, we use this strategy
+Vinyl Cache in the form of command line arguments, we use this strategy
 in order to make them invulnerable to subsequent manipulation.
 
 The important decisions to make are:
@@ -86,7 +86,7 @@ around :ref:`vinyladm(1)` to allow specific CLI commands.
 It is also possible to configure :ref:`vinyld(1)` for "reverse
 mode", using the ``-M`` argument.  In that case :ref:`vinyld(1)`
 will attempt to open a TCP connection to the specified address, and
-initiate a CLI connection to your central Varnish management facility.
+initiate a CLI connection to your central Vinyl Cache management facility.
 
 .. XXX:Maybe a sample command here with a brief explanation? benc
 
@@ -123,7 +123,7 @@ it possible for (only!) these users to read it.
 
 A good way to create the secret file is::
 
-	dd if=/dev/random of=/etc/varnish_secret count=1
+	dd if=/dev/random of=/etc/vinyl_secret count=1
 
 When you start :ref:`vinyld(1)`, you specify the filename with '-S',
 and it goes without saying that the :ref:`vinyld(1)` master process
@@ -157,7 +157,7 @@ HTTP service, but a few can do more damage than others:
 
 :ref:`ref_param_vcc_feature`
 	The ``allow_inline_c`` flag would allow any C code from VCL to be
-	executed by Varnish.
+	executed by Vinyl Cache.
 
 Furthermore you may want to look at and lock down:
 
@@ -170,15 +170,15 @@ Furthermore you may want to look at and lock down:
 
 :ref:`ref_param_vmod_path`
 	The directory (or colon separated list of directories) where
-	Varnish will look for modules. This could potentially be
-	used to load rogue modules into Varnish.
+	Vinyl Cache will look for modules. This could potentially be
+	used to load rogue modules into Vinyl Cache.
 
 The CLI interface
 -----------------
 
-The CLI interface in Varnish is very powerful, if you have
+The CLI interface in Vinyl Cache is very powerful, if you have
 access to the CLI interface, you can do almost anything to
-the Varnish process.
+the Vinyl Cache process.
 
 As described above, some of the damage can be limited by restricting
 certain parameters, but that will only protect the local filesystem,
@@ -208,7 +208,7 @@ be superuser to lower the privilege of a child process...
 
 .. XXX the above is not correct for the solaris jail
 
-Inline-C is disabled by default since Varnish version 4, so unless
+Inline-C is disabled by default since Varnish Cache version 4, so unless
 you enable it, you don't have to worry about it.
 
 The parameters mentioned above can restrict the loading of VMODs to only
@@ -221,7 +221,7 @@ from VCL code.
 HTTP requests
 -------------
 
-We have gone to great lengths to make Varnish resistant to anything
+We have gone to great lengths to make Vinyl Cache resistant to anything
 coming in through the socket where HTTP requests are received, and
 you should, generally speaking, not need to protect it any further.
 

@@ -5,15 +5,14 @@
 
 .. _users_intro:
 
-The Big Varnish Picture
-=======================
+The Big Vinyl Cache Picture
+===========================
 
 In this section we will cover answers to the questions:
-- What is in this package called "Varnish"?
 - what are all the different bits and pieces named?
 - Will you need a hex-wrench for assembly?
 
-The two main parts of Varnish are the two processes in the `vinyld`
+The two main parts of Vinyl Cache are the two processes in the `vinyld`
 program. The first process is called "the manager", and its job is to
 talk to you, the administrator, and make the things you ask for
 happen.
@@ -34,21 +33,21 @@ permissions, as a defensive measure.
 
 The manager process is interactive, it offers a CLI -- Command Line
 Interface, which can be used manually, from scripts or programs. The
-CLI offers almost full control of what Varnish actually does to your
+CLI offers almost full control of what Vinyl Cache actually does to your
 HTTP traffic, and we have gone to great lengths to ensure that you
-should not need to restart the Varnish processes, unless you need to
+should not need to restart the Vinyl Cache processes, unless you need to
 change something very fundamental.
 
 The CLI can be safely accessed remotely, using a simple and flexible
 PSK -- Pre Shared Key, access control scheme, so it is easy to
-integrate Varnish into your operations and management infrastructure
+integrate Vinyl Cache into your operations and management infrastructure
 or tie it to your CMS.
 
 All this is covered in :ref:`users_running`.
 
 Things like, how the child process should deal with the HTTP requests, what to
 cache, which headers to remove etc, is all specified using a small
-programming language called VCL -- Varnish Configuration Language.
+programming language called VCL -- Vinyl Cache Configuration Language.
 The manager process will compile the VCL program and check it for
 errors,
 
@@ -75,12 +74,12 @@ instantly, without restarting the child process and without missing
 a single HTTP request.
 
 VCL code can be extended using external modules, called VMODs or
-even by inline C-code if you are brave, so in terms of what Varnish
+even by inline C-code if you are brave, so in terms of what Vinyl Cache
 can do for your HTTP traffic, there really is no limit.
 
 :ref:`users_vcl` describes VCL and what it can do in great detail.
 
-Varnish uses a segment of shared memory to report and log its activities and
+Vinyl Cache uses a segment of shared memory to report and log its activities and
 status. For each HTTP request, a number of very detailed records will
 be appended to the log memory segment. Other processes
 can subscribe to log-records, filter them, and format them, for
@@ -91,13 +90,13 @@ this allows real-time, down to microsecond resolution monitoring
 of cache hit-rate, resource usage and specific performance indicating
 metrics.
 
-Varnish comes with a number of tools which reports from shared
+Vinyl Cache comes with a number of tools which reports from shared
 memory, `vinyllog`, `vinylstats`, `vinylncsa` etc, and with an API
 library so you can write your own tools, should you need that.
 
 :ref:`users_report` explains how all that work.
 
-Presumably the reason for your interest in Varnish, is that you
+Presumably the reason for your interest in Vinyl Cache, is that you
 want your website to work better. There are many aspects of
 performance tuning a website, from relatively simple policy decisions
 about what to cache, to designing a geographically diverse multilevel
@@ -106,7 +105,7 @@ CDNs using ESI and automatic failover.
 .. XXX:CDNs or CDN? benc
 
 :ref:`users_performance` will take you through the possibilities
-and facilities Varnish offers.
+and facilities Vinyl Cache offers.
 
 Finally, Murphys Law must be referenced here: Things will go wrong, and
 more likely than not, they will do so at zero-zero-dark O'clock. Most

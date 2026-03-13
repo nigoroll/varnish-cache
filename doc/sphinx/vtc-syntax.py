@@ -28,7 +28,7 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
 #
-# Process various varnishtest C files and output reStructuredText to be
+# Process various vinyltest C files and output reStructuredText to be
 # included in vtc(7).
 
 import sys

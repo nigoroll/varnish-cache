@@ -6,13 +6,13 @@
 
 
 
-Using inline C to extend Varnish
----------------------------------
+Using inline C to extend Vinyl Cache
+------------------------------------
 
 (Here there be dragons. Big and mean ones.)
 
-You can use *inline C* to extend Varnish. Please note that you can
-seriously mess up Varnish this way. The C code runs within the Varnish
+You can use *inline C* to extend Vinyl Cache. Please note that you can
+seriously mess up Vinyl Cache this way. The C code runs within the Vinyl Cache
 Cache process so if your code generates a segfault the cache will crash.
 
 One of the first uses of inline C was logging to `syslog`.::

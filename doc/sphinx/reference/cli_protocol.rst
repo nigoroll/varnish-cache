@@ -11,7 +11,7 @@
 VCLI protocol - Scripting the CLI interface
 ===========================================
 
-The Varnish CLI has a few bells&whistles when used as an API.
+The Vinyl Cache CLI has a few bells&whistles when used as an API.
 
 First: `vcli.h` contains magic numbers.
 
@@ -29,7 +29,7 @@ of bytes in the "body" of the response::
 This makes parsing the response unambiguous, even in cases like this
 where the response does not end with a NL.
 
-The varnishapi library contains functions to implement the basics of
+The vinylapi library contains functions to implement the basics of
 the CLI protocol, for more, see the `vcli.h` include file.
 
 .. _ref_remote_cli:
@@ -159,7 +159,7 @@ In the above example, the secret file contains ``foo\n`` and thus:
    critter phk> openssl dgst -sha256 < tmpfile
    455ce847f0073c7ab3b1465f74507b75d3dc064c1e7de3b71e00de9092fdc89a
 
-The sourcefile `lib/libvarnish/cli_auth.c` contains a useful function
+The sourcefile ``lib/libvinyl/vcli_proto.c`` contains a useful function
 which calculates the response, given an open filedescriptor to the
 secret file, and the challenge string.
 

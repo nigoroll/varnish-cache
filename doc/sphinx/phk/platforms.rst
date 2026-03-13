@@ -23,11 +23,11 @@ For instance, did you know that:
 
 is legal in a ISO-C compliant environment ?
 
-Varnish `runs on a Nokia N900 <http://hellarvik.com/node/66>`_
+Varnish Cache once ran on a Nokia N900,
 but I am not going to go out of my way to make sure that is always
 the case.
 
-To make sense for Varnish, a platform has to be able to deliver,
+To make sense for Vinyl Cache, a platform has to be able to deliver,
 both in terms of performance, but also in terms of the APIs we
 use to get that performance.
 
@@ -35,13 +35,13 @@ In the FreeBSD project where I grew up, we ended up instituting
 platform-tiers, in an effort to document which platforms we
 cared about and which we did love quite as much.
 
-If we did the same for Varnish, the result would look something like:
+If we did the same for Vinyl Cache, the result would look something like:
 
 A - Platforms we care about
 ---------------------------
 
 We care about these platforms because our users use them and
-because they deliver a lot of bang for the buck with Varnish.
+because they deliver a lot of bang for the buck with Vinyl Cache.
 
 These platforms are in our "tinderbox" tests, we use them ourselves
 and they pass all regression tests all the time.
@@ -51,9 +51,9 @@ Platform specific bug reports gets acted on.
 
 *Linux*
 
-Obviously you can forget about running Varnish on your
+Obviously you can forget about running Vinyl Cache on your
 `WRT54G <https://en.wikipedia.org/wiki/Linksys_WRT54G_series>`_
-but if you have a real computer, you can expect Varnish to work
+but if you have a real computer, you can expect Vinyl Cache to work
 "ok or better" on any distro that has a package available.
 
 B - Platforms we try not to break
@@ -83,7 +83,7 @@ C - Platforms we tolerate
 -------------------------
 
 We tolerate any other platform, as long as the burden of doing
-so is proportional to the benefit to the Varnish community.
+so is proportional to the benefit to the Vinyl Cache community.
 
 Do not file bug reports specific to these platforms without attaching
 a patch that solves the problem, we will just close it.
@@ -94,7 +94,7 @@ I'm afraid I have to put OpenBSD here for now, it is seriously
 behind on socket APIs and working around those issues is just not
 worth the effort.
 
-If people send us a small non-intrusive patches that makes Varnish
+If people send us a small non-intrusive patches that makes Vinyl Cache
 run on these platforms, we'll take it.
 
 If they send us patches that reorganizes everything, hurts code
@@ -104,7 +104,7 @@ they get told that thanks, but no thanks.
 Is that it ?  Abandon all hope etc. ?
 -------------------------------------
 
-These tiers are not static, if for some reason Varnish suddenly
+These tiers are not static, if for some reason Vinyl Cache suddenly
 becomes a mandatory accessory to some technically sensible platform,
 (zOS anyone ?) that platform will get upgraded.  If the pessimists
 are right about Oracles intentions, Solaris may get demoted.

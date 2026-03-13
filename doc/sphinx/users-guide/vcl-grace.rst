@@ -8,21 +8,21 @@
 Grace mode and keep
 -------------------
 
-Sometimes you want Varnish to serve content that is somewhat stale
+Sometimes you want Vinyl Cache to serve content that is somewhat stale
 instead of waiting for a fresh object from the backend. For example,
 if you run a news site, serving a main page that is a few seconds old
 is not a problem if this gives your site faster load times.
 
-In Varnish this is achieved by using `grace mode`. A related idea
+In Vinyl Cache this is achieved by using `grace mode`. A related idea
 is `keep`, which is also explained here.
 
 Grace mode
 ~~~~~~~~~~
 
-When several clients are requesting the same page Varnish will send
+When several clients are requesting the same page Vinyl Cache will send
 one request to the backend and place the others on hold while fetching
 one copy from the backend. In some products this is called request
-coalescing and Varnish does this automatically.
+coalescing and Vinyl Cache does this automatically.
 
 If you are serving thousands of hits per second the queue of waiting
 requests can get huge. There are two potential problems - one is a
@@ -30,15 +30,15 @@ thundering herd problem - suddenly releasing a thousand threads to
 serve content might send the load sky high. Secondly - nobody likes to
 wait.
 
-Setting an object's `grace` to a positive value tells Varnish that it
+Setting an object's `grace` to a positive value tells Vinyl Cache that it
 should serve the object to clients for some time after the TTL has
-expired, while Varnish fetches a new version of the object. The default
+expired, while Vinyl Cache fetches a new version of the object. The default
 value is controlled by the runtime parameter ``default_grace``.
 
 Keep
 ~~~~
 
-Setting an object's `keep` tells Varnish that it should keep an object
+Setting an object's `keep` tells Vinyl Cache that it should keep an object
 in the cache for some additional time. The reasons to set `keep` is to
 use the object to construct a conditional GET backend request (with
 If-Modified-Since: and/or Ìf-None-Match: headers), allowing the
@@ -52,7 +52,7 @@ expired.
 Setting grace and keep
 ~~~~~~~~~~~~~~~~~~~~~~
 
-We can use VCL to make Varnish keep all objects for 10 minutes beyond
+We can use VCL to make Vinyl Cache keep all objects for 10 minutes beyond
 their TTL with a grace period of 2 minutes::
 
   sub vcl_backend_response {
@@ -66,18 +66,18 @@ The effect of grace and keep
 For most users setting the default grace and/or a suitable grace for
 each object is enough. The default VCL will do the right thing and
 behave as described above. However, if you want to customize how
-Varnish behaves, then you should know some of the details on how this
+Vinyl Cache behaves, then you should know some of the details on how this
 works.
 
 When ``sub vcl_recv`` ends with ``return (hash)`` (which is the
-default behavior), Varnish will look for a matching object in its
-cache. Then, if it only found an object whose TTL has run out, Varnish
+default behavior), Vinyl Cache will look for a matching object in its
+cache. Then, if it only found an object whose TTL has run out, Vinyl Cache
 will consider the following:
 
 * Is there already an ongoing backend request for the object?
 * Is the object within the `grace period`?
 
-Then, Varnish reacts using the following rules:
+Then, Vinyl Cache reacts using the following rules:
 
 * If the `grace period` has run out and there is no ongoing backend
   request, then ``sub vcl_miss`` is called immediately, and the object
@@ -112,7 +112,7 @@ initiated.
 Misbehaving servers
 ~~~~~~~~~~~~~~~~~~~
 
-A key feature of Varnish is its ability to shield you from misbehaving
+A key feature of Vinyl Cache is its ability to shield you from misbehaving
 web- and application servers.
 
 If you have enabled :ref:`users-guide-advanced_backend_servers-health`
@@ -148,7 +148,7 @@ returns an ``5xx`` error::
 Summary
 ~~~~~~~
 
-Grace mode allows Varnish to deliver slightly stale content to clients
+Grace mode allows Vinyl Cache to deliver slightly stale content to clients
 while getting a fresh version from the backend. The result is faster
 load times at lower cost.
 

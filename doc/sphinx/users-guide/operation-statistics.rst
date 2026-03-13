@@ -9,7 +9,7 @@
 Statistics
 ----------
 
-Varnish comes with a couple of nifty and very useful statistics generating tools that generates statistics in real time by constantly updating and presenting a specific dataset by aggregating and analyzing logdata from the shared memory logs.
+Vinyl Cache comes with a couple of nifty and very useful statistics generating tools that generates statistics in real time by constantly updating and presenting a specific dataset by aggregating and analyzing logdata from the shared memory logs.
 
 .. XXX:Heavy rewrite above. benc
 
@@ -41,12 +41,12 @@ pipe character ("|"), and misses are marked with a hash character ("#").
 vinylstat
 ~~~~~~~~~
 
-Varnish has lots of counters. We count misses, hits, information about
+Vinyl Cache has lots of counters. We count misses, hits, information about
 the storage, threads created, deleted objects. Just about
 everything. :ref:`vinylstat(1)` will dump these counters. This is useful when
-tuning Varnish.
+tuning Vinyl Cache.
 
 There are programs that can poll :ref:`vinylstat(1)` regularly and
 make nice graphs of these counters. One such program is Munin. Munin
 can be found at http://munin-monitoring.org/ . There is a plugin for
-munin in the Varnish source code.
+munin in the Vinyl Cache source code.

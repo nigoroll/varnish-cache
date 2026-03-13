@@ -63,7 +63,7 @@ I believe there were also some lilliputian dispute about the fact that
 `192.168.61` would return `192.168.0.61` to stay backwards compatible,
 whereas `192.168.61/23` would return `192.168.61.0 + 255.255.254.0`.
 
-Because of this, Varnish uses `getaddrinfo(3)` everywhere but one single
+Because of this, Vinyl Cache uses `getaddrinfo(3)` everywhere but one single
 place:  Parsing of ACL specifications in VCL.  First we have to use our
 own parser to check if it is a CIDR entry and if not we ask `getaddrinfo(3)`.
 
@@ -73,10 +73,10 @@ The reason for this rant, is that somebody noticed that `ping
 That has just become CVE-2021-29418 and CVE-2021-28918 and will
 probably become a dozen more, once the CVE-trophy-hunters go to town.
 
-All IP number strings enter Varnish from trusted points, either
+All IP number strings enter Vinyl Cache from trusted points, either
 as command line arguments (`-a`, `-b`, `-M` etc.),
 in the VCL source (`backend`, `acl` etc.) or as PROXYv1 header
-strings from the TLS-stripper in front of Varnish.
+strings from the TLS-stripper in front of Vinyl Cache.
 
 Of course, VCL allows you to do pretty much anything, including::
 
@@ -89,12 +89,12 @@ of trusting IP#'s from strangers and b) Think about this "critical
 netmask problem".
 
 Otherwise, I do not expect this new "critical netmask problem" to
-result in any source code changes in Varnish.
+result in any source code changes in Vinyl Cache.
 
 If and when the various UNIX-oid operating systems, and the smoking
 remains of the "serious UNIX industry", (IEEE ?  The Austin Group
 ?  The Open Group ?  Whatever they are called these days) get their
-act together, and renovate the `getaddrinfo(3)` API, Varnish will
+act together, and renovate the `getaddrinfo(3)` API, Vinyl Cache will
 automatically pick that up and use it.
 
 Should they, in a flash of enlightenment, also make `getaddrinfo(3)`

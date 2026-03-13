@@ -67,7 +67,7 @@ vcl_pipe
 Called upon entering pipe mode. In this mode, the request is passed on
 to the backend, and any further data from both the client and backend
 is passed on unaltered until either end closes the
-connection. Basically, Varnish will degrade into a simple TCP proxy,
+connection. Basically, Vinyl Cache will degrade into a simple TCP proxy,
 shuffling bytes back and forth. For a connection in pipe mode, no
 other VCL subroutine will ever get called after `vcl_pipe`.
 
@@ -116,7 +116,7 @@ vcl_hash
 ~~~~~~~~
 
 Called after `vcl_recv` to create a hash value for the request. This is
-used as a key to look up the object in Varnish.
+used as a key to look up the object in Vinyl Cache.
 
 The `vcl_hash` subroutine may terminate with calling ``return()`` with one
 of the following keywords:
@@ -303,7 +303,7 @@ The `vcl_backend_fetch` subroutine may terminate with calling
 
 .. could add return(retry) if there was a(nother) use case, see also https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4342
 
-Before calling `vcl_backend_fetch`, Varnish core prepares the `bereq`
+Before calling `vcl_backend_fetch`, Vinyl Cache core prepares the `bereq`
 backend request as follows:
 
 * Unless the request is a `pass`,

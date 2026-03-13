@@ -5,11 +5,11 @@
 
 .. _install-src:
 
-Compiling Varnish from source
-=============================
+Compiling Vinyl Cache from source
+=================================
 
 If there are no binary packages available for your system, or if you
-want to compile Varnish from source for other reasons, follow these
+want to compile Vinyl Cache from source for other reasons, follow these
 steps:
 
 Getting hold of the source
@@ -18,7 +18,7 @@ Getting hold of the source
 Download the appropriate release tarball, which you can find on
 https://vinyl-cache.org/releases/ .
 
-Alternatively, if you want to hack on Varnish, you should clone our
+Alternatively, if you want to hack on Vinyl Cache, you should clone our
 git repository by doing.
 
       ``git clone --recursive https://code.vinyl-cache.org/vinyl-cache/vinyl-cache``
@@ -32,7 +32,7 @@ tell git to replace the url:
 Build dependencies on FreeBSD
 -----------------------------
 
-To get the dependencies required to build varnish from source
+To get the dependencies required to build vinyl Cache from source
 you can either::
 
 	pkg install git automake pkgconf py39-sphinx py39-docutils pcre2 libtool
@@ -43,21 +43,17 @@ And optionally, to be able to run all the testcases::
 
 	pkg install haproxy nghttp2 vttest
 
-Or if you want the built from sources::
-
-	cd /usr/ports/www/varnish6
-	make depends clean
-
+.. XXX ports is mentioned in install_freebsd.rst
 .. XXX furo for sphinx
 
-Then continue `Compiling Varnish`_
+Then continue `Compiling Vinyl Cache`_
 
 Build dependencies on Debian / Ubuntu
 --------------------------------------
 
 ..  grep-dctrl -n -sBuild-Depends -r ^ ../../../../varnish-cache-debian/control | tr -d '\n' | awk -F,\  '{ for (i = 0; ++i <= NF;) { sub (/ .*/, "", $i); print "* `" $i "`"; }}' | egrep -v '(debhelper)'
 
-In order to build Varnish from source you need a number of packages
+In order to build Vinyl Cache from source you need a number of packages
 installed. On a Debian or Ubuntu system, use this command to install
 them (replace ``sudo apt-get install`` if needed)::
 
@@ -91,12 +87,12 @@ Optionally, to build the HTML documentation::
 
     sudo apt-get install pip furo
 
-Then continue `Compiling Varnish`_
+Then continue `Compiling Vinyl Cache`_
 
 Build dependencies on Red Hat / CentOS
 --------------------------------------
 
-.. gawk '/^BuildRequires/ {print "* `" $2 "`"}' ../../../redhat/varnish.spec | sort | uniq | egrep -v '(systemd)'
+.. gawk '/^BuildRequires/ {print "* `" $2 "`"}' ../../../redhat/vinyl Cache.spec | sort | uniq | egrep -v '(systemd)'
 
 in the following shell commands, replace ``sudo yum install`` if needed.
 
@@ -160,12 +156,12 @@ Optionally, to pull from a repository::
 .. XXX autoconf-archive ? is this any helpful on the notoriously
    outdated Redhats?
 
-Then continue `Compiling Varnish`_
+Then continue `Compiling Vinyl Cache`_
 
 Build dependencies on macOS
 ---------------------------
 
-To compile varnish on macOS, these steps should install the required
+To compile vinyl Cache on macOS, these steps should install the required
 dependencies:
 
 * Install xcode: `xcode-select --install`
@@ -188,7 +184,7 @@ dependencies:
 
 It'll be a good idea to persist these changes so you can rebuild the source later.
 
-Then continue `Compiling Varnish`_
+Then continue `Compiling Vinyl Cache`_
 
 Build dependencies on Alpine Linux
 ----------------------------------
@@ -228,7 +224,7 @@ Optionally, to pull from a repository::
 
 .. XXX furo for sphinx
 
-Then continue `Compiling Varnish`_, using the ``--with-unwind``
+Then continue `Compiling Vinyl Cache`_, using the ``--with-unwind``
 ``configure`` option.
 
 .. _Alpine Community Repository: https://wiki.alpinelinux.org/wiki/Enable_Community_Repository
@@ -260,7 +256,7 @@ Building on Solaris and other Solaris-ish OSes
 Building with gcc should be straight forward, as long as the above
 requirements are installed.
 
-By convention, consider installing Varnish under `/opt/local` using::
+By convention, consider installing Vinyl Cache under `/opt/local` using::
 
 	./configure \
 	        --prefix=/opt/local \
@@ -291,19 +287,19 @@ If you see this error from GNU ``cp``::
 
 put ``/usr/bin`` first in  ``PATH``.
 
-Compiling Varnish
------------------
+Compiling Vinyl Cache
+---------------------
 
 The configuration will need the dependencies above satisfied. Once that is
 taken care of::
 
-	cd varnish-cache
+	cd vinyl-cache
 	sh autogen.sh
 	sh configure
 	make
 
 The `configure` script takes some arguments, but more likely than not you can
-forget about that for now, almost everything in Varnish can be tweaked with run
+forget about that for now, almost everything in Vinyl Cache can be tweaked with run
 time parameters.
 
 Before you install, you may want to run the test suite, make a cup of
@@ -322,6 +318,6 @@ Installing
 
 And finally, the true test of a brave heart: ``sudo make install``
 
-Varnish will now be installed in ``/usr/local``. The ``vinyld`` binary is in
+Vinyl Cache will now be installed in ``/usr/local``. The ``vinyld`` binary is in
 `/usr/local/sbin/vinyld`. To make sure that the necessary links and caches
 of the most recent shared libraries are found, run ``sudo ldconfig``.

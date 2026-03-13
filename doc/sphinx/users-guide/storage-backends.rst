@@ -12,10 +12,10 @@ Storage backends
 Intro
 ~~~~~
 
-Varnish has pluggable storage backends. It can store data in various
+Vinyl Cache has pluggable storage backends. It can store data in various
 backends which can have different performance characteristics. The default
 configuration is to use the malloc backend with a limited size. For a
-serious Varnish deployment you probably would want to adjust the storage
+serious Vinyl Cache deployment you probably would want to adjust the storage
 settings.
 
 All built-in storage backends cache full objects only, so, for example, to
@@ -32,7 +32,7 @@ Besides the built-in storage backends, separately distributed extensions exist,
 Storage Selection
 ~~~~~~~~~~~~~~~~~
 
-By default, Varnish will store short-lived and passed objects in a storage
+By default, Vinyl Cache will store short-lived and passed objects in a storage
 called `Transient`, described below.
 
 For other objects, it will rotate between all the non-transient storages,
@@ -103,11 +103,11 @@ implementations. In particular, `libumem`_ is included in the family
 of OpenSolaris descendent operating systems where jemalloc(3) is not
 commonly available.
 
-If `libumem`_ is not used otherwise, Varnish will only use it for
+If `libumem`_ is not used otherwise, Vinyl Cache will only use it for
 storage allocations and keep the default libc allocator for all other
-Varnish memory allocation purposes.
+Vinyl Cache memory allocation purposes.
 
-If `libumem`_ is already loaded when Varnish initializes, this message
+If `libumem`_ is already loaded when Vinyl Cache initializes, this message
 is output::
 
   notice: libumem was already found to be loaded
@@ -122,15 +122,15 @@ reasons for this to be the case are:
   ``LD_PRELOAD_32=/usr/lib/libumem.so.1`` or
   ``LD_PRELOAD=/usr/lib/libumem.so.1`` is set
 
-Varnish will also output this message to recommend settings for using
+Vinyl Cache will also output this message to recommend settings for using
 `libumem`_ for all allocations::
 
   it is recommended to set UMEM_OPTIONS=perthread_cache=0,backend=mmap
-  before starting varnish
+  before starting vinyl Cache
 
 This recommendation should be followed to achieve an optimal
-`libumem`_ configuration for Varnish. Setting this environment
-variable before starting Varnish is required because `libumem`_ cannot
+`libumem`_ configuration for Vinyl Cache. Setting this environment
+variable before starting Vinyl Cache is required because `libumem`_ cannot
 be reconfigured once loaded.
 
 .. _libumem: http://dtrace.org/blogs/ahl/2004/07/13/number-11-of-20-libumem/
@@ -145,7 +145,7 @@ unlinked file on disk with `mmap`, relying on the kernel to handle
 paging as parts of the file are being accessed.
 
 This implies that sufficient *virtual* memory needs to be available to
-accomodate the file size in addition to any memory Varnish requires
+accomodate the file size in addition to any memory Vinyl Cache requires
 anyway. Traditionally, the virtual memory limit is configured with
 ``ulimit -v``, but modern operating systems have other abstractions
 for this limit like control groups (Linux) or resource controls
@@ -210,12 +210,12 @@ syntax: deprecated_persistent,path,size {experimental}
 
 *Before using, read* :ref:`phk_persistent`\ *!*
 
-Persistent storage. Varnish will store objects in a file in a manner
+Persistent storage. Vinyl Cache will store objects in a file in a manner
 that will secure the survival of *most* of the objects in the event of
-a planned or unplanned shutdown of Varnish.
+a planned or unplanned shutdown of Vinyl Cache.
 
 The 'path' parameter specifies the path to the backing file. If
-the file doesn't exist Varnish will create it.
+the file doesn't exist Vinyl Cache will create it.
 
 The 'size' parameter specifies the size of the backing file. The
 size is expressed in bytes, unless followed by one of the
@@ -229,9 +229,9 @@ following suffixes:
 
       T, t    The size is expressed in tebibytes.
 
-Varnish will split the file into logical *silos* and write to the
+Vinyl Cache will split the file into logical *silos* and write to the
 silos in the manner of a circular buffer. Only one silo will be kept
-open at any given point in time. Full silos are *sealed*. When Varnish
+open at any given point in time. Full silos are *sealed*. When Vinyl Cache
 starts after a shutdown it will discard the content of any silo that
 isn't sealed.
 
@@ -246,12 +246,12 @@ Transient Storage
 
 If you name any of your storage backend "Transient" it will be used
 for transient (short lived) objects. This includes the temporary
-objects created when returning a synthetic object. By default Varnish
+objects created when returning a synthetic object. By default Vinyl Cache
 would use an unlimited malloc backend for this.
 
 .. XXX: Is this another parameter? In that case handled in the same manner as above? benc
 
-Varnish will consider an object short lived if the TTL is below the
+Vinyl Cache will consider an object short lived if the TTL is below the
 parameter 'shortlived'.
 
 

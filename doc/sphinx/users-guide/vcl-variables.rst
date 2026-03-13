@@ -14,12 +14,12 @@ objects can be accessed and manipulated using VCL.
 
 
 *req*
- The request object. When Varnish has received the request the `req` object is
+ The request object. When Vinyl Cache has received the request the `req` object is
  created and populated. Most of the work you do in `vcl_recv` you
  do on or with the `req` object.
 
 *bereq*
- The backend request object. Varnish constructs this before sending it to the
+ The backend request object. Vinyl Cache constructs this before sending it to the
  backend. It is based on the `req` object.
 
 .. XXX:in what way? benc

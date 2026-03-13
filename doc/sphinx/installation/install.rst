@@ -31,7 +31,7 @@ Compiling Vinyl Cache from source
 =================================
 
 If there are no binary packages available for your system, or if you
-want to compile Varnish from source for other reasons:
+want to compile Vinyl Cache from source for other reasons:
 
 .. toctree::
 	:maxdepth: 2

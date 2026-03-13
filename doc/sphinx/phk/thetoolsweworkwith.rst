@@ -22,7 +22,7 @@ is the tools that makes the difference between using concrete as a
 filler material between stones, and as gravity-defying curved but
 perfectly safe load-bearing wall.
 
-My tool for writing Varnish is the C-language which in many ways
+My tool for writing Vinyl Cache is the C-language which in many ways
 is unique amongst all of the computer programming languages for
 having no ambitions.
 
@@ -111,7 +111,7 @@ holding this mutex locked" facility.  I will posit that you cannot
 successfully develop real-world threaded programs and APIs without
 that, or without wasting a lot of time debugging silly mistakes.
 
-If you look in the Varnish source code, which uses pthreads, you
+If you look in the Vinyl Cache source code, which uses pthreads, you
 will see that I have wrapped pthread mutexes in my own little
 data structure, to be able to do those asserts, and to get some
 usable statistics on lock-contention.

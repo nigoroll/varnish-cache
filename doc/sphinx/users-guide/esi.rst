@@ -8,7 +8,7 @@
 Content composition with Edge Side Includes
 -------------------------------------------
 
-Varnish can create web pages by assembling different pages, called `fragments`,
+Vinyl Cache can create web pages by assembling different pages, called `fragments`,
 together into one page. These `fragments` can have individual cache policies.
 If you have a web site with a list showing the five most popular articles on
 your site, this list can probably be cached as a `fragment` and included
@@ -19,7 +19,7 @@ in all the other pages.
 Used properly this strategy can dramatically increase
 your hit rate and reduce the load on your servers.
 
-In Varnish we've only implemented a small subset of ESI, because most of
+In Vinyl Cache we've only implemented a small subset of ESI, because most of
 the rest of the ESI specifications facilities are easier and better done
 with VCL::
 
@@ -29,7 +29,7 @@ with VCL::
 
 Content substitution based on variables and cookies is not implemented.
 
-Varnish will not process ESI instructions in HTML comments.
+Vinyl Cache will not process ESI instructions in HTML comments.
 
 Example: esi:include
 ~~~~~~~~~~~~~~~~~~~~
@@ -109,13 +109,13 @@ the ESI fragment with an ``onerror`` attribute::
 
     <ESI:include src="…" onerror="continue"/>
 
-This attribute is ignored by default. In fact, Varnish will treat
+This attribute is ignored by default. In fact, Vinyl Cache will treat
 failures to deliver ESI fragments as if there was the attribute
 ``onerror="continue"``. In the absence of this attribute with this
-specific value, Varnish should normally abort the delivery of the
+specific value, Vinyl Cache should normally abort the delivery of the
 parent request.
 
-We say "abort" rather than "fail", because by the time Varnish
+We say "abort" rather than "fail", because by the time Vinyl Cache
 starts inserting the fragments, the HTTP response header has long
 since been sent, and it is no longer possible to change the parent
 requests's ``resp.status`` to a 5xx, so the only way to signal that
@@ -142,8 +142,8 @@ parameter in order to prevent infinite recursion.
 Doing ESI on JSON and other non-XML'ish content
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish will peek at the first byte of an object and if it is not
-a "<" Varnish assumes you didn't really mean to ESI process it.
+Vinyl Cache will peek at the first byte of an object and if it is not
+a "<" Vinyl Cache assumes you didn't really mean to ESI process it.
 You can disable this check by::
 
    param.set feature +esi_disable_xml_check
@@ -169,15 +169,15 @@ ESI includes with HTTPS protocol
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If ESI:include tags specify HTTPS protocol, it will be ignored
-by default, because Varnish has no way to fetch it with encryption.
-If you want Varnish to fetch them like it does anything else, set::
+by default, because Vinyl Cache has no way to fetch it with encryption.
+If you want Vinyl Cache to fetch them like it does anything else, set::
 
    param.set feature +esi_ignore_https
 
 ESI on partial responses (206)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish supports range requests, but in general partial responses
+Vinyl Cache supports range requests, but in general partial responses
 make no sense in an ESI context.
 
 If you really know what you are doing, change the 206 to a 200::
@@ -200,12 +200,12 @@ in the one it switched to.
 ESI and gzip compression
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish's ESI implementation handles gzip compression automatically,
+Vinyl Cache's ESI implementation handles gzip compression automatically,
 no matter how it is mixed:  The parent request can be compressed
 or uncompressed and the fragments can be compressed or uncompressed,
 it all works out.
 
-Varnish does this compressing all parts of ESI responses
+Vinyl Cache does this compressing all parts of ESI responses
 separately, and stitching them together on the fly during
 delivery, which has a negative impact on compression ratio.
 

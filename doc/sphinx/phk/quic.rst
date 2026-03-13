@@ -108,8 +108,8 @@ can point at the "job creation" their data-centers provide.
 
 The rest of us will have to wait and see where that leaves us.
 
-QUIC and Varnish
-----------------
+QUIC and Vinyl Cache
+--------------------
 
 I can say with certainty that writing a QUIC implementation
 from scratch, including TLS 1.3 is out of the question, that
@@ -121,9 +121,9 @@ That leaves basically three options:
 
 2) Pick up a QUIC library and the TLS library it uses.
 
-3) Stick with "That belongs in a separate process in front of Varnish."
+3) Stick with "That belongs in a separate process in front of Vinyl Cache."
 
-The precondition for linking an TLS library to Varnishd, is that
+The precondition for linking an TLS library to Vinyl Cache, is that
 the private keys/certificates are still isolated in a different
 address space, these days known as "KeyLess TLS".
 
@@ -133,7 +133,7 @@ QUIC implementations do it, at least not yet.
 
 The actual selection of QUIC implementations we could adopt is very
 short, and since I am not very inclined to make Go or Rust a
-dependency for Varnish, it rapidly becomes even shorter.
+dependency for Vinyl Cache, it rapidly becomes even shorter.
 
 Presently, The H2O projects `quicly <https://github.com/h2o/quicly>`_
 would probably be the most obvious candidate for us, but even that
@@ -151,7 +151,7 @@ boxes using a richer PROXY protocol or maybe a "naked" QUIC,
 to maintain functionality.
 
 One argument for staying out of the fray is that our "No TLS in
-Varnish" policy looks like it was the right decision.
+Vinyl Cache" policy looks like it was the right decision.
 
 While it is inconvenient for small sites to have to run two
 processes, as soon as sites grow, the feedback changes to
@@ -159,11 +159,11 @@ appreciation for the decoupling for TLS from policy/caching,
 and once sites get even bigger, or more GDPR exposed, the
 ability to use diverse TLS offloaders is seen as a big benefit.
 
-Finally, there is the little detail of testing:  Varnishtest,
-which has its own `VTest project <https://code.vinyl-cache.org/vtest/VTest>`_
+Finally, there is the little detail of testing: vinylcache,
+which has its own `VTest project <https://code.vinyl-cache.org/vtest/VTest2>`_
 now, will need to learn about HTTP3, QUIC and possibly TLS also.
 
-And of course, when we ask the Varnish users, they say *"Ohhh...
+And of course, when we ask the Vinyl Cache users, they say *"Ohhh...
 they all sound delicious, can we have the buffet ?"* :-)
 
 *phk*

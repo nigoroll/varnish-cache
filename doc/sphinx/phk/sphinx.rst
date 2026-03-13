@@ -10,7 +10,7 @@ Why Sphinx_ and reStructuredText_ ?
 ===================================
 
 The first school of thought on documentation, is the one we subscribe
-to in Varnish right now: "Documentation schmocumentation..."  It does
+to in Vinyl Cache right now: "Documentation schmocumentation..."  It does
 not work for anybody.
 
 The second school is the "Write a {La}TeX document" school, where
@@ -62,7 +62,7 @@ In other words: we are talking about the ReStructuredText_ of the
 Python project, as wrapped by the Sphinx_ project.
 
 Unless there is something I have totally failed to spot, that is
-going to be the new documentation platform in Varnish.
+going to be the new documentation platform in Vinyl Cache.
 
 Take a peek at the Python docs, and try pressing the "show source"
 link at the bottom of the left menu:

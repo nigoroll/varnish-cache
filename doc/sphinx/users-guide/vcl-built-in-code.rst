@@ -24,7 +24,7 @@ This is how it is guaranteed that all :ref:`reference-states` have at least
 one ``return (<action>)``.
 
 It is generally recommended not to invariably return from loaded code to
-let Varnish execute the built-in code, because the built-in code provides
+let Vinyl Cache execute the built-in code, because the built-in code provides
 essentially a sensible default behavior for an HTTP cache.
 
 Built-in subroutines split
@@ -56,7 +56,7 @@ a response as uncacheable, but only if the built-in ``vcl_backend_response``
 is not circumvented by a ``return (<action>)``.
 
 However, in a multi-tier architecture where a backend might be another
-Varnish server, you might want to cache stale responses to allow the
+Vinyl Cache server, you might want to cache stale responses to allow the
 delivery of graced objects and enable revalidation on the next fetch. This
 can be done with the following snippet::
 
@@ -189,7 +189,7 @@ case the loaded VCL code will be executed before the built-in code.
 Re-enabling pipe mode
 ~~~~~~~~~~~~~~~~~~~~~
 
-As of Varnish 8.0, Varnish no longer pipes unknown HTTP methods by default.
+Since Varnish Cache 8.0, Vinyl Cache no longer pipes unknown HTTP methods by default.
 Instead, it returns a 501 synthetic error. If you want to re-enable pipe
 mode for a specific method, you can do so by adding the following to your
 VCL:

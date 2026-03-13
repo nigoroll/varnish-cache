@@ -10,7 +10,7 @@ Adding WebSockets support
 WebSockets is a technology for creating a bidirectional stream-based
 channel over HTTP.
 
-To run WebSockets through Varnish you need to pipe the request and copy
+To run WebSockets through Vinyl Cache you need to pipe the request and copy
 the Upgrade and Connection headers as follows::
 
     sub vcl_recv {

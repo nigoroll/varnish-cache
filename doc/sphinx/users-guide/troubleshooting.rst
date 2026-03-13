@@ -5,33 +5,33 @@
 
 .. _users_trouble:
 
-Troubleshooting Varnish
-=======================
+Troubleshooting Vinyl Cache
+===========================
 
-Sometimes Varnish misbehaves or rather behaves the way you told it to
+Sometimes Vinyl Cache misbehaves or rather behaves the way you told it to
 behave but not necessarily the way you want it to behave. In order for
 you to understand whats going on there are a couple of places you can
 check. :ref:`vinyllog(1)`, ``/var/log/syslog``,
-``/var/log/messages`` are all good places where Varnish might leave
+``/var/log/messages`` are all good places where Vinyl Cache might leave
 clues of whats going on. This section will guide you through basic
-troubleshooting in Varnish.
+troubleshooting in Vinyl Cache.
 
 
-When Varnish won't start
-------------------------
+When Vinyl Cache won't start
+----------------------------
 
-Sometimes Varnish wont start. There is a plethora of possible reasons why
-Varnish wont start on your machine. We've seen everything from wrong
+Sometimes Vinyl Cache wont start. There is a plethora of possible reasons why
+Vinyl Cache wont start on your machine. We've seen everything from wrong
 permissions on ``/dev/null`` to other processes blocking the ports.
 
-Starting Varnish in debug mode to see what is going on.
+Starting Vinyl Cache in debug mode to see what is going on.
 
-Try to start Varnish with the same arguments as otherwise, but ``-d``
+Try to start Vinyl Cache with the same arguments as otherwise, but ``-d``
 added. This will give you some more information on what is going
-on. Let us see how Varnish will react when something else is listening
+on. Let us see how Vinyl Cache will react when something else is listening
 on its port.::
 
-    # vinyld -n foo -f /usr/local/etc/varnish/default.vcl -s malloc,1G -T 127.0.0.1:2000  -a 0.0.0.0:8080 -d
+    # vinyld -n foo -f /usr/local/etc/vinyl-cache/default.vcl -s malloc,1G -T 127.0.0.1:2000  -a 0.0.0.0:8080 -d
     storage_malloc: max size 1024 MB.
     Using old SHMFILE
     Platform: Linux,2.6.32-21-generic,i686,-smalloc,-hcritbit
@@ -43,7 +43,7 @@ on its port.::
     Type 'quit' to close CLI session.
     Type 'start' to launch worker process.
 
-Now Varnish is running but only the master process is running, in debug
+Now Vinyl Cache is running but only the master process is running, in debug
 mode the cache does not start. Now you're on the console. You can
 instruct the master process to start the cache by issuing "start".::
 
@@ -53,16 +53,16 @@ instruct the master process to start the cache by issuing "start".::
 	 Could not open sockets
 
 And here we have our problem. Something else is bound to the HTTP port
-of Varnish. If this doesn't help try ``strace`` or ``truss`` or come find us
+of Vinyl Cache. If this doesn't help try ``strace`` or ``truss`` or come find us
 on IRC.
 
 
-Varnish is crashing - panics
-----------------------------
+Vinyl Cache is crashing - panics
+--------------------------------
 
-When Varnish goes bust the child processes crashes. Most of the
+When Vinyl Cache goes bust the child processes crashes. Most of the
 crashes are caught by one of the many consistency checks we have
-included in the Varnish source code. When Varnish hits one of these
+included in the Vinyl Cache source code. When Vinyl Cache hits one of these
 the caching process will crash itself in a controlled manner, leaving
 a nice stack trace with the mother process.
 
@@ -86,8 +86,8 @@ The crash might be due to misconfiguration or a bug. If you suspect it
 is a bug you can use the output in a bug report, see the "Trouble
 Tickets" section in the Introduction chapter above.
 
-Varnish is crashing - stack overflows
--------------------------------------
+Vinyl Cache is crashing - stack overflows
+-----------------------------------------
 
 Bugs put aside, the most likely cause of crashes are stack overflows,
 which is why we have added a heuristic to add a note when a crash
@@ -99,23 +99,23 @@ contains something like this::
 
 as a first measure, please follow this advise and check if crashes
 still occur when you add 128k to whatever the value of the
-``thread_pool_stack`` parameter and restart varnish.
+``thread_pool_stack`` parameter and restart vinyl Cache.
 
-If varnish stops crashing with a larger ``thread_pool_stack``
+If vinyl Cache stops crashing with a larger ``thread_pool_stack``
 parameter, it's not a bug (at least most likely).
 
-Varnish is crashing - segfaults
--------------------------------
+Vinyl Cache is crashing - segmentation faults
+---------------------------------------------
 
-Sometimes a bug escapes the consistency checks and Varnish gets hit
+Sometimes a bug escapes the consistency checks and Vinyl Cache gets hit
 with a segmentation error. When this happens with the child process it
 is logged, the core is dumped and the child process starts up again.
 
-A core dumped is usually due to a bug in Varnish. However, in order to
+A core dumped is usually due to a bug in Vinyl Cache. However, in order to
 debug a segfault the developers need you to provide a fair bit of
 data.
 
- * Make sure you have Varnish installed with debugging symbols.
+ * Make sure you have Vinyl Cache installed with debugging symbols.
  * Check where your operating system writes core files and ensure that
    you actually get them. For example on linux, learn about
    ``/proc/sys/kernel/core_pattern`` from the `core(5)` manpage.
@@ -124,19 +124,19 @@ data.
 
 	ulimit -c unlimited
 
-   but if varnish is started from an init-script, that would need to
+   but if vinyl Cache is started from an init-script, that would need to
    be adjusted or in the case of systemd, ``LimitCORE=infinity`` set
    in the service's ``[Service]]`` section of the unit file.
 
-Once you have the core, ``cd`` into varnish's working directory (as
+Once you have the core, ``cd`` into vinyl Cache's working directory (as
 given by the ``-n`` parameter (see :ref:`vinyld(1)` for defaults),
 open the core with ``gdb`` and issue the command ``bt`` to get a stack
 trace of the thread that caused the segfault.
 
-A basic debug session for varnish installed under ``/usr/local`` could look
+A basic debug session for vinyl Cache installed under ``/usr/local`` could look
 like this::
 
-	$ cd /usr/local/var/varnish/`uname -n`/
+	$ cd /usr/local/var/vinyl Cache/`uname -n`/
 	$ gdb /usr/local/sbin/vinyld core
 	GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
 	Copyright (C) 2016 Free Software Foundation, Inc.
@@ -176,8 +176,8 @@ like this::
 
 
 
-Varnish gives me Guru meditation
---------------------------------
+Vinyl Cache gives me Guru meditation
+------------------------------------
 
 First find the relevant log entries in :ref:`vinyllog(1)`. That will
 probably give you a clue. Since :ref:`vinyllog(1)` logs a lot of
@@ -198,7 +198,7 @@ for elaborations on further filtering capabilities and explanation of
 the various options.
 
 
-Varnish doesn't cache
----------------------
+Vinyl Cache doesn't cache
+-------------------------
 
 See :ref:`users-guide-increasing_your_hitrate`.

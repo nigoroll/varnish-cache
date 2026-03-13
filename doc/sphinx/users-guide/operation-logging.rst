@@ -5,12 +5,12 @@
 
 .. _users-guide-logging:
 
-Logging in Varnish
-------------------
+Logging in Vinyl Cache
+----------------------
 
-One of the really nice features in Varnish is the way logging
-works. Instead of logging to a normal log file Varnish logs to a shared
-memory segment, called the VSL - the Varnish Shared Log. When the end
+One of the really nice features in Vinyl Cache is the way logging
+works. Instead of logging to a normal log file Vinyl Cache logs to a shared
+memory segment, called the VSL - the Vinyl Shared Log. When the end
 of the segment is reached we start over, overwriting old data.
 
 This is much, much faster than logging to a file and it doesn't
@@ -20,12 +20,12 @@ when you need it.
 The flip side is that if you forget to have a program actually write the
 logs to disk they will be overwritten.
 
-`vinyllog` is one of the programs you can use to look at what Varnish
+`vinyllog` is one of the programs you can use to look at what Vinyl Cache
 is logging. `vinyllog` gives you the raw logs, everything that is
 written to the logs. There are other clients that can access the logs as well, we'll show you
 these later.
 
-In the terminal window you started Varnish now type ``vinyllog -g raw``
+In the terminal window you started Vinyl Cache now type ``vinyllog -g raw``
 and press enter.
 
 You'll see lines like these scrolling slowly by.::
@@ -33,7 +33,7 @@ You'll see lines like these scrolling slowly by.::
     0 CLI            - Rd ping
     0 CLI            - Wr 200 19 PONG 1273698726 1.0
 
-These is the Varnish master process checking up on the caching process
+These is the Vinyl Cache master process checking up on the caching process
 to see that everything is OK.
 
 Now go to the browser and reload the page displaying your web app.
@@ -65,7 +65,7 @@ Now, you can filter quite a bit with `vinyllog`. The basic options we think you
 want to know are:
 
 '-b'
- Only show log lines from traffic going between Varnish and the backend
+ Only show log lines from traffic going between Vinyl Cache and the backend
  servers. This will be useful when we want to optimize cache hit rates.
 
 '-c'
