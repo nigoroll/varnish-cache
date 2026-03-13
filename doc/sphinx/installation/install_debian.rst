@@ -10,7 +10,7 @@ Installing on Debian/Ubuntu
 
 .. _RSS: https://vinyl-cache.org/atom.xml
 .. _Mastodon: https://fosstodon.org/@vinyl_cache
-.. _vinyl-accounce: https://vinyl-cache.org/lists/mailman/listinfo/vinyl-announce
+.. _vinyl-announce: https://vinyl-cache.org/lists/mailman/listinfo/vinyl-announce
 
 As of Vinyl Cache 9.0, we do not yet provide Debian packages again. Please
 follow the homepage updates via `RSS`_, follow via `Mastodon`_ or subscribe to
