@@ -41,18 +41,18 @@ He does have 30+ years of experience in systems programming, and
 that seems useful too.
 
 PHK's `random outbursts </docs/trunk/phk/index.html>`_ has their own
-section in the Varnish documentation.
+section in the Vinyl Cache documentation.
 
 Per Buer
 ~~~~~~~~
 
 Per also worked at Redpill-Linpro, and at some point when the
 impedance mismatch between Linpros "normal way of doing things" and
-the potential of Varnish became to steep, he convinced the company
+the potential of Varnish Cache became to steep, he convinced the company
 to spin off `Varnish Software <https://varnish-software.com/>`_
 with himself at the helm.
 
-Do a git blame on the Varnish documentation and you will be surprised
+Do a git blame on the Varnish Cache documentation and you will be surprised
 to see how much he cares about it. Very few people notice this.
 
 Ingvar Hagelund
@@ -60,9 +60,9 @@ Ingvar Hagelund
 
 Ingvar works as Team Leader (read very skilled sysadmin) at Redpill-Linpro,
 but his passion is reading books and blogging about it, as well as RPM
-packaging. So every Fedora and EPEL (read RedHat and CentOS) Varnish user
+packaging. So every Fedora and EPEL (read RedHat and CentOS) Varnish Cache user
 out there owe him a thanks or two. Once in a while, he also trawls the
-internet checking for the rate of Varnish adoption among top web sites.
+internet checking for the rate of Varnish Cache adoption among top web sites.
 
 Stig Sandbeck Mathisen
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -75,27 +75,27 @@ he maintains VCL-mode for emacs and is generally a nice and helpful guy.
 Tollef Fog Heen
 ~~~~~~~~~~~~~~~
 
-Tollef was product owner and responsible for Varnish while working
+Tollef was product owner and responsible for Varnish Cache while working
 for Redpill-Linpro. later tech lead at Varnish Software and held
-the Varnish release manager helmet for a few years. His experience with
+the Varnish Cache release manager helmet for a few years. His experience with
 open source (Debian, Ubuntu and many others) brought sanity to the
 project in ways that are hard to measure or describe.
 
 Kristian Lyngstøl
 ~~~~~~~~~~~~~~~~~
 
-Kristian was the first Varnish SuperUser, and he quite literally
-wrote the book, while giving Varnish courses for Redpill-Linpro,
+Kristian was the first Varnish Cache SuperUser, and he quite literally
+wrote the book, while giving Varnish Cache courses for Redpill-Linpro,
 and he pushed boundaries where no boundaries had been pushed before
 which caused a lot of improvements and "aha!" moments in Varnish.
 
 Artur Bergman
 ~~~~~~~~~~~~~
 
-Artur ran Wikias webservers and CDN when he discovered Varnish and
+Artur ran Wikias webservers and CDN when he discovered Varnish Cache and
 eagerly adopted it, causing many bugreports, suggestions, patches
 and improvements.  At some point, he pivoted Wikias CDN into the
-Varnish based startup-CDN named `Fastly <http://www.fastly.com/>`_
+Varnish Cache based startup-CDN named `Fastly <http://www.fastly.com/>`_
 
 Kacper Wysocki
 ~~~~~~~~~~~~~~
@@ -103,7 +103,7 @@ Kacper Wysocki
 Kacper was probably the first VCL long program writer. Combine this with
 an interest in security and a job at Redpill-Linpro and he turned
 quickly into the author of security.vcl and, later, the Varnish Security
-Firewall. He does not have any commits in Varnish and still has managed
+Firewall. He does not have any commits in Varnish Cache and still has managed
 to drive quite a few changes into the project. Similarly, he has no idea
 or has even thought about asking for it, and still is being added here
 He maintains the VCL grammar in BNF notation, which is an unexploited
@@ -115,14 +115,14 @@ Nils Goroll
 aka 'slink' is the founder of `UPLEX <http://uplex.de/>`_, a five-head
 tech / consultancy company with negative to zero marketing (applied
 for entry into the "Earth's worst company homepage" competition). He
-fell in love with Varnish when he migrated Germany's Verdens Gang
+fell in love with Varnish Cache when he migrated Germany's Verdens Gang
 counterpart over a weekend in March 2009 and, since then, has
 experienced countless moments of pure joy and happiness when, after
 struggling for hours, he finally understood another piece of
-beautiful, ingenious Varnish code.
+beautiful, ingenious Vinyl Cache code.
 
 Nils' primary focus are his clients and their projects. He tries to
-make those improvements to Varnish which matter to them.
+make those improvements to Vinyl Cache which matter to them.
 
 Martin Blix Grydeland
 ~~~~~~~~~~~~~~~~~~~~~
@@ -131,23 +131,22 @@ Martin was the first full-time member of the C-team at Varnish Software.
 He is the main responsible for the amazing revamp of the logging
 facilities and utilities in the 4.0 cycle and later the storage
 rework. Besides that he fixes lots of bugs, knows varnishtest better
-than most, writes vmods and is the Vinyl Cache Plus architect.
+than most, writes vmods and is the Varnish Cache Plus architect.
 
 Lasse Karstensen
 ~~~~~~~~~~~~~~~~
 
-Lasse is the current release manager and stable version maintainer of
-Vinyl Cache. When not doing that, he maintains build infrastructure
-and runs the Varnish Software C developer team in Oslo.
+Lasse was the release manager and stable version maintainer of
+Varnish Cache for years.
 
 Geoff Simmons
 ~~~~~~~~~~~~~
 
 Geoff started working at UPLEX in 2010 and soon learned to love
-Varnish as much as slink does. Since then he's been contributing code
+Varnish Cache as much as slink does. Since then he's been contributing code
 to the project, writing up various VMODs (mostly about regular
 expressions, blobs, backends and directors), developing standalone
 applications for logging that use Martin's VSL API, and adding custom
-patches to Varnish for various customer needs. He spends most of his
+patches to Varnish Cache for various customer needs. He spends most of his
 days in customer projects as "the Varnish guy" on the operations
 teams.
