@@ -1,5 +1,5 @@
 ..
-	Copyright (c) 2019-2020 Varnish Software AS
+	Copyright 2026 The Vinyl Cache Project
 	SPDX-License-Identifier: BSD-2-Clause
 	See LICENSE file for full text of license
 
@@ -8,51 +8,11 @@
 Installing on RedHat or CentOS
 ==============================
 
-Varnish is included in the `EPEL
-<https://fedoraproject.org/wiki/EPEL>`_ repository, however due to
-incompatible syntax changes in newer versions of Varnish, only older
-versions are available.
+.. _RSS: https://vinyl-cache.org/atom.xml
+.. _Mastodon: https://fosstodon.org/@vinyl_cache
+.. _vinyl-accounce: https://vinyl-cache.org/lists/mailman/listinfo/vinyl-announce
 
-We therefore recommend that you install the latest version directly from our repository, as described above.
+As of Vinyl Cache 9.0, we do not yet provide RedHat / Alma / Fedora packages again. Please
+follow the homepage updates via `RSS`_, follow via `Mastodon`_ or subscribe to
+`vinyl-announce`_ to get informed when we have packages ready.
 
-Vinyl Cache is packaged in RPMs for easy installation and upgrade on Red Hat
-systems. The Vinyl Cache project maintains official packages for the current
-Enterprise Linux versions. Vinyl Cache 6.x series are supported on el7 and el8.
-
-We try to keep the latest version available as prebuilt RPMs (el7 and el8)
-on `packagecloud.io/varnishcache <https://packagecloud.io/varnishcache/>`_.
-
-Starting with el8 a DNF module will inhibit Varnish packages, and the solution
-is to disable the module before installing::
-
-    dnf module disable varnish
-
-Official packages of 6
-----------------------
-
-Starting from Vinyl Cache 5.0, we've simplified our packaging down to two:
-the main package and a development package.
-
-The official Vinyl Cache repository is now hosted at Packagecloud.io.
-Note that while Packagecloud.io provides Bash Script installs, we recommend
-using the manual installation procedures.
-
-Instructions for installing the official repository which contains the newest
-Vinyl Cache 6 release are available at:
-
-* https://packagecloud.io/varnishcache/varnish60lts/install#manual-rpm
-
-With the release of 6.0.2, users have to switch to switch repositories to get
-the latest version.
-Read more about this on `Release 6.0.2 </releases/rel6.0.2>`_.
-
-External packaging
-------------------
-
-Vinyl Cache is also distributed in third party package repositories.
-
-.. _`Fedora EPEL`: https://fedoraproject.org/wiki/EPEL
-
-* `Fedora EPEL`_ does community packaging of Vinyl Cache.
-
-* RedHat has packaged versions of Vinyl Cache available since Software Collections 2.1. Announcement on <http://developers.redhat.com/blog/2015/11/17/software-collections-2-1-generally-available/>.

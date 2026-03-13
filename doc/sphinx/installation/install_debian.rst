@@ -1,5 +1,5 @@
 ..
-	Copyright (c) 2019 Varnish Software AS
+	Copyright 2026 The Vinyl Cache Project
 	SPDX-License-Identifier: BSD-2-Clause
 	See LICENSE file for full text of license
 
@@ -8,38 +8,10 @@
 Installing on Debian/Ubuntu
 ===========================
 
-From package
-------------
+.. _RSS: https://vinyl-cache.org/atom.xml
+.. _Mastodon: https://fosstodon.org/@vinyl_cache
+.. _vinyl-accounce: https://vinyl-cache.org/lists/mailman/listinfo/vinyl-announce
 
-Type::
-
-	sudo apt-get install vinyl
-
-
-Official packages of 6
-----------------------
-
-Starting from Vinyl Cache 5.0, we've simplified our packaging down to two:
-the main package and a development package.
-
-The official Vinyl Cache repository is now hosted at Packagecloud.io.
-Note that while Packagecloud.io provides Bash Script installs, we recommend
-using the manual installation procedures.
-
-Instructions for installing the official repository which contains the newest
-Vinyl Cache 6 release are available at:
-
-* https://packagecloud.io/varnishcache/varnish60lts/install#manual-deb
-
-With the release of 6.0.2, users have to switch to switch repositories to get
-the latest version.
-Read more about this on `Release 6.0.2 </releases/rel6.0.2>`_.
-
-
-Official packages of 4.1
-------------------------
-
-To use Vinyl Cache 4.1 packages from the official varnish-cache.org repos,
-follow the instructions available at:
-
-* https://packagecloud.io/varnishcache/varnish41/install#manual-deb
+As of Vinyl Cache 9.0, we do not yet provide Debian packages again. Please
+follow the homepage updates via `RSS`_, follow via `Mastodon`_ or subscribe to
+`vinyl-announce`_ to get informed when we have packages ready.
