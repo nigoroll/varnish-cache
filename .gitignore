@@ -148,6 +148,7 @@ cscope.*out
 
 # Source artifact
 /vinyl-cache-trunk.tar.gz
+/vinyl-cache-trunk
 
 # Witness droppings
 witness.dot
