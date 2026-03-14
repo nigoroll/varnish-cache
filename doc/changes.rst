@@ -4757,7 +4757,7 @@ New since 4.0.0:
 - fallback director is now documented.
 - %D format flag in varnishncsa is now truncated to an integer value.
 - persistent storage backend is now deprecated.
-  https://www.varnish-cache.org/docs/trunk/phk/persistent.html
+  https://vinyl-cache.org/docs/trunk/phk/persistent.html
 - Added format flags %I (total bytes received) and %O (total bytes sent) for
   varnishncsa.
 - python-docutils >= 0.6 is now required.
@@ -6640,8 +6640,7 @@ varnishd
    to POST.
 
 -  Change how backends are defined, to a constant structural definition
-   style. See https://www.varnish-cache.org/wiki/VclSyntaxChanges
-   for the details.
+   style.
 
 -  Add directors, which wrap backends. Currently, there's a random
    director and a round-robin director.
