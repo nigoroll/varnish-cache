@@ -4334,9 +4334,9 @@ Bugs fixed
 * 1863_ - Don't reset the oc->ban pointer from BAN_CheckObject
 * 1864_ - Avoid panic if the lurker is working on a ban to be checked.
 
-.. _1860: https://www.varnish-cache.org/trac/ticket/1860
-.. _1863: https://www.varnish-cache.org/trac/ticket/1863
-.. _1864: https://www.varnish-cache.org/trac/ticket/1864
+.. _1860: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1860
+.. _1863: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1863
+.. _1864: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1864
 
 
 ======================================
@@ -4356,7 +4356,7 @@ Bugs fixed
 
 * 1858_ - Hit-for-pass objects are not IMS candidates
 
-.. _1858: https://www.varnish-cache.org/trac/ticket/1858
+.. _1858: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1858
 
 ======================================
 Varnish Cache 4.1.2-beta1 (2016-02-17)
@@ -4388,15 +4388,15 @@ Bugs fixed
 * 1852_ - Add a missing VDP flush operation after ESI:includes.
 * 1857_ - Fix timeout calculation for session herding.
 
-.. _1739: https://www.varnish-cache.org/trac/ticket/1739
-.. _1837: https://www.varnish-cache.org/trac/ticket/1837
-.. _1841: https://www.varnish-cache.org/trac/ticket/1841
-.. _1843: https://www.varnish-cache.org/trac/ticket/1843
-.. _1844: https://www.varnish-cache.org/trac/ticket/1844
-.. _1851: https://www.varnish-cache.org/trac/ticket/1851
-.. _1852: https://www.varnish-cache.org/trac/ticket/1852
-.. _1857: https://www.varnish-cache.org/trac/ticket/1857
-.. _1847: https://www.varnish-cache.org/trac/ticket/1847
+.. _1739: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1739
+.. _1837: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1837
+.. _1841: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1841
+.. _1843: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1843
+.. _1844: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1844
+.. _1851: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1851
+.. _1852: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1852
+.. _1857: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1857
+.. _1847: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1847
 
 
 ================================
@@ -4421,10 +4421,10 @@ Bugs fixed
 * 1842_ - Handle missing waiting list gracefully.
 * 1845_ - Handle whitespace after floats in test fields
 
-.. _1802: https://www.varnish-cache.org/trac/ticket/1802
-.. _1825: https://www.varnish-cache.org/trac/ticket/1825
-.. _1842: https://www.varnish-cache.org/trac/ticket/1842
-.. _1845: https://www.varnish-cache.org/trac/ticket/1845
+.. _1802: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1802
+.. _1825: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1825
+.. _1842: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1842
+.. _1845: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1845
 
 
 ======================================
@@ -4463,21 +4463,21 @@ Bugs fixed
 - 1804_ - Log proxy related messages on the session, not on the request.
 - 1801_ - Relax IP constant parsing
 
-.. _1796: https://www.varnish-cache.org/trac/ticket/1796
-.. _1794: https://www.varnish-cache.org/trac/ticket/1794
-.. _1763: https://www.varnish-cache.org/trac/ticket/1763
-.. _1788: https://www.varnish-cache.org/trac/ticket/1788
-.. _1798: https://www.varnish-cache.org/trac/ticket/1798
-.. _1816: https://www.varnish-cache.org/trac/ticket/1816
-.. _1818: https://www.varnish-cache.org/trac/ticket/1818
-.. _1821: https://www.varnish-cache.org/trac/ticket/1821
-.. _1823: https://www.varnish-cache.org/trac/ticket/1823
-.. _1826: https://www.varnish-cache.org/trac/ticket/1826
-.. _1813: https://www.varnish-cache.org/trac/ticket/1813
-.. _1810: https://www.varnish-cache.org/trac/ticket/1810
-.. _1807: https://www.varnish-cache.org/trac/ticket/1807
-.. _1804: https://www.varnish-cache.org/trac/ticket/1804
-.. _1801: https://www.varnish-cache.org/trac/ticket/1801
+.. _1796: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1796
+.. _1794: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1794
+.. _1763: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1763
+.. _1788: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1788
+.. _1798: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1798
+.. _1816: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1816
+.. _1818: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1818
+.. _1821: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1821
+.. _1823: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1823
+.. _1826: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1826
+.. _1813: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1813
+.. _1810: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1810
+.. _1807: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1807
+.. _1804: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1804
+.. _1801: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1801
 
 
 ================================
@@ -4489,7 +4489,7 @@ Varnish Cache 4.1.0 (2015-09-30)
 - Avoid compiler warning in zlib.
 - Bug 1792_: Avoid using fallocate() with -sfile on non-EXT4.
 
-.. _1792: https://www.varnish-cache.org/trac/ticket/1792
+.. _1792: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1792
 
 
 ======================================
@@ -4512,10 +4512,10 @@ Bugs fixed
 - 1781_ - Propagate gzip CRC upwards from nested ESI includes.
 - 1783_ - Align code with RFC7230 section 3.3.3 which allows POST without a body.
 
-.. _1777: https://www.varnish-cache.org/trac/ticket/1777
-.. _1778: https://www.varnish-cache.org/trac/ticket/1778
-.. _1781: https://www.varnish-cache.org/trac/ticket/1781
-.. _1783: https://www.varnish-cache.org/trac/ticket/1783
+.. _1777: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1777
+.. _1778: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1778
+.. _1781: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1781
+.. _1783: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1783
 
 
 ====================================
@@ -4547,11 +4547,11 @@ Bugs fixed
 - 1665_ - Be more accurate when computing client RX_TIMEOUT.
 - 1672_ - Do not panic on unsolicited 304 response to non-200 bereq.
 
-.. _1462: https://www.varnish-cache.org/trac/ticket/1462
-.. _1539: https://www.varnish-cache.org/trac/ticket/1539
-.. _1637: https://www.varnish-cache.org/trac/ticket/1637
-.. _1665: https://www.varnish-cache.org/trac/ticket/1665
-.. _1672: https://www.varnish-cache.org/trac/ticket/1672
+.. _1462: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1462
+.. _1539: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1539
+.. _1637: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1637
+.. _1665: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1665
+.. _1672: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1672
 
 
 ================================================
@@ -4571,14 +4571,14 @@ Bugs fixed
 - 1629_ - Ditch rest of waiting list on failure to reschedule.
 - 1660_ - Don't attempt range delivery on a synth response
 
-.. _1479: https://www.varnish-cache.org/trac/ticket/1479
-.. _1566: https://www.varnish-cache.org/trac/ticket/1578
-.. _1616: https://www.varnish-cache.org/trac/ticket/1616
-.. _1620: https://www.varnish-cache.org/trac/ticket/1620
-.. _1621: https://www.varnish-cache.org/trac/ticket/1621
-.. _1628: https://www.varnish-cache.org/trac/ticket/1628
-.. _1629: https://www.varnish-cache.org/trac/ticket/1629
-.. _1660: https://www.varnish-cache.org/trac/ticket/1660
+.. _1479: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1479
+.. _1566: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1578
+.. _1616: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1616
+.. _1620: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1620
+.. _1621: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1621
+.. _1628: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1628
+.. _1629: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1629
+.. _1660: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1660
 
 
 ============================================
@@ -4614,21 +4614,21 @@ Bugs fixed
 * 1648_ - Avoid partial IMS updates to replace old object.
 * 1650_ - Collapse multiple X-Forwarded-For headers
 
-.. _1349: https://www.varnish-cache.org/trac/ticket/1349
-.. _1378: https://www.varnish-cache.org/trac/ticket/1378
-.. _1596: https://www.varnish-cache.org/trac/ticket/1596
-.. _1506: https://www.varnish-cache.org/trac/ticket/1506
-.. _1602: https://www.varnish-cache.org/trac/ticket/1602
-.. _1607: https://www.varnish-cache.org/trac/ticket/1607
-.. _1610: https://www.varnish-cache.org/trac/ticket/1610
-.. _1612: https://www.varnish-cache.org/trac/ticket/1612
-.. _1623: https://www.varnish-cache.org/trac/ticket/1623
-.. _1636: https://www.varnish-cache.org/trac/ticket/1636
-.. _1638: https://www.varnish-cache.org/trac/ticket/1638
-.. _1639: https://www.varnish-cache.org/trac/ticket/1639
-.. _1647: https://www.varnish-cache.org/trac/ticket/1647
-.. _1648: https://www.varnish-cache.org/trac/ticket/1648
-.. _1650: https://www.varnish-cache.org/trac/ticket/1650
+.. _1349: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1349
+.. _1378: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1378
+.. _1596: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1596
+.. _1506: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1506
+.. _1602: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1602
+.. _1607: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1607
+.. _1610: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1610
+.. _1612: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1612
+.. _1623: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1623
+.. _1636: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1636
+.. _1638: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1638
+.. _1639: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1639
+.. _1647: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1647
+.. _1648: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1648
+.. _1650: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1650
 
 
 ============================================
@@ -4704,38 +4704,38 @@ Bugs fixed
 * 1532_ - Use correct VCL representation of reals.
 * 1531_ - Work around libedit bug in varnishadm.
 
-.. _1553: https://www.varnish-cache.org/trac/ticket/1553
-.. _1551: https://www.varnish-cache.org/trac/ticket/1551
-.. _1591: https://www.varnish-cache.org/trac/ticket/1591
-.. _1592: https://www.varnish-cache.org/trac/ticket/1592
-.. _1538: https://www.varnish-cache.org/trac/ticket/1538
-.. _1584: https://www.varnish-cache.org/trac/ticket/1584
-.. _1407: https://www.varnish-cache.org/trac/ticket/1407
-.. _1466: https://www.varnish-cache.org/trac/ticket/1466
-.. _1580: https://www.varnish-cache.org/trac/ticket/1580
-.. _1583: https://www.varnish-cache.org/trac/ticket/1583
-.. _1585: https://www.varnish-cache.org/trac/ticket/1585
-.. _1572: https://www.varnish-cache.org/trac/ticket/1572
-.. _1569: https://www.varnish-cache.org/trac/ticket/1569
-.. _1579: https://www.varnish-cache.org/trac/ticket/1579
-.. _1578: https://www.varnish-cache.org/trac/ticket/1578
-.. _1574: https://www.varnish-cache.org/trac/ticket/1574
-.. _1555: https://www.varnish-cache.org/trac/ticket/1555
-.. _1568: https://www.varnish-cache.org/trac/ticket/1568
-.. _1567: https://www.varnish-cache.org/trac/ticket/1567
-.. _1512: https://www.varnish-cache.org/trac/ticket/1512
-.. _1563: https://www.varnish-cache.org/trac/ticket/1563
-.. _1561: https://www.varnish-cache.org/trac/ticket/1561
-.. _1562: https://www.varnish-cache.org/trac/ticket/1562
-.. _1521: https://www.varnish-cache.org/trac/ticket/1521
-.. _1547: https://www.varnish-cache.org/trac/ticket/1547
-.. _1503: https://www.varnish-cache.org/trac/ticket/1503
-.. _1581: https://www.varnish-cache.org/trac/ticket/1581
-.. _1588: https://www.varnish-cache.org/trac/ticket/1588
-.. _1575: https://www.varnish-cache.org/trac/ticket/1575
-.. _1577: https://www.varnish-cache.org/trac/ticket/1577
-.. _1532: https://www.varnish-cache.org/trac/ticket/1532
-.. _1531: https://www.varnish-cache.org/trac/ticket/1531
+.. _1553: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1553
+.. _1551: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1551
+.. _1591: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1591
+.. _1592: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1592
+.. _1538: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1538
+.. _1584: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1584
+.. _1407: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1407
+.. _1466: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1466
+.. _1580: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1580
+.. _1583: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1583
+.. _1585: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1585
+.. _1572: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1572
+.. _1569: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1569
+.. _1579: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1579
+.. _1578: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1578
+.. _1574: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1574
+.. _1555: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1555
+.. _1568: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1568
+.. _1567: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1567
+.. _1512: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1512
+.. _1563: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1563
+.. _1561: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1561
+.. _1562: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1562
+.. _1521: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1521
+.. _1547: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1547
+.. _1503: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1503
+.. _1581: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1581
+.. _1588: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1588
+.. _1575: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1575
+.. _1577: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1577
+.. _1532: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1532
+.. _1531: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1531
 
 
 ========================================
@@ -4798,32 +4798,32 @@ Bugs fixed
 * 1519_ - Round-robin director does not support weight. [docs]
 
 
-.. _1269: https://www.varnish-cache.org/trac/ticket/1269
-.. _1524: https://www.varnish-cache.org/trac/ticket/1524
-.. _1530: https://www.varnish-cache.org/trac/ticket/1530
-.. _1475: https://www.varnish-cache.org/trac/ticket/1475
-.. _1480: https://www.varnish-cache.org/trac/ticket/1480
-.. _1482: https://www.varnish-cache.org/trac/ticket/1482
-.. _1473: https://www.varnish-cache.org/trac/ticket/1473
-.. _1486: https://www.varnish-cache.org/trac/ticket/1486
-.. _1488: https://www.varnish-cache.org/trac/ticket/1488
-.. _1489: https://www.varnish-cache.org/trac/ticket/1489
-.. _1490: https://www.varnish-cache.org/trac/ticket/1490
-.. _1491: https://www.varnish-cache.org/trac/ticket/1491
-.. _1498: https://www.varnish-cache.org/trac/ticket/1498
-.. _1499: https://www.varnish-cache.org/trac/ticket/1499
-.. _1493: https://www.varnish-cache.org/trac/ticket/1493
-.. _1476: https://www.varnish-cache.org/trac/ticket/1476
-.. _1496: https://www.varnish-cache.org/trac/ticket/1496
-.. _1494: https://www.varnish-cache.org/trac/ticket/1494
-.. _1139: https://www.varnish-cache.org/trac/ticket/1139
-.. _1478: https://www.varnish-cache.org/trac/ticket/1478
-.. _1504: https://www.varnish-cache.org/trac/ticket/1504
-.. _1501: https://www.varnish-cache.org/trac/ticket/1501
-.. _1495: https://www.varnish-cache.org/trac/ticket/1495
-.. _1510: https://www.varnish-cache.org/trac/ticket/1510
-.. _1518: https://www.varnish-cache.org/trac/ticket/1518
-.. _1519: https://www.varnish-cache.org/trac/ticket/1519
+.. _1269: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1269
+.. _1524: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1524
+.. _1530: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1530
+.. _1475: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1475
+.. _1480: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1480
+.. _1482: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1482
+.. _1473: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1473
+.. _1486: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1486
+.. _1488: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1488
+.. _1489: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1489
+.. _1490: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1490
+.. _1491: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1491
+.. _1498: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1498
+.. _1499: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1499
+.. _1493: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1493
+.. _1476: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1476
+.. _1496: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1496
+.. _1494: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1494
+.. _1139: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1139
+.. _1478: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1478
+.. _1504: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1504
+.. _1501: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1501
+.. _1495: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1495
+.. _1510: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1510
+.. _1518: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1518
+.. _1519: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1519
 
 
 ==============================================
@@ -4846,10 +4846,10 @@ Bugs fixed
 * 1467_ - Fix missing clearing of oc->busyobj on HSH_Fail.
 
 
-.. _1469: https://www.varnish-cache.org/trac/ticket/1469
-.. _1468: https://www.varnish-cache.org/trac/ticket/1468
-.. _1462: https://www.varnish-cache.org/trac/ticket/1462
-.. _1467: https://www.varnish-cache.org/trac/ticket/1467
+.. _1469: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1469
+.. _1468: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1468
+.. _1462: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1462
+.. _1467: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1467
 
 
 ==================================================
@@ -4895,19 +4895,19 @@ Bugs fixed
 * 1419_ - Don't put objcores on the ban list until they go non-BUSY.
 * 1405_ - Ban lurker does not always evict all objects.
 
-.. _1460: https://www.varnish-cache.org/trac/ticket/1460
-.. _1450: https://www.varnish-cache.org/trac/ticket/1450
-.. _1320: https://www.varnish-cache.org/trac/ticket/1320
-.. _1458: https://www.varnish-cache.org/trac/ticket/1458
-.. _1417: https://www.varnish-cache.org/trac/ticket/1417
-.. _1455: https://www.varnish-cache.org/trac/ticket/1455
-.. _1454: https://www.varnish-cache.org/trac/ticket/1454
-.. _1436: https://www.varnish-cache.org/trac/ticket/1436
-.. _1440: https://www.varnish-cache.org/trac/ticket/1440
-.. _1441: https://www.varnish-cache.org/trac/ticket/1441
-.. _1434: https://www.varnish-cache.org/trac/ticket/1434
-.. _1419: https://www.varnish-cache.org/trac/ticket/1419
-.. _1405: https://www.varnish-cache.org/trac/ticket/1405
+.. _1460: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1460
+.. _1450: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1450
+.. _1320: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1320
+.. _1458: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1458
+.. _1417: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1417
+.. _1455: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1455
+.. _1454: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1454
+.. _1436: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1436
+.. _1440: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1440
+.. _1441: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1441
+.. _1434: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1434
+.. _1419: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1419
+.. _1405: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1405
 
 
 ================================================
@@ -4947,21 +4947,21 @@ Open issues
 * 1405_ - Ban lurker does not always evict all objects.
 
 
-.. _1405: https://www.varnish-cache.org/trac/ticket/1405
-.. _1404: https://www.varnish-cache.org/trac/ticket/1404
-.. _1401: https://www.varnish-cache.org/trac/ticket/1401
-.. _1399: https://www.varnish-cache.org/trac/ticket/1399
-.. _1398: https://www.varnish-cache.org/trac/ticket/1398
-.. _1397: https://www.varnish-cache.org/trac/ticket/1397
-.. _1395: https://www.varnish-cache.org/trac/ticket/1395
-.. _1391: https://www.varnish-cache.org/trac/ticket/1391
-.. _1390: https://www.varnish-cache.org/trac/ticket/1390
-.. _1385: https://www.varnish-cache.org/trac/ticket/1385
-.. _1383: https://www.varnish-cache.org/trac/ticket/1383
-.. _1382: https://www.varnish-cache.org/trac/ticket/1382
-.. _1381: https://www.varnish-cache.org/trac/ticket/1381
-.. _1323: https://www.varnish-cache.org/trac/ticket/1323
-.. _1268: https://www.varnish-cache.org/trac/ticket/1268
+.. _1405: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1405
+.. _1404: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1404
+.. _1401: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1401
+.. _1399: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1399
+.. _1398: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1398
+.. _1397: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1397
+.. _1395: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1395
+.. _1391: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1391
+.. _1390: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1390
+.. _1385: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1385
+.. _1383: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1383
+.. _1382: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1382
+.. _1381: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1381
+.. _1323: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1323
+.. _1268: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1268
 
 
 ============================================
@@ -4992,8 +4992,8 @@ Changes from 3.0.6 to 3.0.7-rc1 (2015-03-18)
 
 - Avoid memory leak when adding bans.
 
-.. _1627: http://varnish-cache.org/trac/ticket/1627
-.. _1690: http://varnish-cache.org/trac/ticket/1690
+.. _1627: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1627
+.. _1690: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1690
 
 
 ===========================================
@@ -5019,13 +5019,13 @@ Changes from 3.0.5 to 3.0.6rc1 (2014-06-24)
 - Stop handling gzip after gzip body end. Bug 1086_.
 - Document %D and %T for varnishncsa.
 
-.. _1514: https://www.varnish-cache.org/trac/ticket/1514
-.. _1327: https://www.varnish-cache.org/trac/ticket/1327
-.. _1297: https://www.varnish-cache.org/trac/ticket/1297
-.. _1470: https://www.varnish-cache.org/trac/ticket/1470
-.. _1448: https://www.varnish-cache.org/trac/ticket/1448
-.. _1439: https://www.varnish-cache.org/trac/ticket/1439
-.. _1086: https://www.varnish-cache.org/trac/ticket/1086
+.. _1514: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1514
+.. _1327: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1327
+.. _1297: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1297
+.. _1470: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1470
+.. _1448: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1448
+.. _1439: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1439
+.. _1086: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1086
 
 
 =============================================
@@ -5038,7 +5038,7 @@ varnishd
 - Always check the local address of a socket.  This avoids a crash if
   server.ip is accessed after a client has closed the connection. `Bug #1376`
 
-.. _bug #1376: https://www.varnish-cache.org/trac/ticket/1376
+.. _bug #1376: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1376
 
 
 ================================
@@ -5058,9 +5058,9 @@ varnishd
   and things would go downhill from there. `Bug #1367`
 - Prettify backtraces on panic slightly.
 
-.. _bug #1287: https://www.varnish-cache.org/trac/ticket/1287
-.. _bug #1272: https://www.varnish-cache.org/trac/ticket/1272
-.. _bug #1367: https://www.varnish-cache.org/trac/ticket/1367
+.. _bug #1287: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1287
+.. _bug #1272: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1272
+.. _bug #1367: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1367
 
 varnishlog
 ----------
@@ -5069,14 +5069,14 @@ varnishlog
   to lack of matches.  Also, emit BackendXID to signify the start of a
   transaction. `Bug #1325`
 
-.. _bug #1325: https://www.varnish-cache.org/trac/ticket/1325
+.. _bug #1325: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1325
 
 varnishadm
 ----------
 
 - Handle input from stdin properly. `Bug #1314`
 
-.. _bug #1314: https://www.varnish-cache.org/trac/ticket/1314
+.. _bug #1314: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1314
 
 
 =============================================
@@ -5092,8 +5092,8 @@ varnishd
   negatives.  CVE-2013-4090.    `Bug #1312`
 - Return an error if the client sends multiple Host headers.
 
-.. _bug #1285: https://www.varnish-cache.org/trac/ticket/1285
-.. _bug #1312: https://www.varnish-cache.org/trac/ticket/1312
+.. _bug #1285: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1285
+.. _bug #1312: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1312
 
 
 ================================
@@ -5113,11 +5113,11 @@ varnishd
 - Add support for banning on http.status.  `Bug #1076`
 - Make hit-for-pass correctly prefer the transient storage.
 
-.. _bug #1076: https://www.varnish-cache.org/trac/ticket/1076
-.. _bug #1184: https://www.varnish-cache.org/trac/ticket/1184
-.. _bug #1224: https://www.varnish-cache.org/trac/ticket/1224
-.. _bug #1261: https://www.varnish-cache.org/trac/ticket/1261
-.. _bug #1275: https://www.varnish-cache.org/trac/ticket/1275
+.. _bug #1076: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1076
+.. _bug #1184: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1184
+.. _bug #1224: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1224
+.. _bug #1261: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1261
+.. _bug #1275: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1275
 
 
 varnishlog
@@ -5126,7 +5126,7 @@ varnishlog
 - If -m, but neither -b or -c is given, assume both.  This filters out
   a lot of noise when -m is used to filter.  `Bug #1071`
 
-.. _bug #1071: https://www.varnish-cache.org/trac/ticket/1071
+.. _bug #1071: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1071
 
 varnishadm
 ----------
@@ -5214,26 +5214,26 @@ varnishd
 - Better error reporting for some fetch errors.
 - Small performance optimizations.
 
-.. _bug #897: https://www.varnish-cache.org/trac/ticket/897
-.. _bug #1023: https://www.varnish-cache.org/trac/ticket/1023
-.. _bug #1029: https://www.varnish-cache.org/trac/ticket/1029
-.. _bug #1035: https://www.varnish-cache.org/trac/ticket/1035
-.. _bug #1037: https://www.varnish-cache.org/trac/ticket/1037
-.. _bug #1038: https://www.varnish-cache.org/trac/ticket/1038
-.. _bug #1043: https://www.varnish-cache.org/trac/ticket/1043
-.. _bug #1044: https://www.varnish-cache.org/trac/ticket/1044
-.. _bug #1047: https://www.varnish-cache.org/trac/ticket/1047
-.. _bug #1069: https://www.varnish-cache.org/trac/ticket/1069
-.. _bug #1073: https://www.varnish-cache.org/trac/ticket/1073
-.. _bug #1080: https://www.varnish-cache.org/trac/ticket/1080
-.. _bug #1091: https://www.varnish-cache.org/trac/ticket/1091
-.. _bug #1092: https://www.varnish-cache.org/trac/ticket/1092
-.. _bug #1100: https://www.varnish-cache.org/trac/ticket/1100
-.. _bug #1104: https://www.varnish-cache.org/trac/ticket/1104
-.. _bug #1109: https://www.varnish-cache.org/trac/ticket/1109
-.. _bug #1125: https://www.varnish-cache.org/trac/ticket/1125
-.. _bug #1126: https://www.varnish-cache.org/trac/ticket/1126
-.. _bug #1140: https://www.varnish-cache.org/trac/ticket/1140
+.. _bug #897: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/897
+.. _bug #1023: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1023
+.. _bug #1029: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1029
+.. _bug #1035: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1035
+.. _bug #1037: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1037
+.. _bug #1038: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1038
+.. _bug #1043: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1043
+.. _bug #1044: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1044
+.. _bug #1047: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1047
+.. _bug #1069: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1069
+.. _bug #1073: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1073
+.. _bug #1080: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1080
+.. _bug #1091: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1091
+.. _bug #1092: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1092
+.. _bug #1100: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1100
+.. _bug #1104: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1104
+.. _bug #1109: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1109
+.. _bug #1125: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1125
+.. _bug #1126: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1126
+.. _bug #1140: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1140
 
 varnishncsa
 -----------
@@ -5250,7 +5250,7 @@ varnishtest
 - Make it possible to test for the absence of an HTTP header. `Bug #1062`_.
 - Log the full panic message instead of shortening it to 512 characters.
 
-.. _bug #1062: https://www.varnish-cache.org/trac/ticket/1062
+.. _bug #1062: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1062
 
 varnishstat
 -----------
@@ -5268,7 +5268,7 @@ Other
 - Fix build on FreeBSD 10-current.
 - Fix libedit detection on \*BSD OSes. `Bug #1003`_.
 
-.. _bug #1003: https://www.varnish-cache.org/trac/ticket/1003
+.. _bug #1003: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1003
 
 
 =============================================
@@ -5332,13 +5332,13 @@ varnishd
 - `http_req_size` and `http_resp_size` have been increased to 8192
   bytes.  This better matches what other HTTPds have.   `Bug #1016`_.
 
-.. _bug #994: https://www.varnish-cache.org/trac/ticket/994
-.. _bug #992: https://www.varnish-cache.org/trac/ticket/992
-.. _bug #996: https://www.varnish-cache.org/trac/ticket/996
-.. _bug #1007: https://www.varnish-cache.org/trac/ticket/1007
-.. _bug #1008: https://www.varnish-cache.org/trac/ticket/1008
-.. _bug #1012: https://www.varnish-cache.org/trac/ticket/1012
-.. _bug #1016: https://www.varnish-cache.org/trac/ticket/1016
+.. _bug #994: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/994
+.. _bug #992: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/992
+.. _bug #996: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/996
+.. _bug #1007: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1007
+.. _bug #1008: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1008
+.. _bug #1012: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1012
+.. _bug #1016: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/1016
 
 VCL
 ---
@@ -5425,8 +5425,8 @@ varnishd
   object from the same backend unless health probes were enabled.
   This has been fixed and it will now retry a different backend.
 
-.. _bug #965: https://www.varnish-cache.org/trac/ticket/965
-.. _bug #963: https://www.varnish-cache.org/trac/ticket/963
+.. _bug #965: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/965
+.. _bug #963: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/963
 
 VCL
 ---
@@ -5437,7 +5437,7 @@ VCL
 - The VCL compiler would fault if two IP comparisons were done on the
   same line.  This now works correctly.  `Bug #948`_.
 
-.. _bug #948: https://www.varnish-cache.org/trac/ticket/948
+.. _bug #948: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/948
 
 varnishncsa
 -----------
@@ -5470,7 +5470,7 @@ Other
 - The ABI of VMODs are now checked.  This will require a rebuild of
   all VMODs against the new version of Varnish.
 
-.. _bug #961: https://www.varnish-cache.org/trac/ticket/961
+.. _bug #961: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/961
 
 
 =============================================
@@ -5488,7 +5488,7 @@ VCL
 - The `synthetic` keyword has now been properly marked as only
   available in `vcl_deliver`.  `Bug #936`_.
 
-.. _bug #936: https://www.varnish-cache.org/trac/ticket/936
+.. _bug #936: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/936
 
 varnishadm
 ----------
@@ -5498,7 +5498,7 @@ varnishadm
 - Always exit if `varnishadm` can't connect to the backend for any
   reason.
 
-.. _bug #935: https://www.varnish-cache.org/trac/ticket/935
+.. _bug #935: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/935
 
 
 =====================================
@@ -5520,7 +5520,7 @@ varnishd
   single-threaded so we do not want to do this work there in the first
   place.  Use varnishstat instead.
 
-.. _bug #908: https://www.varnish-cache.org/trac/ticket/908
+.. _bug #908: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/908
 
 VCL
 ---
@@ -5539,7 +5539,7 @@ VCL
 - Varnish is now stricter in enforcing no duplication of probes,
   backends and ACLs.
 
-.. _bug #913: https://www.varnish-cache.org/trac/ticket/913
+.. _bug #913: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/913
 
 varnishncsa
 -----------
@@ -5642,11 +5642,11 @@ varnishd
   administrator errors when specifying the size of storage where the
   admin might have forgotten to specify units.
 
-.. _bug #693: https://www.varnish-cache.org/trac/ticket/693
-.. _bug #683: https://www.varnish-cache.org/trac/ticket/683
-.. _bug #663: https://www.varnish-cache.org/trac/ticket/663
-.. _bug #880: https://www.varnish-cache.org/trac/ticket/880
-.. _bug #411: https://www.varnish-cache.org/trac/ticket/411
+.. _bug #693: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/693
+.. _bug #683: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/683
+.. _bug #663: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/663
+.. _bug #880: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/880
+.. _bug #411: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/411
 
 Tools
 -----
@@ -5668,7 +5668,7 @@ varnishadm
   shared memory log file
 - add libedit support
 
-.. _bug #875: https://www.varnish-cache.org/trac/ticket/875
+.. _bug #875: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/875
 
 varnishstat
 ***********
@@ -5688,8 +5688,8 @@ varnishncsa
   log formats are supported, as well as some Varnish-specific ones.
   See the documentation for further information.  `Bug #712`_ and `bug #485`_
 
-.. _bug #712: https://www.varnish-cache.org/trac/ticket/712
-.. _bug #485: https://www.varnish-cache.org/trac/ticket/485
+.. _bug #712: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/712
+.. _bug #485: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/485
 
 varnishtest
 ***********
@@ -5764,9 +5764,9 @@ VCL
 - Add actual purge support.  Doing ``purge`` will remove an object and
   all its variants.
 
-.. _bug #481: https://www.varnish-cache.org/trac/ticket/481
-.. _bug #787: https://www.varnish-cache.org/trac/ticket/787
-.. _bug #782: https://www.varnish-cache.org/trac/ticket/782
+.. _bug #481: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/481
+.. _bug #787: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/787
+.. _bug #782: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/782
 
 
 Libraries
@@ -6751,18 +6751,18 @@ varnishd
 
 -  When switching to a new VCL configuration, a race condition exists
    which may cause Varnish to reference a backend which no longer exists
-   (see `ticket #144 <https://www.varnish-cache.org/trac/ticket/144>`_).
+   (see `ticket #144 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/144>`_).
    This race condition has not been entirely eliminated, but it should
    occur less frequently.
 
 -  When dropping a TCP session before any requests were processed, an
    assertion would be triggered due to an uninitialized timestamp (see
-   `ticket #132 <https://www.varnish-cache.org/trac/ticket/132>`_). The
+   `ticket #132 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/132>`_). The
    timestamp is now correctly initialized.
 
 -  Varnish will now correctly generate a Date: header for every response
    instead of copying the one it got from the backend (see `ticket
-   #157 <https://www.varnish-cache.org/trac/ticket/157>`_).
+   #157 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/157>`_).
 
 -  Comparisons in VCL which involve a nonexistent string (usually a
    header which is not present in the request or object being processed)
@@ -6779,7 +6779,7 @@ varnishd
    end up with a reference to an address structure which no longer
    exists, resulting in a crash. This race condition has been somewhat
    mitigated, but not entirely eliminated (see `ticket
-   #144 <https://www.varnish-cache.org/trac/ticket/144>`_.)
+   #144 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/144>`_.)
 
 -  Varnish will now pass the correct protocol version in pipe mode: the
    backend will get what the client sent, and vice versa.
@@ -6797,12 +6797,12 @@ varnishd
    serviced, resulting in a assertion failure and a crash when the
    worker thread later tried to delete the session. This should no
    longer happen (see `ticket
-   #162 <https://www.varnish-cache.org/trac/ticket/162>`_.)
+   #162 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/162>`_.)
 
 -  A mismatch between the recorded length of a cached object and the
    amount of data actually present in cache for that object can
    occasionally occur (see `ticket
-   #167 <https://www.varnish-cache.org/trac/ticket/167>`_.) This has been
+   #167 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/167>`_.) This has been
    partially fixed, but may still occur for error pages generated by
    Varnish when a problem arises while retrieving an object from the
    backend.
@@ -7105,7 +7105,7 @@ varnishd
    new VCL hooks have been added, though they aren't much use yet. The
    only real user-visible change should be that Varnish now handles
    persistent backend connections correctly (see `ticket
-   #56 <https://www.varnish-cache.org/trac/ticket/56>`_).
+   #56 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/56>`_).
 
 -  Support for multiple listen addresses has been added.
 
@@ -7181,7 +7181,7 @@ varnishlog
    corresponding return from VCL. When two VCL calls were made in
    succession, varnishlog would incorrectly omit the newline between the
    two calls (see `ticket
-   #95 <https://www.varnish-cache.org/trac/ticket/95>`_).
+   #95 <https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/95>`_).
 
 -  New -D and -P command-line options have been added to daemonize and
    create a pidfile, respectively.
