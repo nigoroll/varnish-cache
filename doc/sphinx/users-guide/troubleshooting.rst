@@ -136,7 +136,7 @@ trace of the thread that caused the segfault.
 A basic debug session for vinyl Cache installed under ``/usr/local`` could look
 like this::
 
-	$ cd /usr/local/var/vinyl Cache/`uname -n`/
+	$ cd /usr/local/var/vinyl-cache/`uname -n`/
 	$ gdb /usr/local/sbin/vinyld core
 	GNU gdb (Debian 7.12-6) 7.12.0.20161007-git
 	Copyright (C) 2016 Free Software Foundation, Inc.

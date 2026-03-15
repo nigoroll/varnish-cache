@@ -92,7 +92,7 @@ Then continue `Compiling Vinyl Cache`_
 Build dependencies on Red Hat / CentOS
 --------------------------------------
 
-.. gawk '/^BuildRequires/ {print "* `" $2 "`"}' ../../../redhat/vinyl Cache.spec | sort | uniq | egrep -v '(systemd)'
+.. gawk '/^BuildRequires/ {print "* `" $2 "`"}' ../../../redhat/vinyl-cache.spec | sort | uniq | egrep -v '(systemd)'
 
 in the following shell commands, replace ``sudo yum install`` if needed.
 
