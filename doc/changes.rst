@@ -41,7 +41,114 @@ Vinyl Cache 9.0 (2026-03-16)
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
 
-* VCL variable ``beresp.storage_hint`` no longer exists.
+* The project has been renamed from *Varnish Cache* to *Vinyl Cache*. *Vinyl
+  Cache* is the official project name, and we use *vinyl-cache* or *Vinyl-Cache*
+  with a dash only where a space is not technically possible, such as in domain
+  names and certain HTTP headers, or breaking with conventions, such as in
+  filenames. If neither of these work, the last resort is *Vinyl_Cache* or
+  *vinyl_cache*. Any other spelling should be avoided. A short ASCII
+  representation of the project name is ``\(``, which resembles our new logo.
+
+  Our homepage is now https://vinyl-cache.org
+
+  Our mastodon account is https://fosstodon.org/@vinyl_cache
+
+  We have left github and the core code repository is now at
+  https://code.vinyl-cache.org/vinyl-cache/vinyl-cache
+
+  For more information on the repository move see
+  https://vinyl-cache.org/organization/moving.html
+
+* Consequently, almost all references to the word *varnish* have been replaced
+  with *vinyl* or *vinyl-cache*.
+
+* In most cases, *varnish* has been replaced with *vinyl*, in particular:
+
+  * ``varnishd`` is now ``vinyld``
+  * ``varnishlog`` is now ``vinyllog``
+  * ``varnishstat`` is now ``vinylstat``
+  * ``libvarnishapi`` is now ``libvinylapi``
+  * ``varnishapi.pc`` is now ``vinylapi.pc``
+  * ``varnish.m4`` is now ``vinyl.m4``
+  * ...
+
+  In ``vinylncsa`` formats, ``%{Varnish:....}`` has been replaced with
+  ``%{Vinyl:....}``
+
+  The environment variable ``VARNISH_DEFAULT_N`` is now ``VINYL_DEFAULT_N``
+
+* In other cases, *varnish* has been replaced with *vinyl-cache*, as in these
+  paths of a default installation, which have changed relative to the prefix:
+
+  * ``include/varnish`` is now ``include/vinyl-cache``
+  * ``lib/varnish`` is now ``lib/vinyl-cache``
+  * ``share/doc/varnish`` is now ``share/doc/vinyl-cache``
+  * ``share/varnish`` is now ``share/vinyl-cache``
+  * ``etc/varnish`` is now ``etc/vinyl-cache``
+  * ``var/varnish`` is now ``var/vinyl-cache`` if used, otherwise the state
+    directory is most likely ``/var/run``
+
+* The default ``vcl_path`` has changed
+
+  * from: ``${sysconfdir}/varnish:${datadir}/varnish/vcl``
+  * to: ``${sysconfdir}/vinyl-cache:${datadir}/vinyl-cache/vcl``
+
+  So, most notably, for a default installation, the location for VCL files is
+  now ``/etc/vinyl-cache``.
+
+* The default ``vmod_path`` has changed
+
+  * from: ``${libdir}/varnish/vmods``
+  * to: ``${libdir}/vinyl-cache/vmods``
+
+* The general exception where the name change has not been completed is historic
+  documentation, phks blog, past release documentation and the change log for
+  past releases. We will continue to call past releases up to and including 8.0
+  Varnish Cache or Varnish.
+
+  Releases of this project from 9.0 onwards will be called *Vinyl Cache*.
+
+  Due to the amount of changes, we will almost certainly have overlooked places
+  where we did not carry out the name change correctly. Please let us know what
+  we have missed!
+
+* The default ``Server`` and ``Via`` headers have been changed from ``Varnish``
+  to ``Vinyl-Cache``.
+
+* The ``X-Varnish`` header is now ``X-Vinyl``
+
+* The unix user and group used by the unix and linux jails has been changed from
+  ``varnish`` to ``vinyl``. Users transitioning from Varnish Cache 8.0 might
+  find this snippet helpful to delete and create the relevant users/groups (see
+  also `vinyld(1)`)::
+
+    userdel varnish || true
+    userdel vcache || true
+    userdel varnishlog || true # to remove reference to varnish group
+    groupdel varnish || true
+
+    groupadd vinyl
+    useradd -g vinyl -d /nonexistent -s /bin/false \
+      -c "Vinyl Cache Daemon User" vinyl
+    useradd -g vinyl -d /nonexistent -s /bin/false \
+      -c "Vinyl Cache Worker User" vcache
+    useradd -g vinyl -d /nonexistent -s /bin/false \
+      -c "Vinyl Log User" vinyllog
+
+* In ``vsc`` files, ``varnish_vsc`` is now ``vinyl_vsc``
+
+* The VCL variable ``beresp.storage_hint`` no longer exists.
+
+* The VAI interface gained
+
+  - the ``IOV_NIL`` macro to return leases once delivery has reached a certain
+    point,
+
+  - the ``viov_take()`` function to transfer ownership of byte ranges from one
+    ``viov`` to another and
+
+  - ``ObjVAInotify()`` / ``VDPIO_Notify()`` to allow filters to return
+    ``-EAGAIN`` and notify for delivery resumption at a later point.
 
 * ``VSL_Setup()`` has been replaced with ``VSL_Init()`` to initialize caller-provided
   space as a vsl buffer and ``VSL_Alloc()`` to allocate the default
@@ -51,7 +158,6 @@ Vinyl Cache 9.0 (2026-03-16)
 
   ``tools/coccinelle/vsl_setup_retire.cocci`` can be used to partially automate
   the transition (it does not add ``VSL_Free()``).
-
 
 .. _4452: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4452
 
@@ -74,6 +180,15 @@ Vinyl Cache 9.0 (2026-03-16)
 
 * Added vmod ``math``. (`4422`_)
 
+  This adds all mathematical functions, macros and constants from ``math.h``
+  like ``sqrt()`` , ``exp()``, ``pow()`` or ``log()`` (just to name a few
+  prominent ones) as well as
+
+  - ``math.approx()`` implementing a notion of "approximately equal"
+
+  - ``math.strfromd()`` for REAL formatting without the limitations of the
+    built-in formatter
+
 .. _4427: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4427
 
 * ``vmod_std`` has a new ``.rfc_ttl()`` to re-calculate the object timers
@@ -90,10 +205,10 @@ Vinyl Cache 9.0 (2026-03-16)
 
 .. _4421: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4421
 
-* New ``unused`` VCL keyword to mark symbols as intentionally unused, which
-  prevents errors about them being unused during VCL compilation. This gives
-  finer grained control compared to the ``-err_unref`` VCC feature, which disables
-  the error globally for all symbols. (`4421`_)
+* The new ``unused`` VCL keyword has been added to mark symbols as intentionally
+  unused, which prevents errors about them being unused during VCL compilation.
+  This gives finer grained control compared to the ``-err_unref`` VCC feature,
+  which disables the error globally for all symbols. (`4421`_)
 
 .. _4418: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4418
 
@@ -126,10 +241,10 @@ Vinyl Cache 9.0 (2026-03-16)
 * A new ``bereq.retry_connect`` variable was added to VCL to control whether
   ``vinyld`` will make a second attempt to connect to the backend if a first
   connection reuse attempt failed. This can be useful to prevent undesired
-  retries of potentially non-idempotent requests. Setting to ``false`` means
-  that no retries will be made. However, setting this to ``true`` does not
+  retries of potentially non-idempotent requests. Setting this to ``false`` means
+  that no retries will be made. However, setting it to ``true`` does not
   guarantee that a retry will always be attempted, as there are other factors
-  involved in the decision (ex: a request body not being cached). This parameter
+  involved in the decision (e.g. a request body not being cached). This parameter
   only affects automatic retries triggered by connection reuse failures and does
   not affect VCL retries. (`4416`_)
 
