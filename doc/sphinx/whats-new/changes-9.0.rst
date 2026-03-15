@@ -4,8 +4,9 @@
 Changes in Vinyl Cache 9.0
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For information about updating your current Varnish deployment to the
-new version, see :ref:`whatsnew_upgrading_9.0`.
+This version is released under a new name, which implies a number of relevant
+changes to Vinyl Cache deployments. We strongly recommend to read
+:ref:`whatsnew_upgrading_9.0` first.
 
 A more detailed and technical account of changes in Vinyl Cache, with
 links to issues that have been fixed and pull requests that have been
@@ -19,7 +20,7 @@ vinyld
 Other changes in vinyld
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Varnish Extensions (VEXTs) can now be loaded by specifying their basename as
+Vinyl Extensions (VEXTs) can now be loaded by specifying their basename as
 ``-E<name>``. When ``<name>`` is not a path (does not contain ``/``), a search
 in ``vmod_path`` is conducted for ``libvmod_<name>.so``.
 
@@ -71,7 +72,14 @@ to suppress folding-related warnings during VCL compilation.
 VMODs
 =====
 
-A new ``vmod_math`` has been added, providing mathematical functions.
+A new ``vmod_math`` has been added, which provides all mathematical functions,
+macros and constants from ``math.h`` like ``sqrt()`` , ``exp()``, ``pow()`` or
+``log()`` (just to name a few prominent ones) as well as
+
+- ``math.approx()`` implementing a notion of "approximately equal"
+
+- ``math.strfromd()`` for REAL formatting without the limitations of the
+  built-in formatter
 
 ``vmod_std`` has a new ``.rfc_ttl()`` function to re-calculate the object
 timers (``beresp.ttl``, ``beresp.grace`` and ``beresp.keep``) based on the
@@ -114,5 +122,16 @@ the transition.
 Request methods are now represented as a bitmap in ``struct http``, which
 allows turning method evaluations into simple bitwise operations instead of
 string comparisons.
+
+The VAI interface gained
+
+- the ``IOV_NIL`` macro to return leases once delivery has reached a certain
+  point,
+
+- the ``viov_take()`` function to transfer ownership of byte ranges from one
+  ``viov`` to another and
+
+- ``ObjVAInotify()`` / ``VDPIO_Notify()`` to allow filters to return
+  ``-EAGAIN`` and notify for delivery resumption at a later point.
 
 *eof*
