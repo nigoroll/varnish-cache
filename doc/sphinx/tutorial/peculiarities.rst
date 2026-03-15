@@ -29,7 +29,7 @@ handled.
 
 Vinyl Cache has an admin console. You can connect it through the
 :ref:`vinyladm(1)` command. In order to connect the user needs to be
-able to read `/etc/vinyl/secret` in order to authenticate.
+able to read `/etc/vinyl-cache/secret` in order to authenticate.
 
 Once you've started the console you can do quite a few operations on
 ``vinyld``, like stopping and starting the cache process, load VCL,

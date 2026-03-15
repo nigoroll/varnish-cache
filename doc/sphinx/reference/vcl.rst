@@ -275,7 +275,7 @@ The included file can be specified as follows:
 Optionally, the ``include`` keyword can take a ``+glob`` flag to include all
 files matching a glob pattern::
 
-    include +glob "/etc/vinyl/example.org/*.vcl";
+    include +glob "/etc/vinyl-cache/example.org/*.vcl";
 
 Note that the ``+glob`` option can only be used with absolute paths and
 relative paths starting with './', which means that ``+glob`` includes cannot

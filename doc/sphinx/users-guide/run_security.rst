@@ -123,7 +123,7 @@ it possible for (only!) these users to read it.
 
 A good way to create the secret file is::
 
-	dd if=/dev/random of=/etc/vinyl_secret count=1
+	dd if=/dev/random of=/etc/vinyl-cache/secret count=1
 
 When you start :ref:`vinyld(1)`, you specify the filename with '-S',
 and it goes without saying that the :ref:`vinyld(1)` master process

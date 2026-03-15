@@ -567,14 +567,14 @@ particular, this is the way to load configurations, apply labels to
 them, and make a VCL instance active that uses those labels on
 startup::
 
-  vcl.load panic /etc/vinyl_panic.vcl
-  vcl.load siteA0 /etc/vinyl_siteA.vcl
-  vcl.load siteB0 /etc/vinyl_siteB.vcl
-  vcl.load siteC0 /etc/vinyl_siteC.vcl
+  vcl.load panic /etc/vinyl-cache/panic.vcl
+  vcl.load siteA0 /etc/vinyl-cache/siteA.vcl
+  vcl.load siteB0 /etc/vinyl-cache/siteB.vcl
+  vcl.load siteC0 /etc/vinyl-cache/siteC.vcl
   vcl.label siteA siteA0
   vcl.label siteB siteB0
   vcl.label siteC siteC0
-  vcl.load main /etc/vinyl_main.vcl
+  vcl.load main /etc/vinyl-cache/main.vcl
   vcl.use main
 
 Every line in the file, including the last line, must be terminated by

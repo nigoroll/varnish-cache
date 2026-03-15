@@ -39,7 +39,7 @@ You might have a web application running on some other port or some
 other machine. Let's edit the configuration and make it point to
 something that actually works.
 
-Fire up your favorite editor and edit `/etc/vinyl/default.vcl`. Most
+Fire up your favorite editor and edit `/etc/vinyl-cache/default.vcl`. Most
 of it is commented out but there is some text that is not. It will
 probably look like this::
 

@@ -665,7 +665,7 @@ AC_DEFUN([VINYL_UTILITIES], [
 # - pkgvcldir
 #
 # The vcldir is where Vinyl Cache will by default look up VCL files using relative
-# paths not found in its sysconfdir (by default /etc/vinyl). The pkgvcldir on
+# paths not found in its sysconfdir (by default /etc/vinyl-cache). The pkgvcldir on
 # the other hand is a recommended location for your package's VCL files, it
 # defaults to "${vcldir}/${PACKAGE}".
 #

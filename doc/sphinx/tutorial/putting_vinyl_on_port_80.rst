@@ -22,16 +22,16 @@ some text that looks like this::
 
   DAEMON_OPTS="-a :6081 \
                -T localhost:6082 \
-               -f /etc/vinyl/default.vcl \
-               -S /etc/vinyl/secret \
+               -f /etc/vinyl-cache/default.vcl \
+               -S /etc/vinyl-cache/secret \
                -s default,256m"
 
 Change it to::
 
   DAEMON_OPTS="-a :80 \
                -T localhost:6082 \
-               -f /etc/vinyl/default.vcl \
-               -S /etc/vinyl/secret \
+               -f /etc/vinyl-cache/default.vcl \
+               -S /etc/vinyl-cache/secret \
                -s default,256m"
 
 Debian (v8+) / Ubuntu (v15.04+)
@@ -45,7 +45,7 @@ Applying changes to the default service is best done by creating a new file
 
   [Service]
   ExecStart=
-  ExecStart=/usr/sbin/vinyld -a :80 -T localhost:6082 -f /etc/vinyl/default.vcl -S /etc/vinyl/secret -s default,256m
+  ExecStart=/usr/sbin/vinyld -a :80 -T localhost:6082 -f /etc/vinyl-cache/default.vcl -S /etc/vinyl-cache/secret -s default,256m
 
 This will override the ExecStart part of the default configuration shipped
 with Vinyl Cache.

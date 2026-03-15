@@ -648,7 +648,7 @@ fi
 AC_SUBST(VINYL_STATE_DIR)
 
 # Default configuration directory.
-pkgsysconfdir='${sysconfdir}/vinyl'
+pkgsysconfdir='${sysconfdir}/vinyl-cache'
 AC_SUBST(pkgsysconfdir)
 
 # VMOD variables

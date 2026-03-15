@@ -14,8 +14,8 @@ server is the server providing the content Vinyl Cache will accelerate via the c
 Our first task is to tell Vinyl Cache where it can find its content. Start
 your favorite text editor and open the Vinyl Cache default configuration
 file. If you installed from source this is
-`/usr/local/etc/vinyl/default.vcl`, if you installed from a package it
-is probably `/etc/vinyl/default.vcl`.
+`/usr/local/etc/vinyl-cache/default.vcl`, if you installed from a package it
+is probably `/etc/vinyl-cache/default.vcl`.
 
 If you've been following the tutorial there is probably a section of
 the configuration that looks like this::
