@@ -13,13 +13,9 @@ Installing on FreeBSD
 From package
 ------------
 
-FreeBSD offers two versions of Varnish Cache pre-packaged::
+FreeBSD offers Varnish Cache pre-packaged::
 
-	pkg install varnish6
-
-or, if for some reason you want the older version::
-
-	pkg install varnish4
+	pkg install varnish7
 
 From ports
 ----------
@@ -29,6 +25,6 @@ install Varnish Cache directly from ports if you prefer, for instance to
 get a newer version of Varnish Cache than the current set of prebuilt
 packages provide::
 
-	cd /usr/ports/www/varnish6
+	cd /usr/ports/www/varnish7
 	make all install clean
 
