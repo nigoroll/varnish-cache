@@ -36,6 +36,10 @@ A conditional GET for object revalidation is now demoted to a regular fetch if
 the stale object being revalidated gets invalidated (e.g. by a ban or purge)
 while the backend request is in progress.
 
+The ``https_scheme`` parameter is now enabled by default to process
+``https://`` absolute form URLs by default.
+
+
 Changes to VCL
 ==============
 
@@ -102,12 +106,21 @@ The session close reason descriptions ``REM_CLOSE`` and ``REQ_CLOSE`` have been
 generalized from "Client Closed" / "Client requested close" to "Peer Closed" /
 "Peer requested close" since they apply to both client and backend connections.
 
+The ``ReqTarget`` Vinyl Shared Log (VSL) Tag has been added to log the
+original request target before any handling of absolute form URIs. To preserve
+the existing log format and ordering, the tag is marked by default. It can be
+unmasked by adding ``+ReqTarget`` to the ``vsl_mask`` parameter.
+
 vinylstat
 =========
 
 The workspace overflow counters (``ws_backend_overflow``, ``ws_client_overflow``,
 ``ws_thread_overflow``, ``ws_session_overflow``) are now shown by default
 instead of requiring the ``diag`` level.
+
+The ``MAIN.http1_absolute_form`` counter has been added to track the number of
+times an HTTP/1.1 request with an absolute form request target has been
+handled.
 
 Changes for developers and VMOD authors
 =======================================
