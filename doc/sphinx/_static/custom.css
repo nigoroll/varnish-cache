@@ -247,6 +247,34 @@ body {
 
 /* Elements */
 
+/* Mascot */
+
+:has(.mascot) {
+	--mascot-min: 150px;
+	--mascot-mid: 30%;
+	--mascot-max: 300px;
+	--mascot-width: clamp(var(--mascot-min), var(--mascot-mid), var(--mascot-max));
+}
+
+.mascot {
+	--glow-color: rgba(from color-mix(in srgb, var(--color-vinyl-brand) 50%, white 50%) r g b / .75);
+	--glow: drop-shadow(0 0 5px var(--glow-color)) drop-shadow(0 0 10px var(--glow-color)) drop-shadow(0 0 20px var(--glow-color)) drop-shadow(0 0 40px var(--glow-color));
+	display: block;
+	width: var(--mascot-width);
+}
+
+:root:has([data-theme="dark"]) {
+	.mascot {
+		filter: var(--glow);
+	}
+}
+
+@media (prefers-color-scheme: dark) {
+	.mascot {
+		filter: var(--glow);
+	}
+}
+
 /* Homepage introduction block */
 
 .intro-card {
@@ -254,8 +282,30 @@ body {
 		var(--color-theme-main-10),
 		var(--color-vinyl-brand)
 	);
-	padding: 1rem 1.5rem;
+	position: relative;
+	overflow: hidden;
 	margin-inline: -1.5rem;
+	--mascot-min: 125px;
+	--mascot-mid: 25%;
+	--mascot-max: 250px;
+	padding: 1rem calc(var(--mascot-width) + 2rem) 1rem 2rem;
+	@media (width < 40em) {
+		padding: 1rem 3rem calc(var(--mascot-width) - 3rem) 2rem;
+	}
+}
+
+.intro-card .mascot {
+	position: absolute;
+	float: right;
+	bottom: 0;
+	right: 0;
+	margin-left: 1rem;
+}
+
+.intro-card::after {
+	clear: both;
+	display: block;
+	content: '';
 }
 
 .intro-card h2 {
@@ -284,6 +334,9 @@ body {
 .intro-card a:first-of-type:is(:hover, :focus) {
 	background-color: var(--color-theme-main-80);
 }
+
+/* custom.css | https://vinyl-cache.org/_static/custom.css */
+
 
 /* Timestamps for news items */
 
