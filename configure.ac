@@ -640,7 +640,10 @@ if test "x$ac_cv_have_working_close_range" = xyes; then
 	     [Define if OS has working close_range()])
 fi
 
-VINYL_STATE_DIR='${localstatedir}/lib/vinyl-cache'
+AC_ARG_WITH([statedir],
+  AS_HELP_STRING([--with-statedir=DIR], [Location of the local state directory, default ${localstatedir}/lib/vinyl-cache]),
+  [VINYL_STATE_DIR="$withval"],
+  [VINYL_STATE_DIR='${localstatedir}/lib/vinyl-cache'])
 AC_SUBST(VINYL_STATE_DIR)
 
 # Default configuration directory.
