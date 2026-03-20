@@ -597,7 +597,7 @@ PARAM_SIMPLE(
 	"objects from the backend and store them compressed. If a client "
 	"does not support gzip encoding Vinyl Cache will uncompress compressed "
 	"objects on demand. Vinyl Cache will also rewrite the Accept-Encoding "
-	"header of clients indicating support for gzip to:\n"
+	"header of clients indicating support for gzip to::\n\n"
 	"  Accept-Encoding: gzip\n"
 	"\n"
 	"Clients that do not support gzip will have their Accept-Encoding "
