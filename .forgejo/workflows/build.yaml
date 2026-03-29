@@ -1,0 +1,36 @@
+on: [pull_request]
+jobs:
+  distcheck:
+    runs-on: debian
+    steps:
+      - name: apt-get
+        run: |
+          apt-get update
+          apt-get install -y git
+      - name: setup
+        run: |
+          git config --global core.autocrlf false
+          git config --global --add safe.directory ${FORGEJO_WORKSPACE}
+      - uses: https://code.vinyl-cache.org/forgejo/sane-checkout.git@v0.3
+      - name: prerequisites
+        run: |
+          apt-get install -y \
+            make \
+            automake \
+            autotools-dev \
+            libedit-dev \
+            libjemalloc-dev \
+            libncurses-dev \
+            libpcre2-dev \
+            libtool \
+            pkg-config \
+            python3-docutils \
+            python3-sphinx \
+            cpio \
+            \
+            graphviz \
+            pip furo
+      - name: build
+        run: |
+          ./autogen.des
+          make -j10 distcheck || (find . -name test-suite.log | xargs cat)
