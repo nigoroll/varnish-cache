@@ -33,4 +33,4 @@ jobs:
       - name: build
         run: |
           ./autogen.des
-          make -j10 distcheck || (find . -name test-suite.log | xargs cat; exit 1)
+          make -j$(nproc) distcheck || (find . -name test-suite.log | xargs cat; exit 1)
