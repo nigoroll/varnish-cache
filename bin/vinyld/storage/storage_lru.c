@@ -182,7 +182,7 @@ LRU_NukeOne(struct worker *wrk, struct lru *lru)
 	Lck_Lock(&lru->mtx);
 	VTAILQ_FOREACH_SAFE(oc, &lru->lru_head, lru_list, oc2) {
 		CHECK_OBJ_NOTNULL(oc, OBJCORE_MAGIC);
-		AZ(oc->flags & OC_F_FAILED));
+		AZ(oc->flags & (OC_F_PRIVATE|OC_F_FAILED));
 		AZ(isnan(oc->last_lru));
 
 		VSLb(wrk->vsl, SLT_ExpKill, "LRU_Cand p=%p f=0x%x r=%d",
