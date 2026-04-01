@@ -7,12 +7,13 @@ jobs:
         run: |
           apt-get update
           apt-get install -y git
-      - name: setup
+      - name: git config
         run: |
           git config --global core.autocrlf false
           git config --global --add safe.directory ${FORGEJO_WORKSPACE}
-      - uses: https://code.vinyl-cache.org/forgejo/sane-checkout.git@v0.3
-      - name: prerequisites
+      - name: checkout
+        uses: https://code.vinyl-cache.org/forgejo/sane-checkout.git@v0.3
+      - name: install prerequisites
         run: |
           apt-get install -y \
             make \
@@ -30,7 +31,7 @@ jobs:
             \
             graphviz \
             pip furo
-      - name: build
+      - name: make distcheck
         run: |
           ./autogen.des
           make -j$(nproc) distcheck || (find . -name test-suite.log | xargs cat; exit 1)
