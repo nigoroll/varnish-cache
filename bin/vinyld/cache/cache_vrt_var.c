@@ -454,13 +454,9 @@ VRT_l_beresp_storage(VRT_CTX, VCL_STEVEDORE stv)
 	ctx->bo->storage = stv;
 }
 
-/*--------------------------------------------------------------------
- * VCL <= 4.0 ONLY
- */
+/*--------------------------------------------------------------------*/
 
 #include "storage/storage.h"
-
-/*--------------------------------------------------------------------*/
 
 #define VRT_OC_VAR_R(obj, which, which_magic, field)		\
 VCL_STEVEDORE							\
