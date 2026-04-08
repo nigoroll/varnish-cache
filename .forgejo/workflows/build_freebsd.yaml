@@ -1,0 +1,22 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - 'main'
+      - '[0-9].[0-9]'
+jobs:
+  distcheck:
+    runs-on: FreeBSD
+    steps:
+      - name: git config
+        run: |
+          git config --global core.autocrlf false
+          git config --global --add safe.directory ${FORGEJO_WORKSPACE}
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: make distcheck
+        run: |
+          git submodule update --init
+          sh ./autogen.des
+          make -j1 distcheck || (find . -name test-suite.log | xargs cat; exit 1)
+
