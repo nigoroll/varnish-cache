@@ -1,5 +1,5 @@
 ..
-	Copyright (c) 2019 Varnish Software AS
+	Copyright (c) 2026 Poul-Henning Kamp
 	SPDX-License-Identifier: BSD-2-Clause
 	See LICENSE file for full text of license
 
@@ -8,14 +8,14 @@
 Installing on FreeBSD
 =====================
 
-.. XXX needs to be updated for Vinyl
+As package
+----------
 
-From package
-------------
+Install as you would any other package:
 
-FreeBSD offers Varnish Cache pre-packaged::
+	pkg install vinyl09
 
-	pkg install varnish7
+where "09" is the major version.
 
 From ports
 ----------
@@ -25,6 +25,7 @@ install Varnish Cache directly from ports if you prefer, for instance to
 get a newer version of Varnish Cache than the current set of prebuilt
 packages provide::
 
-	cd /usr/ports/www/varnish7
+	cd /usr/ports/www/vinyl09
 	make all install clean
 
+The only option of this port is if documentation is built or not.

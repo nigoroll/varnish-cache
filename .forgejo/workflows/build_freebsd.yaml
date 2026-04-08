@@ -18,5 +18,5 @@ jobs:
         run: |
           git submodule update --init
           sh ./autogen.des
-          make -j1 distcheck || (find . -name test-suite.log | xargs cat; exit 1)
+          make -j2 distcheck || (find . -name test-suite.log | xargs cat; exit 1)
 
