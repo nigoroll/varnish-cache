@@ -89,7 +89,7 @@
  *
  *
  * We should, however, avoid to accidentally set the SNOCD flag when setting
- * privileges (see https://www.vinyl-cache.org/trac/ticket/671 )
+ * privileges (see https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/671)
  *
  * When changing the logic herein, always check with mdb -k. Replace _PID_ with
  * the pid of your vinyl child, the result should be 0, otherwise a regression
