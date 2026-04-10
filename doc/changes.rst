@@ -35,11 +35,18 @@ individual releases. These documents are updated as part of the
 release process.
 
 ============================
-Vinyl Cache 9.0 (2026-03-16)
+Vinyl Cache X.Y (unreleased)
 ============================
 
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
+
+* ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
+  allows testing a  command line before running it for real.
+
+============================
+Vinyl Cache 9.0 (2026-03-16)
+============================
 
 * The project has been renamed from *Varnish Cache* to *Vinyl Cache*. *Vinyl
   Cache* is the official project name, and we use *vinyl-cache* or *Vinyl-Cache*
