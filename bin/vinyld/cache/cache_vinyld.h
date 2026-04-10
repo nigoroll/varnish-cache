@@ -156,9 +156,6 @@ struct vcf {
 
 /* Prototypes etc ----------------------------------------------------*/
 
-/* cache_backend.c */
-struct backend;
-
 /* cache_backend_cfg.c */
 void VBE_InitCfg(void);
 
