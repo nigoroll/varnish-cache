@@ -6,7 +6,7 @@
 # return statement.
 #
 # See the VCL chapters in the Users Guide for a comprehensive documentation
-# at https://www.vinyl-cache.org/docs/.
+# at https://vinyl-cache.org/docs/.
 
 # Marker to tell the VCL compiler that this VCL has been written with the
 # 4.0 or 4.1 syntax.

@@ -34,7 +34,7 @@ Conventions used in this manual include:
   `/usr/local/`, `vinyladm`, `sess_timeout`
     A utility, Vinyl configurable parameter or path.
 
-  https://www.vinyl-cache.org/
+  https://vinyl-cache.org/
     A hyperlink.
 
 Longer listings like example command output and VCL look like this::

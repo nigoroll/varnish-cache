@@ -92,5 +92,5 @@ Commercial Support
 If you need commercial support, there are companies which offer that
 and you can find a `list on our homepage. <http://vinyl-cache.org/business/>`_.
 
-.. _mailman: https://www.vinyl-cache.org/lists/mailman/listinfo
+.. _mailman: https://vinyl-cache.org/lists/mailman/listinfo
 .. _pastebin: https://gist.github.com/

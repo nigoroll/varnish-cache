@@ -51,12 +51,12 @@ probably look like this::
   }
 
 We'll change it and make it point to something that works. Hopefully
-http://www.vinyl-cache.org/ is up. Let's use that. Replace the text with::
+http://vinyl-cache.org/ is up. Let's use that. Replace the text with::
 
   vcl 4.0;
 
   backend default {
-      .host = "www.vinyl-cache.org";
+      .host = "vinyl-cache.org";
       .port = "80";
   }
 
@@ -67,4 +67,4 @@ browser and you should see some directory listing. It works! The
 reason you're not seeing the Vinyl Cache official website is because your
 client isn't sending the appropriate `Host` header in the request and
 it ends up showing a listing of the default webfolder on the machine
-usually serving up http://www.vinyl-cache.org/ .
+usually serving up http://vinyl-cache.org/ .

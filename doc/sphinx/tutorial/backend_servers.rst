@@ -23,12 +23,12 @@ the configuration that looks like this::
   vcl 4.0;
 
   backend default {
-      .host = "www.vinyl-cache.org";
+      .host = "vinyl-cache.org";
       .port = "80";
   }
 
 This means we set up a backend in Vinyl Cache that fetches content from
-the host www.vinyl-cache.org on port 80.
+the host vinyl-cache.org on port 80.
 
 Since you probably don't want to be mirroring vinyl-cache.org we
 need to get Vinyl Cache to fetch content from your own origin

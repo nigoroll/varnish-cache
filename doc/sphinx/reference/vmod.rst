@@ -43,7 +43,7 @@ VMOD Directory
 The VMOD directory is an up-to-date compilation of maintained
 extensions written for Vinyl Cache:
 
-    https://www.vinyl-cache.org/vmods
+    https://vinyl-cache.org/vmods
 
 Getting started writing VMODs
 =============================

@@ -30,7 +30,7 @@ is then loaded into the server process.
 
 This document focuses on the syntax of the VCL language. For a full
 description of syntax and semantics, with ample examples, please see
-the online documentation at https://www.vinyl-cache.org/docs/ .
+the online documentation at https://vinyl-cache.org/docs/ .
 
 .. _Identifiers:
 
