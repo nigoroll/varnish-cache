@@ -15,31 +15,38 @@ Intro
 -----
 
 Vinyl Cache has pluggable storage backends. It can store data in various
-backends which can have different performance characteristics. The default
+backends with different performance characteristics. The default
 configuration is to use the malloc backend with a limited size. For a
 serious Vinyl Cache deployment you probably would want to adjust the storage
 settings.
 
-All built-in storage backends cache full objects only, so, for example, to
-support *n* concurrent cache hits on 1GB sized objects, the storage backend
-should be configured to provide at least *n*\ GB of storage. For uncacheable
-objects, the rule of thumb is *n* x ``transit_buffer``.
+While some storage backends can be created dynamically, for most applications a
+global definition is advised using the ``-s`` parameter to :ref:`vinyld(1)`, as
+documented in detail under :ref:`ref-vinyld-opt_s`::
 
-Storage backends are also called stevedores.
+    [-s [name=]kind[,options]]
 
 .. _vmods: https://vinyl-cache.org/vmods
 
-Besides the built-in storage backends, separately distributed extensions exist,
+*kind* refers to the storage implementation, also called stevedore. Some storage
+implementations are built in and additional ones are provided by extensions,
 which can be found on the `vmods`_ page by searching for "stevedore".
+
+All built-in storage implementations cache full objects only, so, for example,
+to support *n* concurrent cache hits on 1GB sized objects, the storage backend
+should be configured to provide at least *n*\ GB of storage. For uncacheable
+objects, the rule of thumb is *n* x ``transit_buffer``.
+
+.. _vmods: https://vinyl-cache.org/vmods
 
 Storage Selection
 -----------------
 
-By default, Vinyl Cache will store short-lived and passed objects in a storage
+By default, Vinyl Cache stores short-lived and passed objects in a storage
 called `Transient`, described below.
 
-For other objects, it will rotate between all the non-transient storages,
-unless the VCL variable `beresp.storage` is explicitly set.
+For other objects, it selects from all the non-transient storages in a
+round-robin fashion, unless the VCL variable `beresp.storage` is explicitly set.
 
 -------------------------
 Built in storage backends
@@ -58,7 +65,7 @@ malloc
 
 syntax: malloc[,size]
 
-Malloc is a virtual memory based storage backend. Each object will be allocated
+Malloc is a virtual memory based storage backend, which allocates each object
 using whatever ``malloc()`` implementation is in effect. If configured, virtual
 memory might get paged in and out to swap space by the operating system.
 
@@ -88,9 +95,9 @@ fragmentation, the amount of memory actually used by the malloc implementation
 might be substantially higher by a factor of typically **two to four times**.
 Specific optimizations like :ref:`platform-thp` can amplify this effect.
 
-malloc's performance is bound to memory speed, so it is very fast. If
-the dataset is bigger than available memory, performance will
-depend on the operating system's ability to page effectively.
+malloc's performance is bound to memory speed, so it is very fast. If the
+dataset is bigger than available memory, performance depends on the operating
+system's ability to page effectively.
 
 .. _guide-storage_umem:
 
@@ -175,19 +182,17 @@ suffixes:
 
       T, t    The size is expressed in tebibytes.
 
-If 'path' points to an existing file and no size is specified, the
-size of the existing file will be used. If 'path' does not point to an
-existing file it is an error to not specify the size.
+If 'path' points to an existing file and no size is specified, the size of the
+existing file is used. If 'path' does not point to an existing file it is an
+error to not specify the size.
 
-If the backing file already exists, it will be truncated or expanded
-to the specified size.
+If the backing file already exists, it is truncated or expanded to the specified
+size.
 
-Note that if `vinyld` has to create or expand the file, it will not
-pre-allocate the added space, leading to fragmentation, which may
-adversely impact performance on rotating hard drives.  Pre-creating
-the storage file using `dd(1)` will reduce fragmentation to a minimum.
-
-.. XXX:1? benc
+Note that if `vinyld` has to create or expand the file, it does not pre-allocate
+the added space, potentially leading to additional fragmentation on some file
+systems, adversely impacting performance on rotating hard drives.  Pre-creating
+the storage file using `dd(1)` can reduce fragmentation.
 
 The 'granularity' parameter specifies the granularity of
 allocation. All allocations are rounded up to this size. The granularity
@@ -217,12 +222,12 @@ syntax: deprecated_persistent,path,size {experimental}
 
 *Before using, read* :ref:`phk_persistent`\ *!*
 
-Persistent storage. Vinyl Cache will store objects in a file in a manner
-that will secure the survival of *most* of the objects in the event of
-a planned or unplanned shutdown of Vinyl Cache.
+Persistent storage, which stores objects in a file in a manner that secures the
+survival of *most* of the objects in the event of a planned or unplanned
+shutdown of Vinyl Cache.
 
-The 'path' parameter specifies the path to the backing file. If
-the file doesn't exist Vinyl Cache will create it.
+The 'path' parameter specifies the path to the backing file. If the file doesn't
+exist, it is created.
 
 The 'size' parameter specifies the size of the backing file. The
 size is expressed in bytes, unless followed by one of the
