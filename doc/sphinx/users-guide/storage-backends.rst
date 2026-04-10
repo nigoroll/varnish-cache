@@ -42,11 +42,14 @@ objects, the rule of thumb is *n* x ``transit_buffer``.
 Storage Selection
 -----------------
 
-By default, Vinyl Cache stores short-lived and passed objects in a storage
-called `Transient`, described below.
+For synthetic responses created in ``vcl_synth {}``, storage is selected by
+assigning ``resp.storage``, for which the default is ``Synth`` (see below).
 
-For other objects, it selects from all the non-transient storages in a
-round-robin fashion, unless the VCL variable `beresp.storage` is explicitly set.
+Otherwise, Vinyl Cache stores short-lived and passed objects in a storage
+called ``Transient``, also described below.
+
+For all other objects, it selects from all other storages in a round-robin
+fashion, unless the VCL variable ``beresp.storage`` is explicitly set.
 
 -------------------------
 Built in storage backends
@@ -257,18 +260,19 @@ reappear.
 Special Storage names
 ---------------------
 
+Synth
+-----
+
+By default, the storage backend named "Synth" will be used for synthetic objects
+created in ``vcl_synth {}``. By default, Vinyl Cache uses an unlimited default
+backend as the ``Synth`` storage.
+
 Transient
 ---------
 
-If you name any of your storage backend "Transient" it will be used
-for transient (short lived) objects. This includes the temporary
-objects created when returning a synthetic object. By default Vinyl Cache
-would use an unlimited malloc backend for this.
+If you name any of your storage backends "Transient", it will be used for
+transient (short lived) objects. By default, Vinyl Cache uses an unlimited
+default backend as the ``Transient`` storage.
 
-.. XXX: Is this another parameter? In that case handled in the same manner as above? benc
-
-Vinyl Cache will consider an object short lived if the TTL is below the
-parameter 'shortlived'.
-
-
-.. XXX: I am generally missing samples of setting all of these parameters, maybe one sample per section or a couple of examples here with a brief explanation to also work as a summary? benc
+Vinyl Cache considers an object short lived if the TTL is below the parameter
+'shortlived'.
