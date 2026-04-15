@@ -70,7 +70,7 @@ mkdir -p "${TMPDIR}"
 rm -rf "${TMPDIR:?}"/*
 
 # Try to make vinyl's own TMPDIR, in case we run as root
-chown varnish "${TMPDIR}" > /dev/null 2>&1 || true
+chown vinyl "${TMPDIR}" > /dev/null 2>&1 || true
 
 #######################################################################
 # Establish the SRCDIR we build/run/test
@@ -143,10 +143,10 @@ makedistcheck () (
 
 gcovtest () (
 	set -x
-	if [ `id -u` -eq 0 ] && su -m varnish -c 'true' ; then
-		su -m varnish -c "make check" || exit 1
-		cd bin/varnishtest
-		./varnishtest -i tests/[ab]0000?.vtc tests/j*.vtc || exit 1
+	if [ `id -u` -eq 0 ] && su -m vinyl -c 'true' ; then
+		su -m vinyl -c "make check" || exit 1
+		cd bin/vinyltest
+		./vinyltest -i tests/[ab]0000?.vtc tests/j*.vtc || exit 1
 	else
 		make check || exit 1
 	fi
@@ -159,7 +159,7 @@ makegcov () (
 	make || exit 1
 
 	if [ `id -u` -eq 0 ] ; then
-		chown -R varnish . | true
+		chown -R vinyl . | true
 	fi
 
 	if gcovtest && make gcov_digest ; then
@@ -179,18 +179,18 @@ failedtests () (
 
 	cd "${SRCDIR}"
 
-	VTCDIR=bin/varnishtest/tests
+	VTCDIR=bin/vinyltest/tests
 
 	VERSION=`./configure --version | awk 'NR == 1 {print $NF}'`
-	LOGDIR="varnish-$VERSION/_build/sub/bin/varnishtest/tests"
+	LOGDIR="vinyl-$VERSION/_build/sub/bin/vinyltest/tests"
 
 	# cope with older automake, remove the sub directory
 	test ! -d $LOGDIR &&
-	LOGDIR="varnish-$VERSION/_build/bin/varnishtest/tests"
+	LOGDIR="vinyl-$VERSION/_build/bin/vinyltest/tests"
 
 	# gcov situation
 	test ! -d $LOGDIR &&
-	LOGDIR="bin/varnishtest/tests"
+	LOGDIR="bin/vinyltest/tests"
 
 	find . -name '*.trs' -print | xargs grep -l ':test-result: FAIL' |
 	while read trs
@@ -229,8 +229,8 @@ do
 
 	(
 		cd "${SRCDIR}"
-	        chmod -R +w varnish-trunk > /dev/null 2>&1 || true
-	        rm -rf varnish-trunk > /dev/null 2>&1 || true
+	        chmod -R +w vinyl-trunk > /dev/null 2>&1 || true
+	        rm -rf vinyl-trunk > /dev/null 2>&1 || true
 	        git reset --hard > /dev/null 2>&1 || true
 	        git clean -df > /dev/null 2>&1 || true
 	        git pull --recurse-submodules=yes > /dev/null 2>&1 || true
