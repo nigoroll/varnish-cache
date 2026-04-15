@@ -55,7 +55,7 @@ MAXRUNS="${MAXRUNS:-0}"
 
 enable_gcov=false
 
-: ${SSH_DST:="-p 203 vtest@varnish-cache.org"}
+: ${SSH_DST:="-p 203 vtest@r.vinyl-cache.org"}
 
 # make sure we use our own key
 unset SSH_AUTH_SOCK
@@ -69,21 +69,21 @@ export VTEST_REPORT="${REPORTDIR}/_log"
 mkdir -p "${TMPDIR}"
 rm -rf "${TMPDIR:?}"/*
 
-# Try to make varnish own TMPDIR, in case we run as root
+# Try to make vinyl's own TMPDIR, in case we run as root
 chown varnish "${TMPDIR}" > /dev/null 2>&1 || true
 
 #######################################################################
 # Establish the SRCDIR we build/run/test
 
-if ! (cd varnish-cache 2>/dev/null) ; then
+if ! (cd vinyl-cache 2>/dev/null) ; then
 	git clone --recursive \
 		https://code.vinyl-cache.org/vinyl-cache/vinyl-cache.git \
-		varnish-cache
+		vinyl-cache
 else
-	(cd varnish-cache && git submodule update --init || true)
+	(cd vinyl-cache && git submodule update --init || true)
 fi
 
-export SRCDIR=`pwd`/varnish-cache
+export SRCDIR=`pwd`/vinyl-cache
 
 #######################################################################
 # Submission of results
@@ -118,7 +118,7 @@ if ! submit "${TMPDIR}"/_report.tgz; then
 	echo "Test submit failed"
 	echo
 	echo "You probably need to email this VTEST specific ssh-key"
-	echo "to phk@varnish-cache.org"
+	echo "to core@vinyl-cache.org"
 	echo
 	sed 's/^/  /' vt_key.pub
 	echo
