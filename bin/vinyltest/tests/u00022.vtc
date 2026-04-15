@@ -17,7 +17,7 @@ shell {
 }
 
 # missing -x argument
-shell -exit 1 -match "option requires an argument -- 'x'" {
+shell -exit 1 -match "option requires an argument -- [']*x[']*" {
 	vinyladm -x
 }
 
