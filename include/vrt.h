@@ -57,6 +57,11 @@
  * Whenever something is deleted or changed in a way which is not
  * binary/load-time compatible, increment MAJOR version
  *
+ * NEXT (2026-09-15)
+ *	VRT_synth_strands() removed
+ *	VRT_synth_blob() removed
+ *	VRT_synth_page() removed
+ *	VRT_Stv() removed
  * 23.0 (2026-03-16)
  *	[cache.h] http_method_eq() added
  *	[cache.h] http_method_among() added
@@ -827,10 +832,6 @@ VCL_VOID VRT_hashdata(VRT_CTX, VCL_STRANDS);
 
 VCL_VOID VRT_Rollback(VRT_CTX, VCL_HTTP);
 
-/* Synthetic pages */
-VCL_VOID VRT_synth_strands(VRT_CTX, VCL_STRANDS);
-VCL_VOID VRT_synth_blob(VRT_CTX, VCL_BLOB);
-
 /***********************************************************************
  * VDI - Director API
  */
@@ -936,10 +937,3 @@ void VRT_VCL_Allow_Cold(struct vclref **);
 
 struct vclref * VRT_VCL_Prevent_Discard(VRT_CTX, const char *);
 void VRT_VCL_Allow_Discard(struct vclref **);
-
-/***********************************************************************
- * Deprecated interfaces, do not use, they will disappear at some point.
- */
-
-VCL_VOID VRT_synth_page(VRT_CTX, VCL_STRANDS);
-int VRT_Stv(const char *nm);

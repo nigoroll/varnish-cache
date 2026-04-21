@@ -62,6 +62,9 @@ Vinyl Cache X.Y (unreleased)
   internally, while ``set resp.body = <nullstring>`` creates the empty string
   ``""`` and ``set resp.body += <nullstring>`` is a NOOP.
 
+* The functions ``VRT_synth_strands()``, ``VRT_synth_blob()``,
+  ``VRT_synth_page()`` and ``VRT_Stv()`` have been removed from the runtime.
+
 * ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
   allows testing a  command line before running it for real.
 
