@@ -41,6 +41,9 @@ Vinyl Cache X.Y (unreleased)
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
 
+* The ``debug`` storage engine gained the ``full`` option to simulate a full
+  storage.
+
 * The ``synthetic()`` VCL action has been removed. Since Varnish Cache 5.0.0,
   body data can be created by setting ``beresp.body`` in ``vcl_backend_error
   {}`` and by setting ``resp.body`` in ``vcl_synth {}``, and these continue to
@@ -65,11 +68,49 @@ Vinyl Cache X.Y (unreleased)
 * The functions ``VRT_synth_strands()``, ``VRT_synth_blob()``,
   ``VRT_synth_page()`` and ``VRT_Stv()`` have been removed from the runtime.
 
-* ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
-  allows testing a  command line before running it for real.
+* Handling of ``Connection: close`` has been made more consistent if the
+  ``Connection`` header also contains other tokens.
 
-* ``vinyladm -x workdir`` will print the default work directory and exit. This
-  is useful for tools that need to discover the VSM location in most setups.
+* The ``-x workdir`` option has been added to ``vinyladm`` to print the default
+  work directory and exit. This is useful for tools that need to discover the
+  VSM location in most setups.
+
+* Worker pools are now shut down during a worker process stop as initiated by
+  ``vinyladm stop``. This improves shutdown speed by releasing VCL references
+  earlier.
+
+  The behavior now matches that with the ``drop_pools`` experimental parameter
+  set, which has been removed.
+
+* ``storage.Synth``, as configured though the ``-sSynth=...`` ``vinyld`` startup
+  parameter is now the default ``resp.storage`` used for synthetic responses
+  created in ``vcl_synth {}``.
+
+* ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
+  allows testing a command line before running it for real.
+
+* In ``vcl_synth {}``, the storage engine to use for the synthetic response can
+  now be selected by setting ``resp.storage``.
+
+* ``STV_BanExport()`` no longer holds the ``ban_mtx``
+
+* Failed objects no longer get added to LRU.
+
+* IPv4 compatible and IPv4 mapped IPv6 addresses now get rewritten to IPv4
+  addresses: IPv6 addresses ``::<ip4>`` and ``::ffff:<ip4>`` are now turned into
+  just ``<ip4>``, which is relevant for ACL matches in particular.
+
+  For example, ``::c0a8:c0a8 == ::192.168.192.168`` becomes ``192.168.192.168``
+  and ``::ffff:a8c0:a8c0 == ::ffff:168.192.168.192`` becomes
+  ``168.192.168.192``.
+
+* During build, the new ``configure`` option ``--with-statedir`` now allows to
+  set the ``VINYL_STATE_DIR`` directly, which is the default for
+  ``VINYL_DEFAULT_N``, which, in turn, is the default for the ``-n`` argument to
+  ``vinyld`` and ``vinyl{log,ncsa,hist,top}``.
+
+* The default for ``VINYL_STATE_DIR`` has been changed back to
+  ``${localstatedir}/lib/vinyl-cache``.
 
 ============================
 Vinyl Cache 9.0 (2026-03-16)
