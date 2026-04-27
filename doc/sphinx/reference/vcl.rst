@@ -108,8 +108,9 @@ and, conversely, the ``!=`` operator returns ``false``.
 The VCL types ``INT``, ``DURATION``, ``BYTES``, ``REAL`` and ``TIME`` compare
 equal if their values compare equal numerically.
 
-Notice that ``DURATION``, ``REAL`` and ``TIME`` are represented as floating
-point numbers, and hence testing for (in)equality might be unreliable.
+Note that ``DURATION``, ``REAL`` and ``TIME`` are represented as floating point
+numbers, and hence testing for (in)equality might be unreliable. See
+:ref:`math.approx() <math.approx()>` for an "approximately equal" operator.
 
 ``IP`` compares equal for equal address.
 
@@ -240,8 +241,9 @@ return a string, e.g. ``1234``.
 Real numbers
 ~~~~~~~~~~~~
 
-VCL understands real numbers. In string context they return a string
-with their value rounded to 3 decimal places, e.g. ``3.142``.
+VCL understands real numbers. In string context they return a string with their
+value rounded to 3 decimal places, e.g. ``3.142``. See :ref:`math.strfromd()
+<math.strfromd()>` for an alternative formatting option.
 
 Regular Expressions
 -------------------
