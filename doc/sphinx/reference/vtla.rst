@@ -148,4 +148,4 @@ COPYRIGHT
 This document is licensed under the same licence as Vinyl
 itself. See LICENCE for details.
 
-* Copyright (c) 2019 Vinyl Software AS
+* Copyright (c) 2019 Varnish Software AS
