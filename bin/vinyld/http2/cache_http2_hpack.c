@@ -282,7 +282,7 @@ h2h_decode_init(const struct h2_sess *h2, struct ws *ws)
 
 	if (cache_param->h2_max_header_list_size == 0)
 		d->limit =
-		    (long)(h2->local_settings.max_header_list_size * 1.5);
+		    (long)h2->local_settings.max_header_list_size * 3 / 2;
 	else
 		d->limit = cache_param->h2_max_header_list_size;
 
