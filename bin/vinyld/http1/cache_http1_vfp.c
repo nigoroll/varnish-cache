@@ -47,6 +47,145 @@
 #include "vct.h"
 #include "vtcp.h"
 
+#ifndef TEST_DRIVER
+static const unsigned max_chunked_hdr = 32;
+static ssize_t
+v1f_rxbuf_init(struct http_conn *htc)
+{
+
+	AZ(htc->rxbuf_b);
+	AZ(htc->rxbuf_e);
+
+	htc->rxbuf_b = WS_Alloc(htc->ws, max_chunked_hdr);
+	if (htc->rxbuf_b == NULL)
+		return (-1);
+	htc->rxbuf_e = htc->rxbuf_b + max_chunked_hdr;
+	return (0);
+}
+#endif
+
+/*
+ * fill up rxbuf. If there is pipelined data, move it to the beginning and
+ * continue reading after it
+ */
+static ssize_t
+v1f_rxbuf_read(const struct vfp_ctx *vc, struct http_conn *htc)
+{
+	ssize_t i;
+	size_t sz;
+	char *p;
+
+	if (htc->pipeline_b)
+		AN(htc->pipeline_e);
+	else
+		AZ(htc->pipeline_e);
+	AN(htc->rxbuf_b);
+	AN(htc->rxbuf_e);
+
+	sz = pdiff(htc->rxbuf_b, htc->rxbuf_e);
+
+	if (htc->pipeline_b == NULL)
+		p = htc->pipeline_b = htc->rxbuf_b;
+	else {
+		AN(htc->pipeline_e);
+		i = pdiff(htc->pipeline_b, htc->pipeline_e);
+		if (i == sz)
+			return (0);
+		assert(i >= 0);
+		assert((size_t)i < sz);
+		memmove(htc->rxbuf_b, htc->pipeline_b, i);
+		htc->pipeline_b = htc->rxbuf_b;
+		htc->pipeline_e = htc->rxbuf_b + i;
+		p = htc->pipeline_e;
+		sz -= i;
+	}
+
+	do {
+		errno = 0;
+		i = read(*htc->rfd, p, sz);
+	} while (i < 0 && errno == EINTR);
+	if (i < 0) {
+		VTCP_Assert(i);
+		VSLbs(vc->wrk->vsl, SLT_FetchError,
+		    TOSTRAND(VAS_errtxt(errno)));
+		return (i);
+	}
+	htc->pipeline_e = p + i;
+	if (htc->pipeline_b == htc->pipeline_e)
+		 htc->pipeline_b = htc->pipeline_e = NULL;
+	return (i);
+}
+
+#ifdef TEST_DRIVER
+
+#include <stdio.h>
+
+void
+VSLbs(struct vsl_log *vsl, enum VSL_tag_e tag, const struct strands *s)
+{
+	(void)vsl;
+	(void)tag;
+	(void)s;
+}
+/*
+static ssize_t
+v1f_rxbuf_read(const struct vfp_ctx *vc, struct http_conn *htc);
+*/
+static void
+t_rxbuf_read(void) {
+	struct http_conn htc[1];
+	const char *data = "0123456789abcdef";
+	char rxbuf[16];
+	int fd[2], i, r;
+
+	assert(strlen(data) == sizeof rxbuf);
+
+	INIT_OBJ(htc, HTTP_CONN_MAGIC);
+	// v1f_rxbuf_init without the workspace
+	htc->rxbuf_b = rxbuf;
+	htc->rxbuf_e = htc->rxbuf_b + sizeof rxbuf;
+
+	AZ(pipe(fd));
+	htc->rfd = &fd[0];
+
+	for (i = 0; i < strlen(data); i++) {
+		r = write(fd[1], data + i, 1);
+		assert(r == 1);
+		r = v1f_rxbuf_read(NULL, htc);
+		assert(r == 1);
+		size_t av = pdiff(htc->pipeline_b, htc->pipeline_e);
+		assert(av == i + 1);
+		AZ(memcmp(htc->pipeline_b, data, av));
+		if (i % 2 == 0) {
+			// v1f_rxbuf_read moves pipelined data to the beginning
+			assert(htc->pipeline_b == htc->rxbuf_b);
+			memmove(htc->pipeline_b + 1, htc->pipeline_b, av);
+			htc->pipeline_b++;
+			htc->pipeline_e++;
+		}
+
+	}
+	// buffer is now full
+	AZ(v1f_rxbuf_read(NULL, htc));
+
+	close(fd[0]);
+	close(fd[1]);
+}
+
+int
+main(int argc, char *argv[])
+{
+	(void) argc;
+	(void) argv;
+
+	printf("-- rxbuf_read\n");
+	t_rxbuf_read();
+
+	printf("OK\n");
+	return (0);
+}
+#else
+
 /*--------------------------------------------------------------------
  * Read up to len bytes, returning pipelined data first.
  */
@@ -56,13 +195,27 @@ v1f_read(const struct vfp_ctx *vc, struct http_conn *htc, void *d, ssize_t len)
 {
 	ssize_t l;
 	unsigned char *p;
-	ssize_t i = 0;
+	ssize_t i;
 
 	CHECK_OBJ_NOTNULL(vc, VFP_CTX_MAGIC);
 	CHECK_OBJ_NOTNULL(htc, HTTP_CONN_MAGIC);
 	assert(len > 0);
 	l = 0;
 	p = d;
+	// XXX temp v1f_chunked_hdr caller signal
+	if (len == 1 && htc->pipeline_b == NULL && htc->rxbuf_b == NULL) {
+		i = v1f_rxbuf_init(htc);
+		if (i) {
+			VSLb(vc->wrk->vsl, SLT_FetchError, "No workspace for rxbuf");
+			return (i);
+		}
+	}
+	if (len == 1 && htc->pipeline_b == NULL && htc->rxbuf_b != NULL) {
+		i = v1f_rxbuf_read(vc, htc);
+		if (i < 0)
+			return (i);
+	}
+	i = 0;
 	if (htc->pipeline_b) {
 		l = htc->pipeline_e - htc->pipeline_b;
 		assert(l > 0);
@@ -388,3 +541,4 @@ V1F_Setup_Fetch(struct vfp_ctx *vfc, struct http_conn *htc)
 	vfe->priv1 = htc;
 	return (0);
 }
+#endif
