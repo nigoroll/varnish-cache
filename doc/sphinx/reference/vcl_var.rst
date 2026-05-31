@@ -1209,7 +1209,19 @@ beresp.esi_ignore_other_elements
 
 	Default: feature esi_ignore_other_elements
 
-        Ignore XML syntax errors in ESI bodies.
+	Ignore XML syntax errors in ESI bodies.
+
+beresp.esi_remove_bom
+
+	Type: BOOL
+
+	Readable from: vcl_backend_response
+
+	Writable from: vcl_backend_response
+
+	Default: feature esi_remove_bom
+
+	Ignore UTF-8 BOM in ESI bodies.
 
 .. _beresp.filters:
 
