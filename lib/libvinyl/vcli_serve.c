@@ -337,7 +337,7 @@ cls_exec(struct VCLS_fd *cfd, char * const *av, int ac)
 		if (cli->result == CLIS_OK)
 			cli->result = CLIS_TRUNCATED;
 		s[lim - 1] = '\0';
-		assert(strlen(s) <= lim);
+		assert(vstrlen(s) <= lim);
 	}
 	if (VCLI_WriteResult(cfd->fdo, cli->result, s) ||
 	    cli->result == CLIS_CLOSE)

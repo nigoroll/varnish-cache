@@ -282,7 +282,7 @@ vbp_write_proxy_v1(struct vbp_target *vt, int *sock)
 	AZ(VSB_finish(&vsb));
 
 	VSB_fini(&vsb);
-	return (vbp_write(vt, sock, buf, strlen(buf)));
+	return (vbp_write(vt, sock, buf, vstrlen(buf)));
 }
 
 static void
