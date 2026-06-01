@@ -215,7 +215,7 @@ openout(int append)
 {
 
 	AN(CTX.w_arg);
-	if (!strcmp(CTX.w_arg, "-"))
+	if (!vstrcmp(CTX.w_arg, "-"))
 		CTX.fo = stdout;
 	else
 		CTX.fo = fopen(CTX.w_arg, append ? "a" : "w");
@@ -524,23 +524,23 @@ addf_time(char type, const char *fmt)
 	f->time_fmt = strdup(fmt);
 
 	if (f->time_type == 'T') {
-		if (!strcmp(fmt, "s"))
+		if (!vstrcmp(fmt, "s"))
 			f->time_type = 's';
-		else if (!strcmp(fmt, "ms"))
+		else if (!vstrcmp(fmt, "ms"))
 			f->time_type = 'm';
-		else if (!strcmp(fmt, "us"))
+		else if (!vstrcmp(fmt, "us"))
 			f->time_type = 'u';
 		else
 			VUT_Error(vut, 1, "Unknown specifier: %%{%s}T",
 			    fmt);
 		REPLACE(f->time_fmt, "%jd");
 	} else if (f->time_type == 't') {
-		if (!strcmp(fmt, "sec")) {
+		if (!vstrcmp(fmt, "sec")) {
 			f->time_type = 'S';
 			REPLACE(f->time_fmt, "%jd");
 		} else if (!strncmp(fmt, "msec", 4)) {
 			fmt += 4;
-			if (!strcmp(fmt, "_frac")) {
+			if (!vstrcmp(fmt, "_frac")) {
 				f->time_type = '3';
 				REPLACE(f->time_fmt, "%03jd");
 			} else if (*fmt == '\0') {
@@ -549,7 +549,7 @@ addf_time(char type, const char *fmt)
 			}
 		} else if (!strncmp(fmt, "usec", 4)) {
 			fmt += 4;
-			if (!strcmp(fmt, "_frac")) {
+			if (!vstrcmp(fmt, "_frac")) {
 				f->time_type = '6';
 				REPLACE(f->time_fmt, "%06jd");
 			} else if (*fmt == '\0') {
@@ -674,23 +674,23 @@ parse_x_format(char *buf)
 	long lval;
 	int slt;
 
-	if (!strcmp(buf, "Vinyl:time_firstbyte")) {
+	if (!vstrcmp(buf, "Vinyl:time_firstbyte")) {
 		addf_fragment(&CTX.frag[F_ttfb], CTX.missing_int);
 		return;
 	}
-	if (!strcmp(buf, "Vinyl:hitmiss")) {
+	if (!vstrcmp(buf, "Vinyl:hitmiss")) {
 		addf_strptr(&CTX.hitmiss);
 		return;
 	}
-	if (!strcmp(buf, "Vinyl:handling")) {
+	if (!vstrcmp(buf, "Vinyl:handling")) {
 		addf_strptr(&CTX.handling);
 		return;
 	}
-	if (!strcmp(buf, "Vinyl:side")) {
+	if (!vstrcmp(buf, "Vinyl:side")) {
 		addf_strptr(&CTX.side);
 		return;
 	}
-	if (!strcmp(buf, "Vinyl:vxid")) {
+	if (!vstrcmp(buf, "Vinyl:vxid")) {
 		addf_int64(&CTX.vxid);
 		return;
 	}
@@ -743,7 +743,7 @@ parse_x_format(char *buf)
 		addf_vsl((enum VSL_tag_e)slt, lval, r);
 		return;
 	}
-	if (!strcmp(buf, "Vinyl:default_format")) {
+	if (!vstrcmp(buf, "Vinyl:default_format")) {
 		parse_format(FORMAT);
 		return;
 	}
@@ -1174,10 +1174,10 @@ dispatch_f(struct VSL_data *vsl, struct VSL_transaction * const pt[],
 				} else if (!strcasecmp(b, "hit")) {
 					CTX.hitmiss = "hit";
 					CTX.handling = "hit";
-				} else if (!strcasecmp(b, "miss") && strcmp(CTX.handling, "hitmiss")) {
+				} else if (!strcasecmp(b, "miss") && vstrcmp(CTX.handling, "hitmiss")) {
 					CTX.hitmiss = "miss";
 					CTX.handling = "miss";
-				} else if (!strcasecmp(b, "pass") && strcmp(CTX.handling, "hitpass")) {
+				} else if (!strcasecmp(b, "pass") && vstrcmp(CTX.handling, "hitpass")) {
 					CTX.hitmiss = "miss";
 					CTX.handling = "pass";
 				} else if (!strcasecmp(b, "synth")) {
@@ -1326,7 +1326,7 @@ main(int argc, char * const *argv)
 	if (vut->D_opt && !CTX.w_arg)
 		VUT_Error(vut, 1, "Missing -w option");
 
-	if (vut->D_opt && !strcmp(CTX.w_arg, "-"))
+	if (vut->D_opt && !vstrcmp(CTX.w_arg, "-"))
 		VUT_Error(vut, 1, "Daemon cannot write to stdout");
 
 	/* Check for valid grouping mode */
