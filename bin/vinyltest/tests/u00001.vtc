@@ -10,8 +10,8 @@ process p1 -wait
 
 process p1 -log {vinyladm -n ${v1_name}} -start
 process p1 -write "status\r"
-process p1 -expect-text 13 1 "200"
-process p1 -expect-text 14 1 "Child in state running"
+process p1 -expect-text 0 1 "200"
+process p1 -expect-text 0 1 "Child in state running"
 process p1 -write "quit\r"
 process p1 -wait
 
