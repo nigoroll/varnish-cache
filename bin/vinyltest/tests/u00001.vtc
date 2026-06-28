@@ -40,4 +40,4 @@ process p2 -log {vinyladm -n ${v1_name} | cat} -start
 process p2 -write "status -j\n"
 process p2 -expect-text 0 0 {[ 2, ["status", "-j"],}
 process p2 -expect-text 0 0 {, "running"}
-process p2 -close -wait 
+process p2 -close -wait
