@@ -10,5 +10,5 @@ FLOPS="
 	-DTOP_BUILDDIR="foo"
 	-I../../lib/libvgz
 	-Ivtest2/lib
-	$(ls vtest2/src/*.c| grep -v /teken.)
+	$(ls vtest2/src/*.c| egrep -v '/teken.|vtc_varnish')
 " ../../tools/flint_skel.sh
