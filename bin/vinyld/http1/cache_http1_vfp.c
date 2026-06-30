@@ -236,7 +236,7 @@ v1f_parse_chunked_hdr_i(char *b, const char *e, ssize_t *szp, char **nextp)
 static struct pch *
 v1f_parse_chunked_hdr(char *b, const char *e, ssize_t *szp, char **nextp)
 {
-	static struct pch *r;
+	struct pch *r;
 	const char *ee;
 
 	ee = vmin_t(const char *, e, b + max_chunked_hdr);
