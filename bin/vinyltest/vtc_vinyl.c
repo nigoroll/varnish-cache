@@ -841,10 +841,10 @@ vinyl_cli(struct vinyl *v, const char *cli, unsigned exp, const char *re,
 static const char *
 vcl_prepend(void)
 {
-	const char *vcl_prepend;
+	const char *vcl_pfx;
 
-	vcl_prepend = getenv("VTEST_VINYL_VCL_PREPEND");
-	return vcl_prepend ? vcl_prepend : "";
+	vcl_pfx = getenv("VTEST_VINYL_VCL_PREPEND");
+	return vcl_pfx ? vcl_pfx : "";
 }
 
 /**********************************************************************
