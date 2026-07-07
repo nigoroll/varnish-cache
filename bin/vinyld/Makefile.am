@@ -270,3 +270,25 @@ DISTCLEANFILES = builtin_vcl.c
 
 BUILT_SOURCES	=	vhp_hufdec.h
 DISTCLEANFILES	+=	vhp_hufdec.h
+
+##
+# find holes, usual flow:
+# make pahole-ref
+# make pahole		# look for XXX, make changes
+# make pahole-diff	# check
+.PHONY: pahole _.pa.h
+
+_.pa.h: vinyld
+	pahole --sort --hex -I vinyld >_.pa.h
+
+_.pa.h.ref:
+	mv -f _.pa.h _.pa.h.ref
+
+pahole: _.pa.h
+	cat _.pa.h
+
+pahole-ref: _.pa.h
+	mv -f _.pa.h _.pa.h.ref
+
+pahole-diff: _.pa.h.ref _.pa.h
+	-diff -u _.pa.h.ref _.pa.h
