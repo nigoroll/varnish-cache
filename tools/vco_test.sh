@@ -146,7 +146,15 @@ gcovtest () (
 	if [ `id -u` -eq 0 ] && su -m vinyl -c 'true' ; then
 		su -m vinyl -c "make check" || exit 1
 		cd bin/vinyltest
-		./vinyltest -i tests/[ab]0000?.vtc tests/j*.vtc || exit 1
+		./vinyltest \
+			-C \
+			-i \
+			tests/[ab]0000?.vtc \
+			vtest2/tests/a000*.vtc \
+			tests/c0086?.vtc \
+			tests/j*.vtc \
+			|| exit 1
+
 	else
 		make check || exit 1
 	fi
