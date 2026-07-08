@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 
-#include "cache_vinyld.h"
+#include "cache_int.h"
 
 void
 WS_Id(const struct ws *ws, char *id)

@@ -36,7 +36,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-#include "cache/cache_vinyld.h"
+#include "cache/cache_int.h"
 
 #include "acceptor/cache_acceptor.h"
 #include "acceptor/acceptor_priv.h"

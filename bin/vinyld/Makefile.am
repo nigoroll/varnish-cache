@@ -174,7 +174,7 @@ nobase_pkginclude_HEADERS = \
 	cache/cache_backend.h \
 	cache/cache_director.h \
 	cache/cache_filter.h \
-	cache/cache_vinyld.h \
+	cache/cache_int.h \
 	common/common_param.h \
 	waiter/waiter.h
 
