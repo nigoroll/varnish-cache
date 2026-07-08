@@ -35,16 +35,21 @@ Build dependencies on FreeBSD
 To get the dependencies required to build vinyl Cache from source
 you can either::
 
-	pkg install git automake pkgconf py39-sphinx py39-docutils pcre2 libtool
+	pkg install \
+                automake \
+                git-lite \
+                libtool \
+                libunwind \
+                pcre2 \
+                pkgconf \
+                py311-furo \
+                python3 
 
-.. XXX does cpio need to be installed on FreeBSD?
-
-And optionally, to be able to run all the testcases::
+For more comprehensive test-coverage also install::
 
 	pkg install haproxy nghttp2 vttest
 
 .. XXX ports is mentioned in install_freebsd.rst
-.. XXX furo for sphinx
 
 Then continue `Compiling Vinyl Cache`_
 
