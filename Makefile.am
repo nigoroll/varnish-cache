@@ -8,7 +8,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = vinylapi.pc
 
 m4dir = $(datadir)/aclocal
-m4_DATA = vinyl.m4 vinyl-legacy.m4
+m4_DATA = vinyl.m4
 
 CLEANFILES = \
 	cscope.in.out \
@@ -25,7 +25,6 @@ EXTRA_DIST = \
 	autogen.sh \
 	vinylapi.pc.in \
 	vinyl.m4 \
-	vinyl-legacy.m4 \
 	vsc.am \
 	vtc.am \
 	wflags.py
