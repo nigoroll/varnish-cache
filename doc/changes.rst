@@ -132,6 +132,10 @@ Vinyl Cache X.Y (unreleased)
 
 .. _4546: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4546
 
+* ``std.strftime()`` now errors out it given a NULL format string. (`4550`_).
+
+.. _4550: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4550
+
 ============================
 Vinyl Cache 9.0 (2026-03-16)
 ============================
