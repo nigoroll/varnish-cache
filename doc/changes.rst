@@ -117,6 +117,7 @@ Vinyl Cache X.Y (unreleased)
 * The default for ``VINYL_STATE_DIR`` has been changed back to
   ``${localstatedir}/lib/vinyl-cache``.
 
+<<<<<<< HEAD
 * Fixed a bug causing ``std.fileread()`` to panic when pointed at a 0-length
   file. (`4557`_)
 
@@ -126,6 +127,11 @@ Vinyl Cache X.Y (unreleased)
   (`4548`_).
 
 .. _4548: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4548
+
+* ``math.strfromd()``: format strings cannot contain extra data after the
+  formatter (`4546`_)
+
+.. _4546: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4546
 
 ============================
 Vinyl Cache 9.0 (2026-03-16)
