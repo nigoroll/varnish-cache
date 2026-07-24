@@ -122,6 +122,11 @@ Vinyl Cache X.Y (unreleased)
 
 .. _4557: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4557
 
+* ``blob.sub()`` now properly errors out if given a negative offset or size
+  (`4548`_).
+
+.. _4548: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4548
+
 ============================
 Vinyl Cache 9.0 (2026-03-16)
 ============================
