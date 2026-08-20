@@ -697,7 +697,7 @@ mgt_DumpRstCli(void)
 	qsort(cmds, ncmds, sizeof cmds[0], cli_cmp);
 	for (z = 0; z < ncmds; z++, cp++) {
 		cp = cmds[z];
-		if (!strncmp(cp->request, "debug.", 6))
+		if (!vstrncmp(cp->request, "debug.", 6))
 			continue;
 		printf(".. _ref_cli_");
 		for (p = cp->request; *p; p++)

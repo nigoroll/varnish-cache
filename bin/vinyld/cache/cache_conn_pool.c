@@ -185,7 +185,7 @@ PFD_RemoteName(const struct pfd *p, char *abuf, unsigned alen, char *pbuf,
 static inline int
 vcp_cmp(const struct conn_pool *a, const struct conn_pool *b)
 {
-	return (memcmp(a->ident, b->ident, sizeof b->ident));
+	return (vmemcmp(a->ident, b->ident, sizeof b->ident));
 }
 
 /*--------------------------------------------------------------------
