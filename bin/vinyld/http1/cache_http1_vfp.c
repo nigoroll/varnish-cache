@@ -98,7 +98,7 @@ v1f_rxbuf_read(struct http_conn *htc)
 			return (-1);
 		}
 		assert(av < sz);
-		memmove(htc->rxbuf_b, htc->pipeline_b, av);
+		vmemmove(htc->rxbuf_b, htc->pipeline_b, av);
 		htc->pipeline_b = htc->rxbuf_b;
 		htc->pipeline_e = htc->rxbuf_b + av;
 		p = htc->pipeline_e;
@@ -420,7 +420,7 @@ t_rxbuf_read(void) {
 		if (i % 2 == 0) {
 			// v1f_rxbuf_read moves pipelined data to the beginning
 			assert(htc->pipeline_b == htc->rxbuf_b);
-			memmove(htc->pipeline_b + 1, htc->pipeline_b, av);
+			vmemmove(htc->pipeline_b + 1, htc->pipeline_b, av);
 			htc->pipeline_b++;
 			htc->pipeline_e++;
 		}
@@ -478,7 +478,7 @@ main(int argc, char *argv[])
 		size_t l = vstrlen(neg->hdr);
 		assert(l < sizeof buf);
 
-		memcpy(buf, neg->hdr, l + 1);
+		vmemcpy(buf, neg->hdr, l + 1);
 		char *e = buf + l;
 
 		t_parse_chunked_hdr_err(buf, e, neg->r);
@@ -505,7 +505,7 @@ main(int argc, char *argv[])
 		size_t l = vstrlen(neg->hdr);
 		assert(l < sizeof buf);
 
-		memcpy(buf, neg->hdr, l + 1);
+		vmemcpy(buf, neg->hdr, l + 1);
 		char *e = buf + l;
 
 		t_parse_chunked_tail(buf, e, neg->r, NULL);
@@ -571,7 +571,7 @@ v1f_read(const struct vfp_ctx *vc, struct http_conn *htc, void *d, ssize_t len,
 		l = htc->pipeline_e - htc->pipeline_b;
 		assert(l > 0);
 		l = vmin(l, len);
-		memcpy(p, htc->pipeline_b, l);
+		vmemcpy(p, htc->pipeline_b, l);
 		p += l;
 		len -= l;
 		htc->pipeline_b += l;
