@@ -117,7 +117,6 @@ Vinyl Cache X.Y (unreleased)
 * The default for ``VINYL_STATE_DIR`` has been changed back to
   ``${localstatedir}/lib/vinyl-cache``.
 
-<<<<<<< HEAD
 * Fixed a bug causing ``std.fileread()`` to panic when pointed at a 0-length
   file. (`4557`_)
 
