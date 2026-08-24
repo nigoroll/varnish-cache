@@ -17,5 +17,5 @@ client c1 {
 } -run
 
 logexpect l1 -v v1 -d 1 -g raw -q "VCL_Error" {
-		expect * * VCL_Error {std.time: fmt STRING can't be NULL}
+		expect * * VCL_Error {std.strftime: fmt STRING can't be NULL}
 } -run
