@@ -49,7 +49,7 @@ struct expr {
 #define EXPR_VAR	(1<<0)
 #define EXPR_CONST	(1<<1)
 #define EXPR_STR_CONST	(1<<2)		// Last string elem is "..."
-	struct token	*t1, *t2;
+	struct token	*t1;
 	struct symbol	*instance;
 	int		nstr;
 };
@@ -232,9 +232,6 @@ vcc_expr_edit(struct vcc *tl, vcc_type_t fmt, const char *p, struct expr *e1,
 	}
 	AZ(VSB_finish(e->vsb));
 	e->t1 = e1->t1;
-	e->t2 = e1->t2;
-	if (e2 != NULL)
-		e->t2 = e2->t2;
 	vcc_delete_expr(e1);
 	vcc_delete_expr(e2);
 	return (e);
