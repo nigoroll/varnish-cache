@@ -49,7 +49,7 @@ struct expr {
 #define EXPR_VAR	(1<<0)
 #define EXPR_CONST	(1<<1)
 #define EXPR_STR_CONST	(1<<2)		// Last string elem is "..."
-	struct token	*t1;
+	struct token	*t;
 	struct symbol	*instance;
 	int		nstr;
 };
@@ -231,7 +231,7 @@ vcc_expr_edit(struct vcc *tl, vcc_type_t fmt, const char *p, struct expr *e1,
 		p++;
 	}
 	AZ(VSB_finish(e->vsb));
-	e->t1 = e1->t1;
+	e->t = e1->t;
 	vcc_delete_expr(e1);
 	vcc_delete_expr(e2);
 	return (e);
@@ -316,7 +316,7 @@ vcc_expr_tostring(struct vcc *tl, struct expr **e)
 		VSB_printf(tl->sb,
 		    "Cannot convert %s to STRING.\n",
 		    vcc_utype((*e)->fmt));
-		vcc_ErrWhere2(tl, (*e)->t1, tl->t);
+		vcc_ErrWhere2(tl, (*e)->t, tl->t);
 	}
 }
 
@@ -880,7 +880,7 @@ vcc_expr5(struct vcc *tl, struct expr **e, vcc_type_t fmt)
 			e1->constant |= EXPR_STR_CONST;
 			e1->nstr = 1;
 		}
-		e1->t1 = tl->t;
+		e1->t = tl->t;
 		e1->constant |= EXPR_CONST;
 		vcc_NextToken(tl);
 		*e = e1;
@@ -909,7 +909,7 @@ vcc_expr5(struct vcc *tl, struct expr **e, vcc_type_t fmt)
 		VSB_printf(e1->vsb, "%s", tl->t->dec);
 		AZ(VSB_finish(e1->vsb));
 		e1->constant |= EXPR_STR_CONST;
-		e1->t1 = tl->t;
+		e1->t = tl->t;
 		vcc_NextToken(tl);
 		*e = e1;
 		return;
