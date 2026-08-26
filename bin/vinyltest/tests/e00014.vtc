@@ -10,12 +10,14 @@ server s1 {
 } -start
 
 vinyl v1 -vcl+backend {
+	import vtc;
+	sub vcl_init {
+		vtc.storage_frag(storage.s0, 4B);
+	}
 	sub vcl_backend_response {
 		set beresp.do_esi = true;
 	}
 } -start
-
-vinyl v1 -cliok "debug.fragfetch 4"
 
 client c1 {
 	txreq -url /foo
