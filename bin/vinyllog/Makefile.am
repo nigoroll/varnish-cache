@@ -13,3 +13,8 @@ vinyllog_SOURCES = \
 vinyllog_LDADD = \
 	$(top_builddir)/lib/libvinylapi/libvinylapi.la \
 	${RT_LIBS} ${LIBM} ${PTHREAD_LIBS}
+
+.PHONY: flint flint-local
+
+flint-local:
+	$(SHELL) flint.sh

@@ -34,3 +34,8 @@ vinylstat_LDADD = \
 
 vinylstat_help_gen_LDADD = \
 	$(top_builddir)/lib/libvinyl/libvinyl.la
+
+.PHONY: flint flint-local
+
+flint-local:
+	$(SHELL) flint.sh

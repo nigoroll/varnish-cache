@@ -13,3 +13,8 @@ vinylncsa_SOURCES = \
 vinylncsa_LDADD = \
 	$(top_builddir)/lib/libvinylapi/libvinylapi.la \
 	${RT_LIBS} ${LIBM}
+
+.PHONY: flint flint-local
+
+flint-local:
+	$(SHELL) flint.sh
