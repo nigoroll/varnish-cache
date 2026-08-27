@@ -1,5 +1,7 @@
 vtest "Does anything get through Unix domain sockets at all ?"
 
+feature witness
+
 server s1 -listen "${tmpdir}/s1.sock" {
 	rxreq
 	txresp -body "012345\n"
@@ -16,6 +18,7 @@ vinyl v1 -arg "-a ${tmpdir}/v1.sock -a ${listen_addr}" -vcl+backend {
 } -start
 
 vinyl v1 -cliok "param.set debug +workspace"
+vinyl v1 -cliok "param.set debug +witness"
 
 vinyl v1 -expect n_object == 0
 vinyl v1 -expect sess_conn == 0

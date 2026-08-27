@@ -1,5 +1,6 @@
 vtest "Does anything get through at all ?"
 
+feature witness
 feature ipv4
 feature ipv6
 
@@ -31,6 +32,7 @@ vinyl v1 -vcl+backend {
 } -start
 
 vinyl v1 -cliok "param.set debug +workspace"
+vinyl v1 -cliok "param.set debug +witness"
 
 #vinyl v1 -vsc *
 

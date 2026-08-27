@@ -78,6 +78,7 @@ cscope:
 gcov_digest:
 	${PYTHON} tools/gcov_digest.py -o _gcov
 
+if ENABLE_WITNESS
 witness.dot: all
 	$(MAKE) check AM_VTC_LOG_FLAGS=-pdebug=+witness
 	$(AM_V_GEN) $(srcdir)/tools/witness.sh witness.dot bin/vinyltest/ \
@@ -85,6 +86,11 @@ witness.dot: all
 
 .dot.svg:
 	$(AM_V_GEN) $(DOT) -Tsvg $< >$@
+else
+witness.dot:
+	@echo >&2 witness not enabled, see --enable-witness configure option
+	@exit 2
+endif
 
 witness: witness.svg
 
