@@ -1554,13 +1554,16 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 	}
 
 	if (h2e != NULL && h2e->connection) {
+		HTC_RxPipeline(h2->htc, h2->htc->rxbuf_b);
 		h2->error = h2e;
 		h2_tx_goaway(wrk, h2, h2e);
 		return (0);
 	}
 
-	if (hs != HTC_S_COMPLETE)
+	if (hs != HTC_S_COMPLETE) {
+		HTC_RxPipeline(h2->htc, h2->htc->rxbuf_b);
 		return (1);
+	}
 
 	h2->rxf_len = vbe32dec(h2->htc->rxbuf_b) >> 8;
 	h2->rxf_type = h2->htc->rxbuf_b[3];
