@@ -15,7 +15,6 @@ server s1 {
 } -start
 
 vinyl v1 -arg "-p thread_pools=1" -vcl+backend {} -start
-vinyl v1 -cliok "param.set timeout_linger 0.5"
 
 vinyl v1 -expect WAITER.pool0.conns == 0
 vinyl v1 -expect WAITER.pool0.remclose == 0
