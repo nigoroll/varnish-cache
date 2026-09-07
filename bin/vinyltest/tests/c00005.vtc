@@ -23,6 +23,16 @@ vinyl v1 -errvcl {Name acl1 must have type 'acl'.} {
 	}
 }
 
+vinyl v1 -vcl {
+	# make sure ACL tables get proper C symbols
+	acl local-host +table {
+		"127.0.0.1";
+		"::1";
+	}
+	unused local-host;
+	backend be none;
+}
+
 vinyl v1 -vcl+backend {
 	sub vcl_recv {
 		if (client.ip ~ acl1) {
