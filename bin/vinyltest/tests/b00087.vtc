@@ -14,7 +14,8 @@ server s1 {
 	txresp
 } -start
 
-vinyl v1 -arg "-p thread_pools=1 -p timeout_linger=0.5 -p timeout_idle=3" -vcl+backend {} -start
+vinyl v1 -arg "-p thread_pools=1" -vcl+backend {} -start
+vinyl v1 -cliok "param.set timeout_linger 0.5"
 
 vinyl v1 -expect WAITER.pool0.conns == 0
 vinyl v1 -expect WAITER.pool0.remclose == 0
