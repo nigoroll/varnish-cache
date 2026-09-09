@@ -41,13 +41,263 @@ Vinyl Cache X.Y (unreleased)
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
 
+* The argument to ``std.rollback()`` is now obsolete and ignored, the appropriate
+  headers to be rolled back is now inferred from the call site. This also fixes
+  a panic when ``resp`` or ``beresp`` was passed. (`4566`_)
+
+.. _4566: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4566
+
+* Fixed spurious HTTP/2 ``PROTOCOL_ERROR`` connection errors caused by
+  read-ahead data being lost. (`4586`_)
+
+.. _4586: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4586
+
+* HTTP/1 message framing checks have been tightened (`4581`_):
+
+  - Backend responses with invalid body framing now fail the fetch.
+
+  - Multiple ``Transfer-Encoding`` fields are now considered as a whole, such
+    that duplicate ``chunked`` codings are refused.
+
+  - Multiple ``Content-Length`` fields and values are now accepted if they all
+    agree (leading zeroes are tolerated) and consolidated into a single
+    canonical header, any disagreement is refused.
+
+  - ``Transfer-Encoding`` on an HTTP/1.0 request is now refused. For HTTP/1.0
+    backend responses, the new ``vcl_beresp_http10`` built-in subroutine
+    abandons the fetch, which VCL can override.
+
+  - The backend connection is now closed when the range check of a response
+    fails, to avoid reusing a connection with an unread body.
+
+.. _4581: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4581
+
+* An existing, correct ``Connection`` response header is no longer overwritten
+  when closing: other tokens are preserved and ``close`` or ``keep-alive`` are
+  added as needed. If a ``Connection`` was not present, or was incorrect, we
+  create a new, correct one. (`4498`_)
+
+.. _4498: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4498
+
+* Worker pool shutdown has been reworked: Acceptor tasks and waiters now
+  terminate promptly, dying pools no longer starve queued tasks and worker
+  threads are waited for before a pool is dismantled. The worker process now
+  ignores ``SIGUSR1``, which is used internally to interrupt blocking
+  ``accept(2)`` calls. (`4538`_).
+
+.. _4538: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4538
+
+* VCC now refuses empty quoted header names as in ``req.http.""``, which
+  could previously result in a C compiler error. (`4577`_)
+
+.. _4577: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4577
+
+* ``HttpGarbage`` log records now contain the offending data rather than just
+  the request method.
+
+* HTTP header parsing now only accepts SP and TAB as optional white space.
+  (`4583`_)
+
+.. _4583: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4583
+
+* HTTP/1 messages rejected for invalid body framing now get a ``BogoHeader``
+  log record naming the offending field.
+
+* ``std.collect_all()`` has been added to combine all multiple headers of
+  ``req``, ``resp``, ``bereq`` or ``beresp`` according to the HTTP RFCs:
+  ``Set-Cookie`` is not combined, ``Cookie`` is combined with ``"; "`` and all
+  other headers with ``", "``.
+
+* Header combining by ``std.collect()`` is now visible in the log.
+
+* The ``req0.method``, ``req0.url``, ``req0.proto`` and ``req0.http.*``
+  variables have been added for read access to the request almost exactly as
+  it was originally received. In ``vrt.h``, ``struct vrt_ctx`` gained the
+  ``http_req0`` member and ``enum gethdr_e`` gained ``HDR_REQ0``.
+
+* The lock witness facility is now disabled at compile time by default and
+  needs to be enabled with the ``--enable-witness`` ``configure`` option.
+  (`4574`_)
+
+.. _4574: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4574
+
+* The ``LBODY_SET`` and ``LBODY_ADD`` compatibility defines and the ``struct
+  VCL_conf`` and ``struct VSC_main`` declarations have been removed from
+  ``vrt.h``. ``struct vmod_data`` has moved to ``vmod_abi.h``.
+
+* Fixed a manager abort when the worker process failed to cool a VCL being
+  discarded, which also prevented ``auto_restart`` from taking effect.
+  (`4563`_)
+
+.. _4563: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4563
+
+* Fixed a VCC bug where ``include`` of a BLOB literal file could fail with a
+  spurious "Missing colon" error.
+
+* ``VTIM_format()`` no longer uses ``gmtime_r()``, which improves performance.
+
+* ``std.strftime()`` now errors out it given a NULL format string. (`4551`_)
+
+.. _4551: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4551
+
+* ``math.strfromd()``: format strings cannot contain extra data after the
+  formatter. (`4547`_)
+
+.. _4547: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4547
+
+* ``blob.sub()`` now properly errors out if given a negative offset or size.
+  (`4549`_)
+
+.. _4549: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4549
+
+* Malformed lines in the VSM ``_.index`` file are now reported with a
+  meaningful diagnostic instead of a bare assertion failure in VSM readers like
+  ``vinylstat`` and ``vinyllog``. (`4569`_)
+
+.. _4569: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4569
+
+* Fixed a panic when a delivery processor (VDP) failed to initialize before
+  allocating the private pointer. This changes the VDP api in that a VDP that
+  returns non-zero from its ``.init()`` callback will no longer see its
+  ``.fini()`` method called, which implies that all failure scenarios during
+  ``.init()`` must clen up any allocated data before returning. (`4539`_)
+
+.. _4539: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4539
+
+* Fixed a bug causing ``std.fileread()`` to panic when pointed at a 0-length
+  file. (`4557`_)
+
+.. _4557: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4557
+
+* ``blob.transcode()`` now limits its stack usage by decoding large inputs
+  piecemeal, avoiding a potential stack overflow.
+
+* Fixed a potential buffer over-read when parsing HTTP dates. (`4554`_)
+
+.. _4554: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4554
+
+* PROXY v2 parsing now validates the length of the CRC32C TLV, avoiding an
+  out-of-bounds read. (`4560`_)
+
+.. _4560: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4560
+
+* Fixed a bug in the ``poll`` waiter which could delay handling of events
+  whose deadline had already passed. (`4561`_)
+
+.. _4561: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4561
+
+* The ``obj.hfm``, ``obj.hfp``, and ``obj.uncacheable`` ban variables have been
+  added to allow banning hit-for-miss and hit-for-pass and uncachable (both)
+  objects. (`4532`_)
+
+.. _4532: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4532
+
+* Range processing is now only applied to ``GET`` requests as mandated by RFC
+  9110, and the builtin VCL removes the ``Range`` header from other requests.
+  (`4533`_)
+
+.. _4533: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4533
+
+* ``vinyld -x parameter-json`` has been added to output the parameter
+  documentation in JSON format. (`4378`_)
+
+.. _4378: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4378
+
+* Setting ``req.max_age = 0s`` now forces a cache miss with request coalescing,
+  where it previously had no effect. (`4041`_)
+
+.. _4041: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4041
+
+* The HTTP ``QUERY`` method has been added to the well known request methods
+  and is passed by default in the builtin VCL. (`4531`_)
+
+.. _4531: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4531
+
+* Fetching of HTTP/1.1 chunked bodies has been optimized: Chunked body fetches
+  now use readahead instead of the previous single byte read operations which
+  were wasteful and inefficient. (`4508`_)
+
+.. _4508: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4508
+
+* ``vinyladm`` now only uses libedit if both stdin and stdout are terminals.
+
+* ``vinyld`` now checks for an already running instance before modifying the
+  working directory. ``-C`` should not be used together with ``-n``, see
+  :ref:`vinyld(1)`.
+
+* ``vinyltest`` gained the ``VTEST_VINYL_VCL_PREPEND`` environment variable to
+  inject VCL code into all VCL loaded by ``vinyl`` instances.
+
+* ``std.getenv()`` gained an optional *fallback* argument which is returned if
+  the environment variable is not set. (`4527`_)
+
+.. _4527: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4527
+
+* Fixed the alphabet of the built-in base64 encoder used when converting BLOBs
+  to strings. (`4522`_)
+
+.. _4522: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4522
+
+* The ``esi_ignore_https``, ``esi_disable_xml_check``,
+  ``esi_ignore_other_elements`` and ``esi_remove_bom`` feature flags can now be
+  overridden per response with the new ``beresp.esi_ignore_https``,
+  ``beresp.esi_disable_xml_check``, ``beresp.esi_ignore_other_elements`` and
+  ``beresp.esi_remove_bom`` variables. (`4518`_)
+
+.. _4518: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4518
+
+* Object references are now retained until the end of a client task, such that
+  object attributes accessed from VCL remain valid across restarts without
+  being copied to the workspace. Consequently, ``max_restarts`` and
+  ``max_retries`` gained upper limits of 32766 and 65534, respectively.
+  (`4269`_)
+
+.. _4269: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4269
+
+* The new ``resp.esi_include_onerror`` variable allows to override the
+  ``esi_include_onerror`` feature flag in ``vcl_deliver {}``. (`4054`_)
+
+.. _4054: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4054
+
+* Starting sub-processes has become faster on systems with a high file
+  descriptor limit by only closing file descriptors which are actually open.
+  (`3891`_)
+
+.. _3891: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/3891
+
+* Counters for backend connection closes have been added:
+  ``MAIN.backend_closed``, ``MAIN.backend_closed_err`` and the ``MAIN.bc_*``
+  close reason counters that are a subset of ``sc_*`` session counters, as well
+  as the equivalent per-backend ``VBE.*.closed``, ``VBE.*.closed_err`` and
+  close reason counters. (`4337`_)
+
+.. _4337: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4337
+
+* Improved support for delivery processors (VDPs) changing the length of a
+  request body: ``Content-Length`` is rewritten or removed and
+  chunked encoding is used as required.
+
+* The range VDP now removes any existing ``Content-Range`` header to avoid
+  duplicates.
+
+* The ``Tstrcmp()`` macro has been removed from ``vdef.h``, ``Tstreq()`` is to
+  be used for equality checks.
+
 .. _VSV00019: https://vinyl-cache.org/security/VSV00019.html
 
 * A deficiency in HTTP/2 request parsing has been fixed by properly comparing
   pseudo-header names instead of doing a prefix match. (VSV00019_)
 
+* A new ``synth`` storage engine has been added, which avoids copying data for
+  synthetic response bodies by referencing the constituents directly. It is used
+  by default as the ``Synth`` storage. (`4365`_)
+
+.. _4365: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4365
+
 * The ``debug`` storage engine gained the ``full`` option to simulate a full
-  storage.
+  storage. (`4504`_)
+
+.. _4504: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4504
 
 * The ``synthetic()`` VCL action has been removed. Since Varnish Cache 5.0.0,
   body data can be created by setting ``beresp.body`` in ``vcl_backend_error
@@ -68,17 +318,23 @@ Vinyl Cache X.Y (unreleased)
   The only difference in behavior is that ``synthetic(<nullstring>)`` would
   create the string ``(null)`` for ``<nullstring>`` being a ``NULL`` pointer
   internally, while ``set resp.body = <nullstring>`` creates the empty string
-  ``""`` and ``set resp.body += <nullstring>`` is a NOOP.
+  ``""`` and ``set resp.body += <nullstring>`` is a NOOP. (`4503`_)
+
+.. _4503: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4503
 
 * The functions ``VRT_synth_strands()``, ``VRT_synth_blob()``,
   ``VRT_synth_page()`` and ``VRT_Stv()`` have been removed from the runtime.
 
 * Handling of ``Connection: close`` has been made more consistent if the
-  ``Connection`` header also contains other tokens.
+  ``Connection`` header also contains other tokens. (`4495`_)
+
+.. _4495: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4495
 
 * The ``-x workdir`` option has been added to ``vinyladm`` to print the default
   work directory and exit. This is useful for tools that need to discover the
-  VSM location in most setups.
+  VSM location in most setups. (`4494`_)
+
+.. _4494: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4494
 
 * Worker pools are now shut down during a worker process stop as initiated by
   ``vinyladm stop``. This improves shutdown speed by releasing VCL references
@@ -87,54 +343,51 @@ Vinyl Cache X.Y (unreleased)
   The behavior now matches that with the ``drop_pools`` experimental parameter
   set, which has been removed.
 
-* ``storage.Synth``, as configured though the ``-sSynth=...`` ``vinyld`` startup
+* ``storage.Synth``, as configured through the ``-sSynth=...`` ``vinyld`` startup
   parameter is now the default ``resp.storage`` used for synthetic responses
-  created in ``vcl_synth {}``.
+  created in ``vcl_synth{}``. (`4492`_)
+
+.. _4492: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4492
 
 * ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
-  allows testing a command line before running it for real.
+  allows validating command line arguments before running them for real. 
+  (`4493`_)
 
-* In ``vcl_synth {}``, the storage engine to use for the synthetic response can
-  now be selected by setting ``resp.storage``.
+.. _4493: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4493
 
-* ``STV_BanExport()`` no longer holds the ``ban_mtx``
+* A new ``resp.storage`` VCL variable that is available from ``vcl_synth{}``
+  was added to select which storage the synth response body gets created on. 
+  (`4358`_)
 
-* Failed objects no longer get added to LRU.
+.. _4358: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4358
+
+* ``STV_BanExport()`` no longer holds the ``ban_mtx`` (`3853`_)
+
+.. _3853: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/3853
+
+* Failed objects no longer get added to LRU. (`4428`_)
+
+.. _4428: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4428
 
 * IPv4 compatible and IPv4 mapped IPv6 addresses now get rewritten to IPv4
-  addresses: IPv6 addresses ``::<ip4>`` and ``::ffff:<ip4>`` are now turned into
-  just ``<ip4>``, which is relevant for ACL matches in particular.
+  addresses, which is relevant for ACL matches in particular. (`4474`_)
 
-  For example, ``::c0a8:c0a8 == ::192.168.192.168`` becomes ``192.168.192.168``
-  and ``::ffff:a8c0:a8c0 == ::ffff:168.192.168.192`` becomes
-  ``168.192.168.192``.
+.. _4474: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4474
+
+* ``make install`` now honours ``DESTDIR`` when creating ``VINYL_STATE_DIR``.
+  (`4512`_)
+
+.. _4512: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4512
 
 * During build, the new ``configure`` option ``--with-statedir`` now allows to
   set the ``VINYL_STATE_DIR`` directly, which is the default for
   ``VINYL_DEFAULT_N``, which, in turn, is the default for the ``-n`` argument to
-  ``vinyld`` and ``vinyl{log,ncsa,hist,top}``.
+  ``vinyld`` and ``vinyl{log,ncsa,hist,top}``. (`4483`_)
 
 * The default for ``VINYL_STATE_DIR`` has been changed back to
-  ``${localstatedir}/lib/vinyl-cache``.
+  ``${localstatedir}/lib/vinyl-cache``. (`4483`_)
 
-* Fixed a bug causing ``std.fileread()`` to panic when pointed at a 0-length
-  file. (`4557`_)
-
-.. _4557: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4557
-
-* ``blob.sub()`` now properly errors out if given a negative offset or size
-  (`4548`_).
-
-.. _4548: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4548
-
-* ``math.strfromd()``: format strings cannot contain extra data after the
-  formatter (`4546`_)
-
-.. _4546: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4546
-
-* ``std.strftime()`` now errors out it given a NULL format string. (`4550`_).
-
-.. _4550: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4550
+.. _4483: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4483
 
 ============================
 Vinyl Cache 9.0 (2026-03-16)
