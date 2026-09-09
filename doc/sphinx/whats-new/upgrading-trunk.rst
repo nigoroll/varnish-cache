@@ -1,12 +1,12 @@
 **Note: This is a working document for a future release, with running
 updates for changes in the development branch. For changes in the
-released versions of Varnish, see:** :ref:`whats-new-index`
+released versions of Vinyl, see:** :ref:`whats-new-index`
 
 .. _whatsnew_upgrading_CURRENT:
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Upgrading to Varnish **$NEXT_RELEASE**
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Upgrading to Vinyl Cache **$NEXT_RELEASE**
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 **XXX: how to upgrade from previous deployments to this
 version. Limited to work that has to be done for an upgrade, new
@@ -23,9 +23,9 @@ to:**
 * Changes in the CLI.
 
 * Changes in the output or interpretation of stats or the log, including
-  changes affecting varnishncsa/-hist/-top.
+  changes affecting vinylncsa/-hist/-top.
 
-* Changes that may be necessary in VTCs or in the use of varnishtest.
+* Changes that may be necessary in VTCs or in the use of vinyltest.
 
 * Changes in public APIs that may require changes in VMODs or VAPI/VUT
   clients.

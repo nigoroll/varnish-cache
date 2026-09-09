@@ -1,32 +1,32 @@
 **Note: This is a working document for a future release, with running
 updates for changes in the development branch. For changes in the
-released versions of Varnish, see:** :ref:`whats-new-index`
+released versions of Vinyl, see:** :ref:`whats-new-index`
 
 .. _whatsnew_changes_CURRENT:
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Changes in Varnish **$NEXT_RELEASE**
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Changes in Vinyl Cache **$NEXT_RELEASE**
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-For information about updating your current Varnish deployment to the
+For information about updating your current Vinyl deployment to the
 new version, see :ref:`whatsnew_upgrading_CURRENT`.
 
-A more detailed and technical account of changes in Varnish, with
+A more detailed and technical account of changes in Vinyl, with
 links to issues that have been fixed and pull requests that have been
 merged, may be found in the `change log`_.
 
-.. _change log: https://github.com/varnishcache/varnish-cache/blob/master/doc/changes.rst
+.. _change log: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/src/branch/main/doc/changes.rst
 
-varnishd
-========
+vinyld
+======
 
 Parameters
 ~~~~~~~~~~
 
 **XXX changes in -p parameters**
 
-Other changes in varnishd
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Other changes in vinyld
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Changes to VCL
 ==============
@@ -44,25 +44,25 @@ VMODs
 
 **XXX changes in the bundled VMODs**
 
-varnishlog
-==========
+vinyllog
+========
 
-**XXX changes concerning varnishlog(1) and/or vsl(7)**
+**XXX changes concerning vinyllog(1) and/or vsl(7)**
 
-varnishadm
-==========
+vinyladm
+========
 
-**XXX changes concerning varnishadm(1) and/or varnish-cli(7)**
+**XXX changes concerning vinyladm(1) and/or vinyl-cli(7)**
 
-varnishstat
-===========
+vinylstat
+=========
 
-**XXX changes concerning varnishstat(1) and/or varnish-counters(7)**
+**XXX changes concerning vinylstat(1) and/or vinyl-counters(7)**
 
-varnishtest
-===========
+vinyltest
+=========
 
-**XXX changes concerning varnishtest(1) and/or vtc(7)**
+**XXX changes concerning vinyltest(1) and/or vtc(7)**
 
 Changes for developers and VMOD authors
 =======================================

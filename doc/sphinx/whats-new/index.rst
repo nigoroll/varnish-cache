@@ -17,8 +17,8 @@ Releases up to and including 8.0 were called Varnish. From 9.0 on, this project
 is called Vinyl Cache and releases called Varnish are continued by Varnish
 Software as a fork.
 
-Varnish **$NEXT_RELEASE**
--------------------------
+Vinyl Cache **$NEXT_RELEASE**
+-----------------------------
 
 **Note: These are working documents for a future release, with running
 updates for changes in the development branch. For changes in the
