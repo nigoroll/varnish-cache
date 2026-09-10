@@ -64,6 +64,33 @@ AC_DEFUN([_VINYL_SEARCH_LIBS], [
 	LIBS="${save_LIBS}"
 ])
 
+# _VINYL_VERSION_REQUIRED
+# -----------------------
+# Generate the shell function vinyl_version_required
+#
+# vinyl_version_required(have, min, [max])
+#
+# Return 0 if requirements satisfied
+#
+# AC_MSG_CHECKING should have been called prior to calling the shell function
+AC_DEFUN([_VINYL_VERSION_REQUIRED], [
+vinyl_version_required() {
+	AS_VERSION_COMPARE($[]1, $[]2, [
+		AC_MSG_RESULT([lower than minimum version $[]2])
+		return 1
+	])
+
+	test $[]# -gt 2 &&
+	AS_VERSION_COMPARE($[]3, $[]1, [
+		AC_MSG_RESULT([higher than maximum version $[]3])
+		return 1
+	])
+
+	AC_MSG_RESULT([ok])
+	return 0
+}
+])
+
 # _VINYL_PKG_CONFIG
 # --------------------
 AC_DEFUN([_VINYL_PKG_CONFIG], [
@@ -674,15 +701,8 @@ AC_DEFUN([VINYL_UTILITIES], [
 #
 AC_DEFUN([VINYL_PREREQ], [
 	AC_REQUIRE([_VINYL_PKG_CONFIG])
-	AC_MSG_CHECKING([for Vinyl Cache])
-	AC_MSG_RESULT([$VINYL_VERSION])
-
-	AS_VERSION_COMPARE([$VINYL_VERSION], [$1], [
-		AC_MSG_ERROR([Vinyl Cache version $1 or higher is required.])
-	])
-
-	test $# -gt 1 &&
-	AS_VERSION_COMPARE([$2], [$VINYL_VERSION], [
-		AC_MSG_ERROR([Vinyl Cache version below $2 is required.])
-	])
+	AC_REQUIRE([_VINYL_VERSION_REQUIRED])
+	AC_MSG_CHECKING([Vinyl Cache version ${VINYL_VERSION}])
+	vinyl_version_required ${VINYL_VERSION} m4_join([ ], $@) ||
+		AC_MSG_ERROR([Vinyl Cache version not supported.])
 ])
