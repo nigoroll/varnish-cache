@@ -96,25 +96,39 @@ vinyl_version_required() {
 #
 # generate the vinyl_pkg_config function, which needs to be called explicitly
 AC_DEFUN([_VINYL_PKG_CONFIG], [
+
+	# the following macros expand outside the shell function, because they
+	# do need to run always, just once and outside the function
 	PKG_PROG_PKG_CONFIG([0.21])
+
+	AC_ARG_WITH([vcache],
+		AS_HELP_STRING(
+			[--with-vcache=<flavor>],
+			[project to build for (e.g. vinyl or varnish), will look for <flavor>api pkg-config module]),
+		[vcacheapi="${withval}api"],
+		[unset vcacheapi])
+
 vinyl_pkg_config() {
 	# run only once
 	if test "x$vcldir" != "x" ; then
 		return
 	fi
-	PKG_CHECK_MODULES([VINYLAPI], [vinylapi])
-	AC_SUBST([VINYL_VERSION], [$($PKG_CONFIG --modversion vinylapi)])
+	if test "x$vcacheapi" = "x" ; then
+		vcacheapi="vinylapi"
+	fi
+	PKG_CHECK_MODULES([VINYLAPI], [${vcacheapi}])
+	AC_SUBST([VINYL_VERSION], [$($PKG_CONFIG --modversion ${vcacheapi})])
 
-	PKG_CHECK_VAR([VINYLAPI_PREFIX], [vinylapi], [prefix])
-	PKG_CHECK_VAR([VINYLAPI_DATAROOTDIR], [vinylapi], [datarootdir])
-	PKG_CHECK_VAR([VINYLAPI_LIBDIR], [vinylapi], [libdir])
-	PKG_CHECK_VAR([VINYLAPI_BINDIR], [vinylapi], [bindir])
-	PKG_CHECK_VAR([VINYLAPI_SBINDIR], [vinylapi], [sbindir])
-	PKG_CHECK_VAR([VINYLAPI_VCLDIR], [vinylapi], [vcldir])
-	PKG_CHECK_VAR([VINYLAPI_VMODDIR], [vinylapi], [vmoddir])
+	PKG_CHECK_VAR([VINYLAPI_PREFIX], [${vcacheapi}], [prefix])
+	PKG_CHECK_VAR([VINYLAPI_DATAROOTDIR], [${vcacheapi}], [datarootdir])
+	PKG_CHECK_VAR([VINYLAPI_LIBDIR], [${vcacheapi}], [libdir])
+	PKG_CHECK_VAR([VINYLAPI_BINDIR], [${vcacheapi}], [bindir])
+	PKG_CHECK_VAR([VINYLAPI_SBINDIR], [${vcacheapi}], [sbindir])
+	PKG_CHECK_VAR([VINYLAPI_VCLDIR], [${vcacheapi}], [vcldir])
+	PKG_CHECK_VAR([VINYLAPI_VMODDIR], [${vcacheapi}], [vmoddir])
 
-	PKG_CHECK_VAR([VMODTOOL], [vinylapi], [vmodtool])
-	PKG_CHECK_VAR([VSCTOOL], [vinylapi], [vsctool])
+	PKG_CHECK_VAR([VMODTOOL], [${vcacheapi}], [vmodtool])
+	PKG_CHECK_VAR([VSCTOOL], [${vcacheapi}], [vsctool])
 
 	AC_SUBST([VINYL_LIBRARY_PATH],
 		[$VINYLAPI_LIBDIR])
@@ -132,7 +146,7 @@ vinyl_pkg_config() {
 
 	dnl Define the VCL directory for automake
 	vcldir=$($PKG_CONFIG --define-variable=datadir=$datadir \
-		--variable=vcldir vinylapi)
+		--variable=vcldir ${vcacheapi})
 	AC_SUBST([vcldir])
 
 	dnl Define the VCL directory for this package
