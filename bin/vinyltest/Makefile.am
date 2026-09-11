@@ -27,13 +27,9 @@ vtest: vinyltest
 install-exec-hook:
 	ln -f $(DESTDIR)$(bindir)/vinyltest$(EXEEXT) \
 	   $(DESTDIR)$(bindir)/vtest$(EXEEXT)
-	ln -sf libvtest_ext_vinyl.so \
-	   $(DESTDIR)$(libdir)/libvtest_ext_vcache.so
 
 uninstall-hook:
-	rm -f \
-	    $(DESTDIR)$(bindir)/vtest$(EXEEXT)	\
-	    $(DESTDIR)$(libdir)/libvtest_ext_vcache.so
+	rm -f $(DESTDIR)$(bindir)/vtest$(EXEEXT)
 
 vinylspecific_src = \
 		vtest2/src/vtc_logexp.c \
