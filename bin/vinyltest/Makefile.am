@@ -16,6 +16,8 @@ AM_CPPFLAGS = \
 
 bin_PROGRAMS =	vinyltest
 
+lib_LTLIBRARIES = libvtest_ext_vinyl.la
+
 # for -i invocation / a00000.vtc
 all-local: vtest
 
@@ -25,9 +27,18 @@ vtest: vinyltest
 install-exec-hook:
 	ln -f $(DESTDIR)$(bindir)/vinyltest$(EXEEXT) \
 	   $(DESTDIR)$(bindir)/vtest$(EXEEXT)
+	ln -sf libvtest_ext_vinyl.so \
+	   $(DESTDIR)$(libdir)/libvtest_ext_vcache.so
 
 uninstall-hook:
-	rm -f $(DESTDIR)$(bindir)/vtest$(EXEEXT)
+	rm -f \
+	    $(DESTDIR)$(bindir)/vtest$(EXEEXT)	\
+	    $(DESTDIR)$(libdir)/libvtest_ext_vcache.so
+
+vinylspecific_src = \
+		vtest2/src/vtc_logexp.c \
+		vtest2/src/vtc_vsm.c \
+		vtc_vinyl.c
 
 vinyltest_SOURCES = \
 		vtest2/src/hpack.h \
@@ -54,7 +65,6 @@ vinyltest_SOURCES = \
 		vtest2/src/vtc_http2.c \
 		vtest2/src/vtc_log.h \
 		vtest2/src/vtc_log.c \
-		vtest2/src/vtc_logexp.c \
 		vtest2/src/vtc_misc.c \
 		vtest2/src/vtc_main.c \
 		vtest2/src/vtc_process.c \
@@ -64,11 +74,10 @@ vinyltest_SOURCES = \
 		vtest2/src/vtc_subr.c \
 		vtest2/src/vtc_syslog.c \
 		vtest2/src/vtc_tunnel.c \
-		vtest2/src/vtc_vsm.c \
 		vtest2/src/vtest_api.h \
 		vtest2/lib/vudp.h \
 		vtest2/lib/vudp.c \
-		vtc_vinyl.c
+		$(vinylspecific_src)
 
 vinyltest_LDADD = \
 		$(top_builddir)/lib/libvinylapi/libvinylapi.la \
@@ -81,6 +90,17 @@ vinyltest_CFLAGS = \
 		-DVTEST_WITH_VTC_VINYL \
 		-DVTEST_WITH_VTC_VSM \
 		-DTOP_BUILDDIR='"${top_builddir}"'
+
+# would only be needed for vtest, but as both are the same atm...
+vinyltest_LDFLAGS = $(AM_LDFLAGS) -rdynamic
+
+libvtest_ext_vinyl_la_SOURCES = \
+		vtest_ext_vinyl.c \
+		$(vinylspecific_src)
+
+libvtest_ext_vinyl_la_LIBADD = $(vinyltest_LDADD)
+
+libvtest_ext_vinyl_la_CFLAGS = $(vinyltest_CFLAGS)
 
 EXTRA_DIST = $(srcdir)/vtest2/src/../tests/*.vtc \
 	$(top_srcdir)/bin/vinyltest/tests/*.vtc \

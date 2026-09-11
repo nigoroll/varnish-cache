@@ -458,8 +458,8 @@ vinyl_launch(struct vinyl *v)
 	vsb = VSB_new_auto();
 	AN(vsb);
 	VSB_cat(vsb, "cd ${pwd} &&");
-	VSB_printf(vsb, " exec %sd %s -d -n %s -i %s",
-	    v->me, v->jail, v->workdir, v->name);
+	VSB_printf(vsb, " exec vinyld %s -d -n %s -i %s",
+	    v->jail, v->workdir, v->name);
 	if (macro_isdef(NULL, "vinyld_args_prepend")) {
 		VSB_putc(vsb, ' ');
 		macro_cat(v->vl, vsb, "vinyld_args_prepend", NULL);
