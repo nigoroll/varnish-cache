@@ -91,6 +91,26 @@ vinyl_version_required() {
 }
 ])
 
+AC_DEFUN([_VINYL_VCACHE_VAR], [
+	VINYL$1="${VCACHE$1}"
+	AC_SUBST(VINYL$1)
+])# _VCACHE_ALIAS
+
+AC_DEFUN([_VINYL_ALIAS], [
+	_VINYL_VCACHE_VAR([API_BINDIR])
+	_VINYL_VCACHE_VAR([API_CFLAGS])
+	_VINYL_VCACHE_VAR([API_DATAROOTDIR])
+	_VINYL_VCACHE_VAR([API_LIBDIR])
+	_VINYL_VCACHE_VAR([API_LIBS])
+	_VINYL_VCACHE_VAR([API_PREFIX])
+	_VINYL_VCACHE_VAR([API_SBINDIR])
+	_VINYL_VCACHE_VAR([API_VCLDIR])
+	_VINYL_VCACHE_VAR([API_VMODDIR])
+	_VINYL_VCACHE_VAR([_LIBRARY_PATH])
+	_VINYL_VCACHE_VAR([_TEST_PATH])
+	_VINYL_VCACHE_VAR([_VERSION])
+])
+
 # _VCACHE_PKG_CONFIG
 # --------------------
 #
@@ -116,32 +136,32 @@ vinyl_pkg_config() {
 	if test "x$vcacheapi" = "x" ; then
 		vcacheapi="vinylapi"
 	fi
-	PKG_CHECK_MODULES([VINYLAPI], [${vcacheapi}])
-	AC_SUBST([VINYL_VERSION], [$($PKG_CONFIG --modversion ${vcacheapi})])
+	PKG_CHECK_MODULES([VCACHEAPI], [${vcacheapi}])
+	AC_SUBST([VCACHE_VERSION], [$($PKG_CONFIG --modversion ${vcacheapi})])
 
-	PKG_CHECK_VAR([VINYLAPI_PREFIX], [${vcacheapi}], [prefix])
-	PKG_CHECK_VAR([VINYLAPI_DATAROOTDIR], [${vcacheapi}], [datarootdir])
-	PKG_CHECK_VAR([VINYLAPI_LIBDIR], [${vcacheapi}], [libdir])
-	PKG_CHECK_VAR([VINYLAPI_BINDIR], [${vcacheapi}], [bindir])
-	PKG_CHECK_VAR([VINYLAPI_SBINDIR], [${vcacheapi}], [sbindir])
-	PKG_CHECK_VAR([VINYLAPI_VCLDIR], [${vcacheapi}], [vcldir])
-	PKG_CHECK_VAR([VINYLAPI_VMODDIR], [${vcacheapi}], [vmoddir])
+	PKG_CHECK_VAR([VCACHEAPI_PREFIX], [${vcacheapi}], [prefix])
+	PKG_CHECK_VAR([VCACHEAPI_DATAROOTDIR], [${vcacheapi}], [datarootdir])
+	PKG_CHECK_VAR([VCACHEAPI_LIBDIR], [${vcacheapi}], [libdir])
+	PKG_CHECK_VAR([VCACHEAPI_BINDIR], [${vcacheapi}], [bindir])
+	PKG_CHECK_VAR([VCACHEAPI_SBINDIR], [${vcacheapi}], [sbindir])
+	PKG_CHECK_VAR([VCACHEAPI_VCLDIR], [${vcacheapi}], [vcldir])
+	PKG_CHECK_VAR([VCACHEAPI_VMODDIR], [${vcacheapi}], [vmoddir])
 
 	PKG_CHECK_VAR([VMODTOOL], [${vcacheapi}], [vmodtool])
 	PKG_CHECK_VAR([VSCTOOL], [${vcacheapi}], [vsctool])
 
-	AC_SUBST([VINYL_LIBRARY_PATH],
-		[$VINYLAPI_LIBDIR])
+	AC_SUBST([VCACHE_LIBRARY_PATH],
+		[$VCACHEAPI_LIBDIR])
 
-	AC_SUBST([VINYL_TEST_PATH],
-		[$VINYLAPI_SBINDIR:$VINYLAPI_BINDIR:$PATH])
+	AC_SUBST([VCACHE_TEST_PATH],
+		[$VCACHEAPI_SBINDIR:$VCACHEAPI_BINDIR:$PATH])
 
 	dnl Inherit Vinyl Cache's prefix if undefined
 	dnl Also the libdir for multi-lib systems
 	if test "$prefix" = NONE
 	then
-		ac_default_prefix=$VINYLAPI_PREFIX
-		libdir=$VINYLAPI_LIBDIR
+		ac_default_prefix=$VCACHEAPI_PREFIX
+		libdir=$VCACHEAPI_LIBDIR
 	fi
 
 	dnl Define the VCL directory for automake
@@ -151,6 +171,8 @@ vinyl_pkg_config() {
 
 	dnl Define the VCL directory for this package
 	AC_SUBST([pkgvcldir], [\${vcldir}/\${PACKAGE}])
+
+	_VINYL_ALIAS
 }
 ])
 
@@ -161,7 +183,7 @@ AC_DEFUN([_VCACHE_CHECK_DEVEL], [
 	AC_REQUIRE([_VCACHE_PKG_CONFIG])
 
 	[_orig_cppflags=$CPPFLAGS]
-	[CPPFLAGS=$VINYLAPI_CFLAGS]
+	[CPPFLAGS=$VCACHEAPI_CFLAGS]
 
 	AC_CHECK_HEADERS([vsha256.h cache/cache.h], [],
 		[AC_MSG_ERROR([Missing Vinyl Cache development files.])])
@@ -214,10 +236,10 @@ AC_DEFUN([_VCACHE_VMOD_CONFIG], [
 	])
 
 	dnl Expose the location of the std and directors VMODs
-	AC_SUBST([VINYLAPI_VMODDIR])
+	AC_SUBST([VCACHEAPI_VMODDIR])
 
 	dnl Expose Vinyl Cache's aclocal directory to automake
-	AC_SUBST([VINYLAPI_DATAROOTDIR])
+	AC_SUBST([VCACHEAPI_DATAROOTDIR])
 
 	dnl Define the VMOD directory for libtool
 	vmoddir=$($PKG_CONFIG --define-variable=libdir=$libdir \
@@ -235,7 +257,7 @@ AC_DEFUN([_VCACHE_VMOD_CONFIG], [
 	AC_SUBST([AM_V_VMODTOOL])
 
 	dnl Substitute an alias for compatibility reasons
-	AC_SUBST([VMOD_TEST_PATH], [$VINYL_TEST_PATH])
+	AC_SUBST([VMOD_TEST_PATH], [$VCACHE_TEST_PATH])
 ])
 
 # _VCACHE_VMOD(NAME, MODE)
@@ -300,15 +322,15 @@ clean-vmod-$1:
 # to build the modules:
 #
 # - VMOD_LDFLAGS (the recommended flags to link VMODs)
-# - VMOD_TEST_PATH (an alias for VINYL_TEST_PATH)
+# - VMOD_TEST_PATH (an alias for VCACHE_TEST_PATH)
 # - VMODTOOL (to generate a VMOD's interface)
 # - vmoddir (the install prefix for VMODs)
 # - vmod_*_vcldir (the install prefix for the VMODs VCL files)
 #
 # Configuring your VMOD build with libtool can be as simple as:
 #
-#     AM_CFLAGS = $(VINYLAPI_CFLAGS)
-#     AM_LDFLAGS = $(VINYLAPI_LIBS) $(VMOD_LDFLAGS)
+#     AM_CFLAGS = $(VCACHEAPI_CFLAGS)
+#     AM_LDFLAGS = $(VCACHEAPI_LIBS) $(VMOD_LDFLAGS)
 #
 #     vmod_LTLIBRARIES = libvmod_foo.la
 #
@@ -355,14 +377,14 @@ clean-vmod-$1:
 #
 # Two notable variables are exposed from Vinyl Cache's pkg-config:
 #
-# - VINYLAPI_VMODDIR (locate vmod-std and vmod-directors in your tests)
-# - VINYLAPI_DATAROOTDIR (for when aclocal is called from a Makefile)
+# - VCACHEAPI_VMODDIR (locate vmod-std and vmod-directors in your tests)
+# - VCACHEAPI_DATAROOTDIR (for when aclocal is called from a Makefile)
 #
 # For example in your root Makefile.am:
 #
-#     ACLOCAL_AMFLAGS = -I m4 -I ${VINYLAPI_DATAROOTDIR}/aclocal
+#     ACLOCAL_AMFLAGS = -I m4 -I ${VCACHEAPI_DATAROOTDIR}/aclocal
 #
-# The VINYL_VERSION variable will be set even if the VCACHE_PREREQ macro
+# The VCACHE_VERSION variable will be set even if the VCACHE_PREREQ macro
 # wasn't called. Although many things are set up to facilitate out-of-tree
 # VMOD maintenance, initialization of autoconf, automake and libtool is
 # still the maintainer's responsibility. It cannot be avoided.
@@ -372,8 +394,8 @@ clean-vmod-$1:
 # is a minimal setup:
 #
 #     AM_TESTS_ENVIRONMENT = \
-#         PATH="$(VINYL_TEST_PATH):$(PATH)" \
-#         LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
+#         PATH="$(VCACHE_TEST_PATH):$(PATH)" \
+#         LD_LIBRARY_PATH="$(VCACHE_LIBRARY_PATH)"
 #     TEST_EXTENSIONS = .vtc
 #     VTC_LOG_COMPILER = vinyltest -v
 #     AM_VTC_LOG_FLAGS = -Dvmod_foo="$(VMOD_FOO)" -Dvmod_bar="$(VMOD_BAR)"
@@ -675,10 +697,10 @@ AC_DEFUN([VCACHE_UTILITIES], [
 # Since: Varnish 4.1.4
 #
 # Since Varnish 5.1.0:
-# - VINYL_TEST_PATH added
-# - VINYL_LIBRARY_PATH added
-# - VINYLAPI_LIBDIR added
-# - VINYLAPI_VCLDIR added
+# - VCACHE_TEST_PATH added
+# - VCACHE_LIBRARY_PATH added
+# - VCACHEAPI_LIBDIR added
+# - VCACHEAPI_VCLDIR added
 # - vcldir added
 # - pkgvcldir added
 #
@@ -692,22 +714,22 @@ AC_DEFUN([VCACHE_UTILITIES], [
 # Once the requirements are met, the following variables can be used in
 # Makefiles:
 #
-# - VINYL_TEST_PATH (for the test suite environment)
-# - VINYL_LIBRARY_PATH (for both public and private libraries)
-# - VINYL_VERSION (also available in autoconf)
+# - VCACHE_TEST_PATH (for the test suite environment)
+# - VCACHE_LIBRARY_PATH (for both public and private libraries)
+# - VCACHE_VERSION (also available in autoconf)
 #
 # The following variables are available in autoconf, read from the
 # Vinyl Cache pkg-config:
 #
-# - VINYLAPI_CFLAGS
-# - VINYLAPI_LIBS
-# - VINYLAPI_PREFIX
-# - VINYLAPI_DATAROOTDIR
-# - VINYLAPI_LIBDIR
-# - VINYLAPI_BINDIR
-# - VINYLAPI_SBINDIR
-# - VINYLAPI_VCLDIR
-# - VINYLAPI_VMODDIR
+# - VCACHEAPI_CFLAGS
+# - VCACHEAPI_LIBS
+# - VCACHEAPI_PREFIX
+# - VCACHEAPI_DATAROOTDIR
+# - VCACHEAPI_LIBDIR
+# - VCACHEAPI_BINDIR
+# - VCACHEAPI_SBINDIR
+# - VCACHEAPI_VCLDIR
+# - VCACHEAPI_VMODDIR
 # - VMODTOOL
 # - VSCTOOL
 #
@@ -730,7 +752,7 @@ AU_DEFUN([VINYL_PREREQ], [
 
 	vinyl_pkg_config
 	AC_MSG_CHECKING([Vinyl Cache])
-	vinyl_version_required ${VINYL_VERSION} m4_join([ ], $@) ||
+	vinyl_version_required ${VCACHE_VERSION} m4_join([ ], $@) ||
 		AC_MSG_ERROR([Vinyl Cache version not supported.])
 ], [Please migrate to VCACHE_REQUIRE])
 
