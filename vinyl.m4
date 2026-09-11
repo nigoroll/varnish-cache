@@ -93,9 +93,15 @@ vinyl_version_required() {
 
 # _VINYL_PKG_CONFIG
 # --------------------
+#
+# generate the vinyl_pkg_config function, which needs to be called explicitly
 AC_DEFUN([_VINYL_PKG_CONFIG], [
 	PKG_PROG_PKG_CONFIG([0.21])
-
+vinyl_pkg_config() {
+	# run only once
+	if test "x$vcldir" != "x" ; then
+		return
+	fi
 	PKG_CHECK_MODULES([VINYLAPI], [vinylapi])
 	AC_SUBST([VINYL_VERSION], [$($PKG_CONFIG --modversion vinylapi)])
 
@@ -131,6 +137,7 @@ AC_DEFUN([_VINYL_PKG_CONFIG], [
 
 	dnl Define the VCL directory for this package
 	AC_SUBST([pkgvcldir], [\${vcldir}/\${PACKAGE}])
+}
 ])
 
 # _VINYL_CHECK_DEVEL
@@ -185,6 +192,8 @@ AC_DEFUN([_VINYL_VMOD_CONFIG], [
 
 	AC_REQUIRE([AC_PROG_CPP])
 	AC_REQUIRE([AC_PROG_CPP_WERROR])
+
+	vinyl_pkg_config
 
 	AS_IF([test -z "$RST2MAN"], [
 		AC_MSG_ERROR([rst2man is needed to build VMOD manuals.])
@@ -434,6 +443,8 @@ AC_DEFUN([_VINYL_VSC_CONFIG], [
 	AC_REQUIRE([_VINYL_PKG_CONFIG])
 	AC_REQUIRE([_VINYL_CHECK_DEVEL])
 	AC_REQUIRE([_VINYL_CHECK_PYTHON])
+
+	vinyl_pkg_config
 
 	dnl Define an automake silent execution for vmodtool
 	[am__v_VSCTOOL_0='@echo "  VSCTOOL " $''@;']
@@ -702,6 +713,8 @@ AC_DEFUN([VINYL_UTILITIES], [
 AC_DEFUN([VINYL_PREREQ], [
 	AC_REQUIRE([_VINYL_PKG_CONFIG])
 	AC_REQUIRE([_VINYL_VERSION_REQUIRED])
+
+	vinyl_pkg_config
 	AC_MSG_CHECKING([Vinyl Cache])
 	vinyl_version_required ${VINYL_VERSION} m4_join([ ], $@) ||
 		AC_MSG_ERROR([Vinyl Cache version not supported.])
