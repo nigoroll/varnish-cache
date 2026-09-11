@@ -32,8 +32,8 @@ uninstall-hook:
 	rm -f $(DESTDIR)$(bindir)/vtest$(EXEEXT)
 
 vinylspecific_src = \
-		vtest2/src/vtc_logexp.c \
-		vtest2/src/vtc_vsm.c \
+		vtc_logexp.c \
+		vtc_vsm.c \
 		vtc_vinyl.c
 
 vinyltest_SOURCES = \
