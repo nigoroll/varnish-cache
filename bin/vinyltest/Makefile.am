@@ -73,6 +73,7 @@ vinyltest_SOURCES = \
 		vtest2/src/vtest_api.h \
 		vtest2/lib/vudp.h \
 		vtest2/lib/vudp.c \
+		version.h \
 		$(vinylspecific_src)
 
 vinyltest_LDADD = \
@@ -89,6 +90,17 @@ vinyltest_CFLAGS = \
 
 # would only be needed for vtest, but as both are the same atm...
 vinyltest_LDFLAGS = $(AM_LDFLAGS) -rdynamic
+
+.PHONY: version.h
+
+version.h:
+	@(cd vtest2 && git describe) >$@.tt && \
+	    (echo '#define VTEST_VERSION "'`cat $@.tt`'"' >$@.t) && \
+	    diff $@ $@.t >/dev/null 2>&1 || mv -f $@.t $@
+	@rm -f $@.t $@.tt
+
+vtest2/src/vtc_main.c: version.h
+
 
 libvtest_ext_vinyl_la_SOURCES = \
 		vtest_ext_vinyl.c \
