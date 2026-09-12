@@ -2,12 +2,16 @@
 
 include $(top_srcdir)/vtc.am
 
+scripts = \
+	vinylstatdiff \
+	vcacheize
+
 if !WITH_CONTRIB
 dist_noinst_SCRIPTS = \
-	vinylstatdiff
+	$(scripts)
 else
 dist_bin_SCRIPTS = \
-	vinylstatdiff
+	$(scripts)
 
 TESTS = @CONTRIB_TESTS@
 
