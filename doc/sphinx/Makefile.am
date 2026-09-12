@@ -170,13 +170,13 @@ VTCSYN_SRC = \
 	$(vtest2_src)/vtc_haproxy.c \
 	$(vtest2_src)/vtc_http.c \
 	$(vtest2_src)/vtc_http2.c \
-	$(vtest2_src)/vtc_logexp.c \
+	$(top_srcdir)/bin/vinyltest/vtc_logexp.c \
 	$(vtest2_src)/vtc_misc.c \
 	$(vtest2_src)/vtc_process.c \
 	$(vtest2_src)/vtc_syslog.c \
 	$(vtest2_src)/vtc_tunnel.c \
 	$(top_srcdir)/bin/vinyltest/vtc_vinyl.c \
-	$(vtest2_src)/vtc_vsm.c
+	$(top_srcdir)/bin/vinyltest/vtc_vsm.c \
 include/vtc-syntax.rst: $(srcdir)/vtc-syntax.py $(VTCSYN_SRC)
 	$(AM_V_GEN) $(PYTHON) $(srcdir)/vtc-syntax.py $(VTCSYN_SRC) > ${@}_
 	@mv -f ${@}_ ${@}
