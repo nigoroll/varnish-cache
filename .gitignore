@@ -39,6 +39,7 @@ _*
 /missing
 /stamp-h1
 /vinylapi.pc
+/vinylapi-uninstalled.pc
 TAGS
 tags
 cscope.*out
