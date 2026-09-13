@@ -10,13 +10,37 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_builddir)/include \
 	-I$(top_builddir) \
-	-I$(top_srcdir)/lib/libvgz \
-	-I$(srcdir)/vtest2/lib \
-	-I$(srcdir)/vtest2/src
+	-I$(top_srcdir)/lib/libvgz
 
-bin_PROGRAMS =	vinyltest
+AM_CFLAGS = \
+	-DVTEST_WITH_VTC_LOGEXPECT \
+	-DVTEST_WITH_VTC_VINYL \
+	-DVTEST_WITH_VTC_VSM \
+	-DTOP_BUILDDIR='"${top_builddir}"'
+
+# used in LDADD and LIBADD
+addlibs = \
+	$(top_builddir)/lib/libvinylapi/libvinylapi.la \
+	$(top_builddir)/lib/libvinyl/libvinyl.la \
+	$(top_builddir)/lib/libvgz/libvgz.la \
+	${PTHREAD_LIBS} ${NET_LIBS} ${LIBM} -ldl
+
+vinylspecific_src = \
+	vtc_logexp.c \
+	vtc_vsm.c \
+	vtc_vinyl.c
+
+EXTRA_DIST = \
+	$(top_srcdir)/bin/vinyltest/tests/*.vtc \
+	$(top_srcdir)/bin/vinyltest/tests/common.pem \
+	$(top_srcdir)/bin/vinyltest/tests/README
 
 lib_LTLIBRARIES = libvtest_ext_vinyl.la
+
+############################################################
+## vinyltest from submodule
+
+bin_PROGRAMS =	vinyltest
 
 # for -i invocation / a00000.vtc
 all-local: vtest
@@ -30,11 +54,6 @@ install-exec-hook:
 
 uninstall-hook:
 	rm -f $(DESTDIR)$(bindir)/vtest$(EXEEXT)
-
-vinylspecific_src = \
-		vtc_logexp.c \
-		vtc_vsm.c \
-		vtc_vinyl.c
 
 vinyltest_SOURCES = \
 		vtest2/src/hpack.h \
@@ -76,17 +95,13 @@ vinyltest_SOURCES = \
 		version.h \
 		$(vinylspecific_src)
 
-vinyltest_LDADD = \
-		$(top_builddir)/lib/libvinylapi/libvinylapi.la \
-		$(top_builddir)/lib/libvinyl/libvinyl.la \
-		$(top_builddir)/lib/libvgz/libvgz.la \
-		${PTHREAD_LIBS} ${NET_LIBS} ${LIBM} -ldl
+VTEST_CPPFLAGS = -I$(srcdir)/vtest2/src
 
-vinyltest_CFLAGS = \
-		-DVTEST_WITH_VTC_LOGEXPECT \
-		-DVTEST_WITH_VTC_VINYL \
-		-DVTEST_WITH_VTC_VSM \
-		-DTOP_BUILDDIR='"${top_builddir}"'
+vinyltest_CPPFLAGS = $(AM_CPPFLAGS) \
+	-I$(srcdir)/vtest2/lib \
+	$(VTEST_CPPFLAGS)
+
+vinyltest_LDADD = ${addlibs}
 
 # would only be needed for vtest, but as both are the same atm...
 vinyltest_LDFLAGS = $(AM_LDFLAGS) -rdynamic
@@ -101,19 +116,9 @@ version.h:
 
 vtest2/src/vtc_main.c: version.h
 
-
-libvtest_ext_vinyl_la_SOURCES = \
-		vtest_ext_vinyl.c \
-		$(vinylspecific_src)
-
-libvtest_ext_vinyl_la_LIBADD = $(vinyltest_LDADD)
-
-libvtest_ext_vinyl_la_CFLAGS = $(vinyltest_CFLAGS)
-
-EXTRA_DIST = $(srcdir)/vtest2/src/../tests/*.vtc \
-	$(top_srcdir)/bin/vinyltest/tests/*.vtc \
-	$(top_srcdir)/bin/vinyltest/tests/common.pem \
-	$(top_srcdir)/bin/vinyltest/tests/README \
+# this path is weird, but does seem to make sense to clean up until we remove
+# vinyltest from submodule
+EXTRA_DIST += $(srcdir)/vtest2/src/../tests/*.vtc \
 	vtest2/src/gensequences \
 	vtest2/src/sequences \
 	vtest2/src/teken.3 \
@@ -140,6 +145,20 @@ BUILT_SOURCES = \
 CLEANFILES = \
 	$(BUILT_SOURCES)		\
 	vtest
+
+############################################################
+## libvtest_ext_vinyl
+
+libvtest_ext_vinyl_la_SOURCES = \
+		vtest_ext_vinyl.c \
+		$(vinylspecific_src)
+
+libvtest_ext_vinyl_la_CPPFLAGS = $(AM_CPPFLAGS) $(VTEST_CPPFLAGS)
+
+libvtest_ext_vinyl_la_LIBADD = $(addlibs)
+
+############################################################
+## maintainer convenience
 
 .PHONY: flint flint-local
 
