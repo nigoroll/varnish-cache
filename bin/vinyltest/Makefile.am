@@ -94,10 +94,10 @@ nodist_vinyltest_SOURCES = \
 		vtest2/src/vtest_api.h \
 		vtest2/lib/vudp.h \
 		vtest2/lib/vudp.c \
-		version.h \
+		vtest2/version.h \
 		$(vinylspecific_src)
 
-VTEST_CPPFLAGS += -I$(srcdir)/vtest2/src
+VTEST_CPPFLAGS += -I$(srcdir)/vtest2/src -I$(srcdir)/vtest2
 
 vinyltest_CPPFLAGS = $(AM_CPPFLAGS) \
 	-I$(srcdir)/vtest2/lib \
@@ -110,15 +110,10 @@ vinyltest_LDADD = ${addlibs}
 # would only be needed for vtest, but as both are the same atm...
 vinyltest_LDFLAGS = $(AM_LDFLAGS) -rdynamic
 
-.PHONY: version.h
+vtest2/version.h:
+	(cd vtest2 && make version.h)
 
-version.h:
-	@(cd vtest2 && git describe) >$@.tt && \
-	    (echo '#define VTEST_VERSION "'`cat $@.tt`'"' >$@.t) && \
-	    diff $@ $@.t >/dev/null 2>&1 || mv -f $@.t $@
-	@rm -f $@.t $@.tt
-
-vtest2/src/vtc_main.c: version.h
+vtest2/src/vtc_main.c: vtest2/version.h
 
 # this path is weird, but does seem to make sense to clean up until we remove
 # vinyltest from submodule
@@ -127,7 +122,8 @@ EXTRA_DIST += $(srcdir)/vtest2/src/../tests/*.vtc \
 	vtest2/src/sequences \
 	vtest2/src/teken.3 \
 	vtest2/src/huffman_gen.py \
-	vtest2/src/tbl/vhp_huffman.h
+	vtest2/src/tbl/vhp_huffman.h \
+	vtest2/version.h
 
 teken.c: teken_state.h
 
@@ -144,7 +140,8 @@ vtc_h2_dectbl.h: $(srcdir)/vtest2/src/huffman_gen.py $(srcdir)/vtest2/src/tbl/vh
 
 BUILT_SOURCES = \
 	teken_state.h \
-	vtc_h2_dectbl.h
+	vtc_h2_dectbl.h \
+	vtest2/version.h
 
 CLEANFILES = \
 	$(BUILT_SOURCES)		\

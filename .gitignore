@@ -53,7 +53,6 @@ cscope.*out
 /bin/vinyld/vhp_hufdec.h
 /bin/vinyld/vhp_gen_hufdec
 /bin/vinyltest/vtc_h2_dectbl.h
-/bin/vinyltest/version.h
 /include/vcl.h
 /include/vrt_obj.h
 /include/vmod_abi.h
