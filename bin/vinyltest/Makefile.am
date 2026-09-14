@@ -37,10 +37,11 @@ EXTRA_DIST = \
 
 lib_LTLIBRARIES = libvtest_ext_vinyl.la
 
+bin_PROGRAMS =	vinyltest
+
+if HAVE_VTEST
 ############################################################
 ## vinyltest from submodule
-
-bin_PROGRAMS =	vinyltest
 
 # for -i invocation / a00000.vtc
 all-local: vtest
@@ -55,7 +56,7 @@ install-exec-hook:
 uninstall-hook:
 	rm -f $(DESTDIR)$(bindir)/vtest$(EXEEXT)
 
-vinyltest_SOURCES = \
+nodist_vinyltest_SOURCES = \
 		vtest2/src/hpack.h \
 		vtest2/src/cmds.h \
 		vtest2/src/vtc.h \
@@ -95,11 +96,13 @@ vinyltest_SOURCES = \
 		version.h \
 		$(vinylspecific_src)
 
-VTEST_CPPFLAGS = -I$(srcdir)/vtest2/src
+VTEST_CPPFLAGS += -I$(srcdir)/vtest2/src
 
 vinyltest_CPPFLAGS = $(AM_CPPFLAGS) \
 	-I$(srcdir)/vtest2/lib \
 	$(VTEST_CPPFLAGS)
+
+vinyltest_CFLAGS = $(AM_CFLAGS)
 
 vinyltest_LDADD = ${addlibs}
 
@@ -146,16 +149,42 @@ CLEANFILES = \
 	$(BUILT_SOURCES)		\
 	vtest
 
+else !HAVE_VTEST
+############################################################
+## external vtest - vinyltest wrapper
+
+# libdummy is to get the libtool wrapper for in-tree LD_LIBRARY_PATH setting
+lib_LTLIBRARIES += libdummy.la
+
+libdummy_la_SOURCES = libdummy.c
+
+nodist_vinyltest_SOURCES = vinyltest.c
+vinyltest_LDADD = libdummy.la
+vinyltest_CPPFLAGS = $(AM_CPPFLAGS) $(VTEST_CPPFLAGS)
+vinyltest_CFLAGS = $(AM_CFLAGS) -DLIBDIR=\"${libdir}\"
+
+endif !HAVE_VTEST
+
 ############################################################
 ## libvtest_ext_vinyl
 
 libvtest_ext_vinyl_la_SOURCES = \
 		vtest_ext_vinyl.c \
+		vtest_ext_vinyl.h \
 		$(vinylspecific_src)
 
 libvtest_ext_vinyl_la_CPPFLAGS = $(AM_CPPFLAGS) $(VTEST_CPPFLAGS)
 
 libvtest_ext_vinyl_la_LIBADD = $(addlibs)
+
+############################################################
+## automake
+##
+## automake (rightfully) includes all sources by default, but for the vtest
+## migration, we really only want it to include what it has
+
+EXTRA_DIST += $(nodist_vinyltest_SOURCES)
+
 
 ############################################################
 ## maintainer convenience
