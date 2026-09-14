@@ -28,7 +28,8 @@ addlibs = \
 vinylspecific_src = \
 	vtc_logexp.c \
 	vtc_vsm.c \
-	vtc_vinyl.c
+	vtc_vinyl.c \
+	vtest_ext_vinyl_builtwith.c
 
 EXTRA_DIST = \
 	$(top_srcdir)/bin/vinyltest/tests/*.vtc \
