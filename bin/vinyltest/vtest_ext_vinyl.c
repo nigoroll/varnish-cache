@@ -53,4 +53,6 @@ register_vinyl_top_cmds(void)
 #ifdef PACKAGE_BRANCH
         extmacro_def("pkg_branch", NULL, PACKAGE_BRANCH);
 #endif
+
+	i_mode_add(top_builddir, "bin", "vinyl", "");
 }
