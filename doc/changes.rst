@@ -35,14 +35,59 @@ individual releases. These documents are updated as part of the
 release process.
 
 ============================
-Vinyl Cache X.Y (unreleased)
+Vinyl Cache 9.1 (unreleased)
 ============================
 
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
 
+.. _Supporting multiple Vinyl Cache based projects: https://vinyl-cache.org/docs/trunk/reference/vmod.html#supporting-multiple-vinyl-cache-based-projects
+.. _vtest changes: https://vinyl-cache.org/docs/trunk/reference/vmod.html#id2
+.. _#4398: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4398
+.. _#4537: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4537
+
+* Vinyl Cache can now be built without the vtest2 git submodule and instead with
+  an externally provided vtest program, as installed by running
+  ``DESTDIR=/prefix make install`` in the Vtest2 repository
+  https://code.vinyl-cache.org/vtest/VTest2 (`#4398`_)
+
+  The Vinyl Cache specific test commands `vinyl`, `logexpect` and `vsm` have
+  been moved to a vtest extension.
+
+  For a build *with* the submodule, both a ``vinyltest`` program and ``vcache``
+  symlink continue to be built and installed as monolithic binaries which always
+  include the extension.
+
+  For a build *without* the submodule (with an external ``vtest`` program), a
+  ``vinyltest`` wrapper is built, which sets up the right command line arguments
+  and calls ``vtest``.
+
+  This is done to hopefully achieve a smooth transition, until we plan to
+  eventually remove ``vinyltest`` and wholly replace it with ``vtest -E
+  libvtest_ext_vinyl.so`` (or the equivalent for automake), which is what the
+  ``vinyltest`` wrapper already calls.
+
+* The following vtest ``feature`` tests have been moved to ``vcache_builtwith``
+  in the Vinyl Cache VTest extension: ``64bit``, ``persistent_storage``,
+  ``coverage``, ``asan``, ``msan``, ``tsan``, ``ubsan``, ``sanitizer``,
+  ``workspace_emulator`` and ``witness``.
+
+* We added infrastructure to easily build VMODs for multiple Vinyl Cache based
+  projects. Besides changing how VMOD builds discover such projects and
+  configure themselves appropriately, we also added the ``vcache`` command to
+  the Vinyl Cache VTest extension. (`#4537`_)
+
+  With the same goal, ``cache/cache_vinyld.h`` has been renamed to
+  ``cache/cache_int.h``.
+
+  See `Supporting multiple Vinyl Cache based projects`_ for details on how to
+  migrate.
+
+* The ``vinyl-legacy.m4`` macro collection for VMOD builds has been removed.
+  VMODs should migrate to using the macros from ``vinyl.m4``.
+
 * The argument to ``std.rollback()`` is now obsolete and ignored, the appropriate
-  headers to be rolled back is now inferred from the call site. This also fixes
+  headers to be rolled back are now inferred from the call site. This also fixes
   a panic when ``resp`` or ``beresp`` was passed. (`4566`_)
 
 .. _4566: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4566
@@ -87,8 +132,11 @@ Vinyl Cache X.Y (unreleased)
 
 .. _4538: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4538
 
-* VCC now refuses empty quoted header names as in ``req.http.""``, which
-  could previously result in a C compiler error. (`4577`_)
+* A previous fix regarding ``false``/``true`` defaults for VMOD function
+  ``BOOL`` arguments was incomplete and has been corrected. (`4452`_)
+
+* VCC now refuses empty quoted header names as in ``req.http.""``, which could
+  previously result in a C compiler error. (`4577`_)
 
 .. _4577: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4577
 
@@ -99,6 +147,13 @@ Vinyl Cache X.Y (unreleased)
   (`4583`_)
 
 .. _4583: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4583
+
+* In the Vinyl Cache VTest extension, the log output of SLT_F_UNSAFE log records
+  has been changed to escape unprintable characters as ``\xFF``, *FF* being the
+  hexadecimal representation of the respective character.
+
+* A simple perl script ``tools/vtclog2logexp.sh`` has been added to help create
+  ``logexp`` commands for ``vtest`` from its output.
 
 * HTTP/1 messages rejected for invalid body framing now get a ``BogoHeader``
   log record naming the offending field.
@@ -115,15 +170,27 @@ Vinyl Cache X.Y (unreleased)
   it was originally received. In ``vrt.h``, ``struct vrt_ctx`` gained the
   ``http_req0`` member and ``enum gethdr_e`` gained ``HDR_REQ0``.
 
-* The lock witness facility is now disabled at compile time by default and
-  needs to be enabled with the ``--enable-witness`` ``configure`` option.
-  (`4574`_)
+* The lock witness facility is now disabled at compile time by default and needs
+  to be enabled with the ``--enable-witness`` ``configure`` option. (`4574`_).
+  Note that even if enabled at compile time, it still *also* needs to be
+  activated at runtime using ``param.set debug +witness`` as before.
 
 .. _4574: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4574
 
 * The ``LBODY_SET`` and ``LBODY_ADD`` compatibility defines and the ``struct
   VCL_conf`` and ``struct VSC_main`` declarations have been removed from
   ``vrt.h``. ``struct vmod_data`` has moved to ``vmod_abi.h``.
+
+* The ``vtc`` VMOD gained the functions ``storage_revert()``,
+  ``storage_full()``, ``storage_lessspace()``, ``storage_maxspace()``, and
+  ``storage_frag()`` to simulate error conditions and allocation behavior of
+  storage engines.
+
+  The ``debug`` storage engine lost all parameters except ``dinit`` and
+  ``dopen``, as these are replaced by the above now.
+
+  Likewise, the ``debug.fragfetch`` helper parameter has been removed,
+  ``vtc.storage_frag()`` fills its place.
 
 * Fixed a manager abort when the worker process failed to cool a VCL being
   discarded, which also prevented ``auto_restart`` from taking effect.
@@ -299,6 +366,10 @@ Vinyl Cache X.Y (unreleased)
 
 .. _4504: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/issues/4504
 
+* When the worker process terminates, ``vinyld`` now reports resource usage in
+  the ``Child dies usr=%f sys=%f`` message, ``usr`` and ``sys`` being the "user"
+  and "system" time used as reported by ``getrusage()``.
+
 * The ``synthetic()`` VCL action has been removed. Since Varnish Cache 5.0.0,
   body data can be created by setting ``beresp.body`` in ``vcl_backend_error
   {}`` and by setting ``resp.body`` in ``vcl_synth {}``, and these continue to
@@ -350,13 +421,13 @@ Vinyl Cache X.Y (unreleased)
 .. _4492: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4492
 
 * ``vinyl{log,ncsa,hist,top}`` all gained the ``-0`` dry-run argument that
-  allows validating command line arguments before running them for real. 
+  allows validating command line arguments before running them for real.
   (`4493`_)
 
 .. _4493: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4493
 
 * A new ``resp.storage`` VCL variable that is available from ``vcl_synth{}``
-  was added to select which storage the synth response body gets created on. 
+  was added to select which storage the synth response body gets created on.
   (`4358`_)
 
 .. _4358: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4358
