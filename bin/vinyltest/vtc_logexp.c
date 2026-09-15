@@ -59,10 +59,10 @@
  *         Name the logexpect thread, it must start with 'l'.
  *
  * \-v id
- *         Specify the varnish instance to use (most of the time, id=v1).
+ *         Specify the vinyl instance to use (most of the time, id=v1).
  *
  * \-g <session|request|vxid|raw
- *         Decide how records are grouped, see -g in ``man varnishlog`` for more
+ *         Decide how records are grouped, see -g in ``man vinyllog`` for more
  *         information.
  *
  * \-d <0|1>
@@ -89,7 +89,7 @@
  * \-run
  *        Equivalent to "-start -wait".
  *
- * VSL arguments (similar to the varnishlog options):
+ * VSL arguments (similar to the vinyllog options):
  *
  * \-C
  *         Use caseless regex
@@ -146,7 +146,7 @@
  *
  * abort specification:
  *
- * abort(3) varnishtest, intended to help debugging of the VSL client library
+ * abort(3) vinyltest, intended to help debugging of the VSL client library
  * itself.
  */
 

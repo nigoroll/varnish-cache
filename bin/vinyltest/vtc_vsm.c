@@ -200,7 +200,7 @@ vsm_expect_status(struct vtc_vsm *m, const char *exp)
 
 /* SECTION: vsm vsm
  *
- * Interact with the shared memory of a varnish instance.
+ * Interact with the shared memory of a vinyl instance.
  *
  * To define a VSM consumer, use this syntax::
  *
@@ -212,15 +212,15 @@ vsm_expect_status(struct vtc_vsm *m, const char *exp)
  *         Identify the VSM consumer, it must starts with 'm'.
  *
  * \-n STRING
- *         Choose the working directory of the varnish instance. By default
+ *         Choose the working directory of the vinyl instance. By default
  *         a VSM consumer connects to ``${v1_name}``.
  *
  * \-attach
- *         Attach to a new varnish instance. Implicitly detach from the
- *         current varnish instance if applicable.
+ *         Attach to a new vinyl instance. Implicitly detach from the
+ *         current vinyl instance if applicable.
  *
  * \-detach
- *         Detach from the current varnish instance.
+ *         Detach from the current vinyl instance.
  *
  * \-expect-status STRING
  *         Check that the status of VSM matches the list of status flags from
@@ -237,7 +237,7 @@ vsm_expect_status(struct vtc_vsm *m, const char *exp)
  *         - ``wrk-changed``
  *         - ``wrk-restarted``
  *
- *         Expecting a status automatically attaches to the varnish instance
+ *         Expecting a status automatically attaches to the vinyl instance
  *         if that was not already the case.
  */
 
