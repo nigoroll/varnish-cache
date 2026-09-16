@@ -54,7 +54,7 @@ Vinyl Cache 9.1 (unreleased)
   The Vinyl Cache specific test commands `vinyl`, `logexpect` and `vsm` have
   been moved to a vtest extension.
 
-  For a build *with* the submodule, both a ``vinyltest`` program and ``vcache``
+  For a build *with* the submodule, both a ``vinyltest`` program and ``vtest``
   symlink continue to be built and installed as monolithic binaries which always
   include the extension.
 
@@ -83,10 +83,10 @@ Vinyl Cache 9.1 (unreleased)
   See `Supporting multiple Vinyl Cache based projects`_ for details on how to
   migrate.
 
-  Taking the opportunty of a major change, we also changed the maxmimum version
-  in the VCACHE_REQUIRE and VINYL_PREREQ macros from inclusive to exclusive. So
-  VCACHE_REQUIRE([vinyl], [9.0.0], [9.1.0]) no longer means "9.0.x OR 9.1.0" but
-  rather, as one would probably expect, "9.0.x".
+  We also fixed the maxmimum version check in the ``VCACHE_REQUIRE`` and
+  ``VINYL_PREREQ`` macros from inclusive to exclusive, which matches the
+  original ``VARNISH_PREREQ`` documentation. So ``VCACHE_REQUIRE([vinyl],
+  [9.0.0], [9.1.0])`` no longer implements "9.0.x OR 9.1.0" but rather "9.0.x".
 
 * The ``vinyl-legacy.m4`` macro collection for VMOD builds has been removed.
   VMODs should migrate to using the macros from ``vinyl.m4``.
@@ -431,9 +431,8 @@ Vinyl Cache 9.1 (unreleased)
 
 .. _4493: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4493
 
-* A new ``resp.storage`` VCL variable that is available from ``vcl_synth{}``
-  was added to select which storage the synth response body gets created on.
-  (`4358`_)
+* A new ``resp.storage`` VCL variable available from ``vcl_synth{}`` was added
+  to select which storage the synth response body gets created on. (`4358`_)
 
 .. _4358: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4358
 
