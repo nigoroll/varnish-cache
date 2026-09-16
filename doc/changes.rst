@@ -34,12 +34,17 @@ http://vinyl-cache.org/docs/trunk/whats-new/index.html and via
 individual releases. These documents are updated as part of the
 release process.
 
-============================
-Vinyl Cache 9.1 (unreleased)
-============================
+==============================
+Vinyl Cache 9.1.0 (2026-09-16)
+==============================
 
 .. PLEASE keep this roughly in commit order as shown by git-log / tig
    (new to old)
+
+* A workspace buffer overflow vulnerability was fixed in the `.upper()` and
+  `.lower()` VCL string type methods. (VSV00020_)
+
+.. _VSV00020: https://vinyl-cache.org/security/VSV00020.html
 
 .. _Supporting multiple Vinyl Cache based projects: https://vinyl-cache.org/docs/trunk/reference/vmod.html#supporting-multiple-vinyl-cache-based-projects
 .. _vtest changes: https://vinyl-cache.org/docs/trunk/reference/vmod.html#id2

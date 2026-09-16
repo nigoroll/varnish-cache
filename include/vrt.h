@@ -46,7 +46,7 @@
 #  error "include vdef.h before vrt.h"
 #endif
 
-#define VRT_MAJOR_VERSION	23U
+#define VRT_MAJOR_VERSION	24U
 
 #define VRT_MINOR_VERSION	0U
 
@@ -57,7 +57,7 @@
  * Whenever something is deleted or changed in a way which is not
  * binary/load-time compatible, increment MAJOR version
  *
- * NEXT (2026-09-15)
+ * 24.0 (2026-09-16)
  *	VRT_Rollback() no longer takes a VCL_HTTP argument
  *	struct vmod_data has moved to vmod_abi.h
  *	enum gethdr_e gained a new HDR_REQ0 value

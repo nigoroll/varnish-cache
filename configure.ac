@@ -4,7 +4,7 @@ Copyright (c) 2006-2026 Varnish Software
 Copyright 2010-2026 UPLEX - Nils Goroll Systemoptimierung
 Copyright 2026 The Vinyl Cache Project])
 AC_REVISION([$Id$])
-AC_INIT([Vinyl Cache], [trunk], [vinyl-dev@vinyl-cache.org], [vinyl-cache])
+AC_INIT([Vinyl Cache], [9.1.0], [vinyl-dev@vinyl-cache.org], [vinyl-cache])
 AC_CONFIG_SRCDIR(include/miniobj.h)
 
 AC_CONFIG_HEADERS([config.h])
