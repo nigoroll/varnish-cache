@@ -728,7 +728,7 @@ AU_DEFUN([VINYL_PREREQ], [
 
 	vinyl_pkg_config
 	AC_MSG_CHECKING([Vinyl Cache])
-	vinyl_version_required ${VCACHE_VERSION} m4_join([ ], $@) ||
+	vinyl_version_required ${VCACHE_VERSION} m4_map_args_sep([m4_normalize(], [)], [ ], $@) ||
 		AC_MSG_ERROR([Vinyl Cache version not supported.])
 ], [Please migrate to VCACHE_REQUIRE])
 
