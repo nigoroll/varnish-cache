@@ -210,11 +210,11 @@ instances.
 A simple perl script ``tools/vtclog2logexp.sh`` has been added to help create
 ``logexp`` commands for ``vtest`` from its output.
 
-Changes for developers VMOD authors and VMOD packagers
-======================================================
+Changes for VMOD authors and VMOD packagers
+===========================================
 
 VMOD builds
------------
+~~~~~~~~~~~
 
 We added infrastructure to easily build VMODs for multiple Vinyl Cache based
 projects. Besides changing how VMOD builds discover such projects and configure
@@ -232,13 +232,13 @@ The ``vinyl-legacy.m4`` macro collection for VMOD builds has been removed. VMODs
 should migrate to using the macros from ``vinyl.m4``.
 
 API changes
------------
+~~~~~~~~~~~
 
 In ``vrt.h``, ``struct vrt_ctx`` gained the ``http_req0`` member and ``enum
 gethdr_e`` gained ``HDR_REQ0``.
 
 VMOD vtc
---------
+~~~~~~~~
 
 The ``vtc`` VMOD gained the functions ``storage_revert()``, ``storage_full()``,
 ``storage_lessspace()``, ``storage_maxspace()``, and ``storage_frag()`` to
