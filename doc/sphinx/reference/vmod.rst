@@ -1131,7 +1131,7 @@ So use it under competent supervision.
 After a successful migration, the only thing left for the VMOD author to do is
 to appropriately adjust the ``VCACHE_REQUIRE()`` macro in ``configure.ac`` with
 the supported VCache flavors and their respective minimum and optionally maximum
-supported versions.
+(exlusive) supported versions.
 
 An example
 ----------

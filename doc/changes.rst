@@ -83,6 +83,11 @@ Vinyl Cache 9.1 (unreleased)
   See `Supporting multiple Vinyl Cache based projects`_ for details on how to
   migrate.
 
+  Taking the opportunty of a major change, we also changed the maxmimum version
+  in the VCACHE_REQUIRE and VINYL_PREREQ macros from inclusive to exclusive. So
+  VCACHE_REQUIRE([vinyl], [9.0.0], [9.1.0]) no longer means "9.0.x OR 9.1.0" but
+  rather, as one would probably expect, "9.0.x".
+
 * The ``vinyl-legacy.m4`` macro collection for VMOD builds has been removed.
   VMODs should migrate to using the macros from ``vinyl.m4``.
 
