@@ -105,6 +105,7 @@ vinyl_version_required() {
 		return 1
 	])
 
+	dnl XXX TODO: should probably use AS_IF()
 	ok="x"
 	if test $[]# -gt 2 ; then
 		AS_VERSION_COMPARE($[]1, $[]3, [ok="yes"], [ok="no"], [ok="no"])
