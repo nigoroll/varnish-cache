@@ -1,18 +1,14 @@
-**Note: This is a working document for a future release, with running
-updates for changes in the development branch. For changes in the
-released versions of Vinyl, see:** :ref:`whats-new-index`
+.. _whatsnew_changes_9.1:
 
-.. _whatsnew_changes_CURRENT:
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Changes in Vinyl Cache **$NEXT_RELEASE**
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Changes in Vinyl Cache 9.1.0
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 This release can be summarized as **performance improvements, improved protocol
 handling and bugfixes**. We tackled some long standing issues and have achieved
 remarkable performance improvements in some specific areas.
 
-When upgrading, we strongly recommend reading :ref:`whatsnew_upgrading_CURRENT`,
+When upgrading, we strongly recommend reading :ref:`whatsnew_upgrading_9.1`,
 because some changes should not remain unnoticed. We did not consider any of
 them breaking enough to warrant a major version bump, but they might sill be
 relevant.
@@ -168,7 +164,7 @@ close reason counters that are a subset of ``sc_*`` session counters, as well
 as the equivalent per-backend ``VBE.*.closed``, ``VBE.*.closed_err`` and
 close reason counters.
 
-.. _whatsnew_changes_CURRENT_vtest:
+.. _whatsnew_changes_9.1_vtest:
 
 vinyltest / vtest
 =================
@@ -253,7 +249,7 @@ Likewise, the ``debug.fragfetch`` helper parameter has been removed,
 Changes for Vinyl Cache package maintainers
 ===========================================
 
-Please read `whatsnew_changes_CURRENT_vtest`_. We now encourage you to package
+Please read `whatsnew_changes_9.1_vtest`_. We now encourage you to package
 ``vtest`` separately and package Vinyl Cache without the bundled ``vtest`` but,
 for the time being, with the ``vinyltest`` wrapper.
 
