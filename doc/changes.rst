@@ -232,7 +232,7 @@ Vinyl Cache 9.1 (unreleased)
   allocating the private pointer. This changes the VDP api in that a VDP that
   returns non-zero from its ``.init()`` callback will no longer see its
   ``.fini()`` method called, which implies that all failure scenarios during
-  ``.init()`` must clen up any allocated data before returning. (`4539`_)
+  ``.init()`` must clean up any allocated data before returning. (`4539`_)
 
 .. _4539: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls/4539
 
