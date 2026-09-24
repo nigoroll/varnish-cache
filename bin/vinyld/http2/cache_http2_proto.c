@@ -1574,7 +1574,7 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 		h2->sess->t_idle = VTIM_real();
 		h2e = h2_sweep(wrk, h2, NULL);
 
-		if (h2e == NULL)
+		if (h2e == NULL && h2->open_streams == 0)
 			h2e = H2CE_NO_ERROR;
 		break;
 	default:
@@ -1590,6 +1590,7 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 	}
 
 	if (hs != HTC_S_COMPLETE) {
+		HTC_RxPipeline(h2->htc, h2->htc->rxbuf_b);
 		return (1);
 	}
 
