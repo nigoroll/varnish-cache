@@ -84,9 +84,9 @@ h2_cond_wait(pthread_cond_t *cond, struct h2_sess *h2, struct h2_req *r2)
 	 * that the stream reached the h2_window_timeout via the lock and
 	 * force it to log it.
 	 */
-	h2e = h2_stream_tmo(h2, r2, now);
+	h2e = h2_stream_tmo(h2, r2, now, NULL);
 	if (h2e == NULL && r == ETIMEDOUT) {
-		h2e = h2_stream_tmo(h2, r2, NAN);
+		h2e = h2_stream_tmo(h2, r2, NAN, NULL);
 		AN(h2e);
 	}
 

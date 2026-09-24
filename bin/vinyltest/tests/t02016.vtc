@@ -14,6 +14,9 @@ vinyl v1 -vcl+backend {
 	}
 } -start
 
+# make sure we do not run into a session timeout when vtc executes slowly
+vinyl v1 -cliok "param.set timeout_idle 60"
+
 # coverage for send_timeout with c1
 
 vinyl v1 -cliok "param.set send_timeout 1"

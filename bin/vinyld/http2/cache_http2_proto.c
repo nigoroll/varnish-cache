@@ -1364,8 +1364,9 @@ h2_procframe(struct worker *wrk, struct h2_sess *h2, h2_frame h2f)
 }
 
 h2_error
-h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now)
+h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now, vtim_real *due)
 {
+	vtim_real t;
 
 	CHECK_OBJ_NOTNULL(h2, H2_SESS_MAGIC);
 	CHECK_OBJ_NOTNULL(r2, H2_REQ_MAGIC);
@@ -1398,16 +1399,28 @@ h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now)
 		return (H2SE_CANCEL);
 	}
 
+	if (due == NULL)
+		return (NULL);
+
+#define deadline(ref, var, add)				\
+	if ((var) != 0 && ((t = (var) + (add)) < ref))	\
+		ref = t
+
+	deadline(*due, r2->t_winupd, cache_param->h2_window_timeout);
+	deadline(*due, r2->t_send, SESS_TMO(h2->sess, send_timeout));
+
+#undef deadline
+
 	return (NULL);
 }
 
 static h2_error
-h2_stream_tmo_unlocked(struct h2_sess *h2, const struct h2_req *r2)
+h2_stream_tmo_unlocked(struct h2_sess *h2, const struct h2_req *r2, vtim_real *due)
 {
 	h2_error h2e;
 
 	Lck_Lock(&h2->sess->mtx);
-	h2e = h2_stream_tmo(h2, r2, h2->sess->t_idle);
+	h2e = h2_stream_tmo(h2, r2, h2->sess->t_idle, due);
 	Lck_Unlock(&h2->sess->mtx);
 
 	return (h2e);
@@ -1418,19 +1431,14 @@ h2_stream_tmo_unlocked(struct h2_sess *h2, const struct h2_req *r2)
  * streams, and checking if the session is timed out.
  */
 static h2_error
-h2_sweep(struct worker *wrk, struct h2_sess *h2)
+h2_sweep(struct worker *wrk, struct h2_sess *h2, vtim_real *due)
 {
 	struct h2_req *r2, *r22;
 	h2_error h2e, tmo;
-	vtim_real now;
 
 	ASSERT_RXTHR(h2);
 
 	h2e = h2->error;
-	now = VTIM_real();
-	if (h2e == NULL && h2->open_streams == 0 &&
-	    h2->sess->t_idle + cache_param->timeout_idle < now)
-		h2e = H2CE_NO_ERROR;
 
 	h2->do_sweep = 0;
 	VTAILQ_FOREACH_SAFE(r2, &h2->streams, list, r22) {
@@ -1455,7 +1463,7 @@ h2_sweep(struct worker *wrk, struct h2_sess *h2)
 			/* FALLTHROUGH */
 		case H2_S_CLOS_LOC:
 		case H2_S_OPEN:
-			tmo = h2_stream_tmo_unlocked(h2, r2);
+			tmo = h2_stream_tmo_unlocked(h2, r2, due);
 			if (h2e == NULL)
 				h2e = tmo;
 			break;
@@ -1513,6 +1521,7 @@ int
 h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 {
 	enum htc_status_e hs;
+	vtim_real due;
 	h2_frame h2f;
 	h2_error h2e;
 	const char *s, *r;
@@ -1525,10 +1534,29 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 		return (0);
 	}
 
+	due = h2->sess->t_idle + SESS_TMO(h2->sess, timeout_idle);
+	h2e = h2_sweep(wrk, h2, &due);
+
+        /*
+         * due is now the next expiry of: timeout_idle, h2_window_timeout,
+         * send_timeout
+         *
+         * we add 2ms to ensure the read does not return too early for the
+         * HTC_S_TIMEOUT sweep to hit the same expiring timeout, becuase
+         * HTC_RxStuff uses poll(), which has a granularity of 1ms.
+         */
+        due += 0.002;
+
+        if (h2e != NULL && h2e->connection) {
+		h2->error = h2e;
+		h2_tx_goaway(wrk, h2, h2e);
+		return (0);
+	}
+
 	h2->t1 = NAN;
 	VTCP_blocking(*h2->htc->rfd);
 	hs = HTC_RxStuff(h2->htc, h2_frame_complete, &h2->t1, NULL, NAN,
-	    VTIM_real() + 0.5, NAN, h2->local_settings.max_frame_size + 9);
+	    due, NAN, h2->local_settings.max_frame_size + 9);
 
 	h2e = NULL;
 	switch (hs) {
@@ -1539,12 +1567,14 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 	case HTC_S_COMPLETE:
 		h2->sess->t_idle = VTIM_real();
 		if (h2->do_sweep)
-			h2e = h2_sweep(wrk, h2);
+			h2e = h2_sweep(wrk, h2, NULL);
 		break;
 	case HTC_S_TIMEOUT:
-		//// #4279
-		// h2_htc_debug(hs, h2);
-		h2e = h2_sweep(wrk, h2);
+		h2->sess->t_idle = VTIM_real();
+		h2e = h2_sweep(wrk, h2, NULL);
+
+		if (h2e == NULL)
+			h2e = H2CE_NO_ERROR;
 		break;
 	default:
 		HTC_Status(hs, &s, &r);
@@ -1553,14 +1583,12 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 	}
 
 	if (h2e != NULL && h2e->connection) {
-		HTC_RxPipeline(h2->htc, h2->htc->rxbuf_b);
 		h2->error = h2e;
 		h2_tx_goaway(wrk, h2, h2e);
 		return (0);
 	}
 
 	if (hs != HTC_S_COMPLETE) {
-		HTC_RxPipeline(h2->htc, h2->htc->rxbuf_b);
 		return (1);
 	}
 
