@@ -1550,6 +1550,7 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
         if (h2e != NULL && h2e->connection) {
 		h2->error = h2e;
 		h2_tx_goaway(wrk, h2, h2e);
+		WS_ReleaseP(h2->ws, h2->htc->rxbuf_b);
 		return (0);
 	}
 
