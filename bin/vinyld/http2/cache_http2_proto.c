@@ -1366,7 +1366,6 @@ h2_procframe(struct worker *wrk, struct h2_sess *h2, h2_frame h2f)
 h2_error
 h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now)
 {
-	h2_error h2e = NULL;
 
 	CHECK_OBJ_NOTNULL(h2, H2_SESS_MAGIC);
 	CHECK_OBJ_NOTNULL(r2, H2_REQ_MAGIC);
@@ -1389,17 +1388,17 @@ h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now)
 	    now - r2->t_winupd > cache_param->h2_window_timeout)) {
 		VSLb(h2->vsl, SLT_Debug,
 		     "H2: stream %u: Hit h2_window_timeout", r2->stream);
-		h2e = H2SE_BROKE_WINDOW;
+		return (H2SE_BROKE_WINDOW);
 	}
 
-	if (h2e == NULL && r2->t_send != 0 &&
+	if (r2->t_send != 0 &&
 	    now - r2->t_send > SESS_TMO(h2->sess, send_timeout)) {
 		VSLb(h2->vsl, SLT_Debug,
 		     "H2: stream %u: Hit send_timeout", r2->stream);
-		h2e = H2SE_CANCEL;
+		return (H2SE_CANCEL);
 	}
 
-	return (h2e);
+	return (NULL);
 }
 
 static h2_error
