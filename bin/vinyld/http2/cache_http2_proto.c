@@ -1385,14 +1385,14 @@ h2_stream_tmo(struct h2_sess *h2, const struct h2_req *r2, vtim_real now)
 		return (NULL);
 
 	if (isnan(now) || (r2->t_winupd != 0 &&
-	    now - r2->t_winupd > cache_param->h2_window_timeout)) {
+	    now > r2->t_winupd + cache_param->h2_window_timeout)) {
 		VSLb(h2->vsl, SLT_Debug,
 		     "H2: stream %u: Hit h2_window_timeout", r2->stream);
 		return (H2SE_BROKE_WINDOW);
 	}
 
 	if (r2->t_send != 0 &&
-	    now - r2->t_send > SESS_TMO(h2->sess, send_timeout)) {
+	    now > r2->t_send + SESS_TMO(h2->sess, send_timeout)) {
 		VSLb(h2->vsl, SLT_Debug,
 		     "H2: stream %u: Hit send_timeout", r2->stream);
 		return (H2SE_CANCEL);
