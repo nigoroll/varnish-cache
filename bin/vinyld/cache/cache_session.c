@@ -638,9 +638,6 @@ SES_DeleteHS(struct sess *sp, enum htc_status_e hs, vtim_real now)
 	case HTC_S_JUNK:
 		reason = SC_RX_JUNK;
 		break;
-	case HTC_S_CLOSE:
-		reason = SC_REM_CLOSE;
-		break;
 	case HTC_S_TIMEOUT:
 		reason = SC_RX_TIMEOUT;
 		break;
