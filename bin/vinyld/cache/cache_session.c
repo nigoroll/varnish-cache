@@ -373,14 +373,9 @@ HTC_RxStuff(struct http_conn *htc, htc_complete_f *func,
 		else
 			WRONG("htc_status_e");
 
-		// htc_complete_f can not return EOF, TIMEOUT or IDLE
+		// htc_complete_f can not return HTC_S_EOF
 		//
-		// all but MORE and EMPTY have been handled
-		//
-		// when returning, we map:
-		//
-		// HTC_S_EMPTY -> HTC_S_IDLE
-		// HTC_S_MORE -> HTC_S_TIMEOUT
+		// all but HTC_S_EMPTY and HTC_S_MORE have been handled
 
 		if (hs == HTC_S_EMPTY && !isnan(ti) && (isnan(tn) || ti < tn))
 			tmo = ti - now;
@@ -413,9 +408,8 @@ HTC_RxStuff(struct http_conn *htc, htc_complete_f *func,
 			WS_ReleaseP(htc->ws, htc->rxbuf_b);
 			switch (hs) {
 			case HTC_S_EMPTY:
-				return (HTC_S_IDLE);
 			case HTC_S_MORE:
-				return (HTC_S_TIMEOUT);
+				return (hs);
 			default:
 				WRONG("htc_status_e (read timeout)");
 			}
@@ -651,7 +645,7 @@ SES_DeleteHS(struct sess *sp, enum htc_status_e hs, vtim_real now)
 	case HTC_S_JUNK:
 		reason = SC_RX_JUNK;
 		break;
-	case HTC_S_TIMEOUT:
+	case HTC_S_MORE:
 		reason = SC_RX_TIMEOUT;
 		break;
 	case HTC_S_OVERFLOW:

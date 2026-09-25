@@ -36,13 +36,13 @@
 // enum htc_status_e	n	short		long
 HTC_STATUS(JUNK,	-5,	"junk",		"Received unexpected data")
 // gc: CLOSE -4
-HTC_STATUS(TIMEOUT,	-3,	"timeout",	"Timed out")
+HTC_STATUS(MORE,	-3,	"more",		"More data required (Timed out)")
 HTC_STATUS(OVERFLOW,	-2,	"overflow",	"Buffer/workspace too small")
 HTC_STATUS(EOF,		-1,	"eof",		"Unexpected end of input")
-HTC_STATUS(EMPTY,	 0,	"empty",	"Empty response")
-HTC_STATUS(MORE,	 1,	"more",		"More data required")
+HTC_STATUS(EMPTY,	 0,	"empty",	"Empty request/response (Timed out)")
+// old: MORE 1
 HTC_STATUS(COMPLETE,	 2,	"complete",	"Data complete (no error)")
-HTC_STATUS(IDLE,	 3,	"idle",		"Connection was closed while idle")
+// old: IDLE 3
 #undef HTC_STATUS
 
 /*lint -restore */

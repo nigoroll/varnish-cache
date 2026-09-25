@@ -335,7 +335,7 @@ HTTP1_Session(struct worker *wrk, struct req *req)
 				SES_DeleteHS(sp, hs, NAN);
 				return;
 			}
-			if (hs == HTC_S_IDLE) {
+			if (hs == HTC_S_EMPTY) {
 				wrk->stats->sess_herd++;
 				Req_Release(req);
 				SES_Wait(sp, &HTTP1_transport);

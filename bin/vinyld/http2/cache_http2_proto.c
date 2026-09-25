@@ -1542,7 +1542,7 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
          * send_timeout
          *
          * we add 2ms to ensure the read does not return too early for the
-         * HTC_S_TIMEOUT sweep to hit the same expiring timeout, becuase
+         * HTC_S_MORE sweep to hit the same expiring timeout, becuase
          * HTC_RxStuff uses poll(), which has a granularity of 1ms.
          */
         due += 0.002;
@@ -1570,7 +1570,7 @@ h2_rxframe(struct worker *wrk, struct h2_sess *h2)
 		if (h2->do_sweep)
 			h2e = h2_sweep(wrk, h2, NULL);
 		break;
-	case HTC_S_TIMEOUT:
+	case HTC_S_MORE:
 		h2->sess->t_idle = VTIM_real();
 		h2e = h2_sweep(wrk, h2, NULL);
 
