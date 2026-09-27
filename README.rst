@@ -1,18 +1,24 @@
-Varnish Cache
-=============
+Vinyl Cache
+===========
 
-This is Varnish Cache, the high-performance HTTP accelerator with
+This is Vinyl Cache, the high-performance HTTP accelerator with
 additional features and fixes.
+
+Why this repository is still on github with a wrong name
+--------------------------------------------------------
+
+I just did not get to it.
 
 How this Repository is Organized
 --------------------------------
 
 The ``unmerged_code`` branch is created by merging feature/bug fix
-branches onto `Varnish Cache master`_. These branches are usually for
-`Varnish Cache Pull Requests`_.
+branches onto `Vinyl Cache main`_. These branches are usually for
+`Vinyl Cache Pull Requests`_.
 
-.. _Varnish Cache master: https://github.com/varnishcache/varnish-cache/tree/master
-.. _Varnish Cache Pull Requests: https://github.com/varnishcache/varnish-cache/pulls
+.. _Vinyl Cache main: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/src/branch/main
+.. _Vinyl Cache Pull Requests: https://code.vinyl-cache.org/vinyl-cache/vinyl-cache/pulls?q=&type=all&state=open&labels=1314&milestone=0&assignee=0&poster=0
+
 *NOTE* The ``unmerged_code`` branch gets force-pushed to
 github. Individual releases of this repository are published as
 branches named ``unmerged_code_``\ *<YYYY><mm><dd>*\ ``_``\
@@ -44,10 +50,7 @@ with the release branch.
 General Information
 -------------------
 
-Documentation and additional information about Varnish is available on
-https://www.varnish-cache.org/
-
-Technical questions about Varnish and this release should be addressed
-to <varnish-misc@varnish-cache.org>.
+Documentation and additional information about Vinyl Cache is available on
+https://vinyl-cache.org/
 
 Please see CONTRIBUTING for how to contribute patches and report bugs.

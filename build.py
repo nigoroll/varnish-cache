@@ -82,7 +82,7 @@ def build(srcdir, prefix, **kwargs):
     with TemporaryDirectory() as builddir:
         with pushd(str(builddir)):
             make(configure, **kwargs)
-    # for varnishsrc builds
+    # for vinylsrc builds
     run(["make", "distclean"])
     make(configure, **kwargs)
 
@@ -90,7 +90,7 @@ def build(srcdir, prefix, **kwargs):
 def build_vmod(name, prefix):
     env = os.environ
     # only required by vmod_dispatch & libvdp-pesi
-    env["VARNISHSRC"] = varnishsrc
+    env["VINYLSRC"] = vinylsrc
     env["PKG_CONFIG_PATH"] = os.path.join(prefix, "lib", "pkgconfig")
     env["ACLOCAL_PATH"] = os.path.join(prefix, "share", "aclocal")
     build(os.getcwd(), prefix, env=env)
@@ -126,14 +126,14 @@ def build_vmods(vmods, prefix):
         clone_build_vmod(vmod, prefix)
 
 
-varnishsrc = os.getcwd()
+vinylsrc = os.getcwd()
 vmods = None
-with open(os.path.join(varnishsrc, "VMODS.json"), "rb") as file:
+with open(os.path.join(vinylsrc, "VMODS.json"), "rb") as file:
     vmods = json.loads(file.read())
 
 with TemporaryDirectory() as prefix:
-    build(varnishsrc, str(prefix))
+    build(vinylsrc, str(prefix))
     build_vmods(vmods, str(prefix))
 
-with open(os.path.join(varnishsrc, "VMODS_BUILT.json"), "w") as file:
+with open(os.path.join(vinylsrc, "VMODS_BUILT.json"), "w") as file:
     json.dump(vmods, file, indent=4, sort_keys=True)
